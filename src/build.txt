@@ -1,0 +1,181 @@
+===============================================================================
+                    HƯỚNG DẪN DEPLOY COFFEE SHOP MANAGEMENT
+                           Từ A đến Z - Chi tiết 100%
+===============================================================================
+
+📅 Ngày tạo: 02/06/2025
+🎯 Mục tiêu: Deploy ứng dụng React lên Firebase Hosting (MIỄN PHÍ)
+⏱️ Thời gian: 15-20 phút
+💰 Chi phí: $0 (Hoàn toàn miễn phí)
+
+===============================================================================
+                                CHUẨN BỊ TRƯỚC
+===============================================================================
+
+✅ YêU CẦU HỆ THỐNG:
+   - Máy tính có kết nối internet
+   - Đã cài Node.js (kiểm tra: node --version)
+   - Đã cài npm (kiểm tra: npm --version)
+   - Tài khoản Google (để dùng Firebase)
+   - Code editor (VS Code khuyên dùng)
+
+✅ KIỂM TRA DỰ ÁN:
+   - Mở terminal trong thư mục coffee/
+   - Chạy: npm start
+   - Kiểm tra app chạy tại http://localhost:3000
+   - Đảm bảo Firebase đã được cấu hình
+
+===============================================================================
+                            BƯỚC 1: ĐĂNG KÝ FIREBASE
+===============================================================================
+
+🔥 1.1 TẠO FIREBASE PROJECT:
+   - Vào: https://console.firebase.google.com/
+   - Click "Create a project" (Tạo dự án)
+   - Đặt tên: "coffee-shop-management"
+   - Bỏ tick Google Analytics (không cần)
+   - Click "Create project"
+
+🔥 1.2 KÍCH HOẠT FIRESTORE:
+   - Trong Firebase Console → "Firestore Database"
+   - Click "Create database"
+   - Chọn "Start in test mode"
+   - Chọn location: asia-southeast1 (Singapore)
+   - Click "Done"
+
+🔥 1.3 KÍCH HOẠT HOSTING:
+   - Trong Firebase Console → "Hosting"
+   - Click "Get started"
+   - Làm theo hướng dẫn (sẽ làm ở bước sau)
+
+🔥 1.4 LẤY CONFIG:
+   - Vào "Project Settings" (icon bánh răng)
+   - Scroll xuống "Your apps"
+   - Click "Web" icon (</>)
+   - Đặt tên app: "coffee-web"
+   - Copy config object (lưu lại để dùng)
+
+===============================================================================
+                        BƯỚC 2: CÀI ĐẶT FIREBASE CLI
+===============================================================================
+
+💻 2.1 CÀI ĐẶT FIREBASE CLI:
+   Mở Command Prompt/Terminal và chạy:
+
+   npm install -g firebase-tools
+
+   Đợi cài đặt xong...
+
+💻 2.2 KIỂM TRA CÀI ĐẶT:
+   firebase --version
+
+   Nếu hiện số version → Thành công!
+
+💻 2.3 ĐĂNG NHẬP:
+   firebase login
+
+   - Browser sẽ mở tự động
+   - Đăng nhập bằng tài khoản Google (cùng account Firebase)
+   - Cho phép Firebase CLI access
+   - Quay lại terminal, thấy "Success!" → OK
+
+===============================================================================
+                        BƯỚC 3: BUILD DỰ ÁN PRODUCTION
+===============================================================================
+
+🏗️ 3.1 MỞ TERMINAL TRONG THƯ MỤC DỰ ÁN:
+   cd C:\Users\[TenUser]\Desktop\coffee
+
+   (Thay [TenUser] bằng tên user của bạn)
+
+🏗️ 3.2 CHẠY BUILD:
+   npm run build
+
+   Đợi process hoàn thành...
+   Thấy "The build folder is ready to be deployed" → Thành công!
+
+🏗️ 3.3 KIỂM TRA THƯ MỤC BUILD:
+   Sẽ có thư mục "build" mới được tạo
+   Trong đó có: index.html, static/, manifest.json...
+
+===============================================================================
+                        BƯỚC 4: KHỞI TẠO FIREBASE HOSTING
+===============================================================================
+
+🚀 4.1 KHỞI TẠO FIREBASE:
+   firebase init
+
+   Sẽ hiện menu chọn, dùng mũi tên lên/xuống để chọn
+
+🚀 4.2 CHỌN FEATURES:
+   ? Are you ready to proceed? (Y/n)
+   → Nhấn: Y
+
+   ? Which Firebase CLI features do you want to set up?
+   → Dùng Space để tick: ◉ Hosting
+   → Nhấn Enter
+
+🚀 4.3 CHỌN PROJECT:
+   ? Please select an option:
+   → Chọn: Use an existing project
+
+   ? Select a default Firebase project:
+   → Chọn project vừa tạo (coffee-shop-management)
+
+🚀 4.4 CẤU HÌNH HOSTING:
+   ? What do you want to use as your public directory?
+   → Nhập: build
+
+   ? Configure as a single-page app (rewrite all urls to /index.html)?
+   → Nhấn: Y
+
+   ? Set up automatic builds and deploys with GitHub?
+   → Nhấn: N
+
+   ? File build/index.html already exists. Overwrite?
+   → Nhấn: N
+
+🚀 4.5 HOÀN THÀNH:
+   Thấy "Firebase initialization complete!" → Thành công!
+
+===============================================================================
+                            BƯỚC 5: DEPLOY LÊN FIREBASE
+===============================================================================
+
+🌐 5.1 DEPLOY:
+   firebase deploy
+
+   Đợi quá trình upload...
+
+🌐 5.2 KẾT QUẢ:
+   Sẽ thấy:
+   ✔  Deploy complete!
+
+   Project Console: https://console.firebase.google.com/project/[PROJECT-ID]/overview
+   Hosting URL: https://[PROJECT-ID].web.app
+
+🌐 5.3 KIỂM TRA:
+   - Copy link Hosting URL
+   - Mở browser, paste link
+   - Kiểm tra app chạy online → Thành công!
+
+===============================================================================
+                               CẬP NHẬT SAU NÀY
+===============================================================================
+
+🔄 KHI CÓ THAY ĐỔI CODE:
+
+   1. Lưu tất cả file code
+   2. Mở terminal trong thư mục dự án
+   3. Chạy:
+      npm run build
+      firebase deploy
+   4. Đợi deploy xong
+   5. Refresh website để thấy thay đổi
+
+🔄 COMMANDS HỮU ÍCH:
+
+   firebase serve               # Test local trước khi deploy
+   firebase deploy --only hosting  # Deploy chỉ hosting
+   firebase hosting:channel:list    # Xem các phiên bản
+   firebase projects:list           # Xem tất cả projects
