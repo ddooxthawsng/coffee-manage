@@ -10,7 +10,7 @@ import {
   where,
   Timestamp 
 } from 'firebase/firestore';
-import { db } from './FirebaseConfigSetup';
+import db from './FirebaseConfigSetup';
 
 const COLLECTION_NAME = 'expenses';
 

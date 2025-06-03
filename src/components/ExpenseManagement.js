@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Form, 
-  Input, 
-  Button, 
-  Select, 
-  InputNumber, 
-  Space, 
-  Row, 
-  Col, 
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Select,
+  InputNumber,
+  Space,
+  Row,
+  Col,
   List,
   Tag,
   Typography,
@@ -20,10 +20,10 @@ import {
   Statistic,
   Divider
 } from 'antd';
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
   ShoppingOutlined,
   DollarOutlined,
   CalendarOutlined,
@@ -100,7 +100,7 @@ const ExpenseManagement = () => {
 
     filteredExpenses.forEach(expense => {
       stats.totalExpense += expense.amount;
-      
+
       // Category statistics
       if (!stats.categoryStats[expense.category]) {
         stats.categoryStats[expense.category] = {
@@ -132,7 +132,7 @@ const ExpenseManagement = () => {
         await addExpense(expenseData);
         message.success('Thêm chi phí mới thành công!');
       }
-      
+
       resetForm();
       fetchExpenses();
     } catch (error) {
@@ -168,13 +168,13 @@ const ExpenseManagement = () => {
   };
 
   const getCategoryInfo = (categoryValue) => {
-    return expenseCategories.find(cat => cat.value === categoryValue) || 
+    return expenseCategories.find(cat => cat.value === categoryValue) ||
            { label: categoryValue, color: 'default' };
   };
 
   const showExpenseDetails = (expense) => {
     const categoryInfo = getCategoryInfo(expense.category);
-    
+
     Modal.info({
       title: (
         <Space>
@@ -278,7 +278,7 @@ const ExpenseManagement = () => {
         </Col>
       </Row>
 
-      <Card 
+      <Card
         title={
           <span>
             <PlusOutlined style={{ marginRight: 8 }} />
@@ -303,9 +303,9 @@ const ExpenseManagement = () => {
                 name="name"
                 rules={[{ required: true, message: 'Vui lòng nhập tên chi phí!' }]}
               >
-                <Input 
+                <Input
                   prefix={<FileTextOutlined />}
-                  placeholder="Nhập tên chi phí..." 
+                  placeholder="Nhập tên chi phí..."
                   size="large"
                 />
               </Form.Item>
@@ -352,7 +352,7 @@ const ExpenseManagement = () => {
                 name="date"
                 rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
               >
-                <DatePicker 
+                <DatePicker
                   style={{ width: '100%' }}
                   size="large"
                   format="DD/MM/YYYY"
@@ -365,7 +365,7 @@ const ExpenseManagement = () => {
                 label="Nhà cung cấp"
                 name="supplier"
               >
-                <Input 
+                <Input
                   size="large"
                   placeholder="Tên nhà cung cấp (tùy chọn)"
                 />
@@ -377,7 +377,7 @@ const ExpenseManagement = () => {
             label="Mô tả chi tiết"
             name="description"
           >
-            <TextArea 
+            <TextArea
               rows={3}
               placeholder="Mô tả chi tiết về chi phí này..."
             />
@@ -385,9 +385,9 @@ const ExpenseManagement = () => {
 
           <Form.Item>
             <Space>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 loading={loading}
                 size="large"
                 icon={editingExpense ? <EditOutlined /> : <PlusOutlined />}
@@ -422,7 +422,7 @@ const ExpenseManagement = () => {
       </Card>
 
       {/* Expense List */}
-      <Card 
+      <Card
         title={
           <span>
             <FileTextOutlined style={{ marginRight: 8 }} />
@@ -439,7 +439,7 @@ const ExpenseManagement = () => {
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
-              showTotal: (total, range) => 
+              showTotal: (total, range) =>
                 `${range[0]}-${range[1]} của ${total} chi phí`,
             }}
             renderItem={expense => {
@@ -447,15 +447,15 @@ const ExpenseManagement = () => {
               return (
                 <List.Item
                   actions={[
-                    <Button 
-                      type="link" 
+                    <Button
+                      type="link"
                       icon={<InfoCircleOutlined />}
                       onClick={() => showExpenseDetails(expense)}
                     >
                       Chi tiết
                     </Button>,
-                    <Button 
-                      type="link" 
+                    <Button
+                      type="link"
                       icon={<EditOutlined />}
                       onClick={() => editExpense(expense)}
                     >
@@ -469,9 +469,9 @@ const ExpenseManagement = () => {
                       cancelText="Hủy"
                       icon={<WarningOutlined style={{ color: 'red' }} />}
                     >
-                      <Button 
-                        type="link" 
-                        danger 
+                      <Button
+                        type="link"
+                        danger
                         icon={<DeleteOutlined />}
                       >
                         Xóa
