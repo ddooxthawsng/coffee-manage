@@ -1,0 +1,98 @@
+/* Mobile App Specific Styles */
+.mobile-app-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 16px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.mobile-header-card {
+    margin-bottom: 16px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mobile-menu-item {
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.mobile-cart-item {
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.mobile-total-card {
+    margin-top: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.mobile-account-card {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.mobile-loyalty-progress {
+    text-align: center;
+}
+
+.mobile-notification-item {
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.mobile-order-history-item {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .mobile-app-container {
+        padding: 8px;
+    }
+
+    .mobile-header-card {
+        margin-bottom: 12px;
+    }
+
+    .mobile-menu-item {
+        margin-bottom: 8px;
+    }
+}
+
+/* Tab customization for mobile */
+.ant-tabs-mobile .ant-tabs-tab {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.ant-tabs-mobile .ant-tabs-content {
+    padding-top: 16px;
+}
+
+/* Button customization for mobile */
+.mobile-order-button {
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* Progress circle customization */
+.mobile-loyalty-circle .ant-progress-text {
+    font-size: 12px;
+}
+
+/* Alert customization */
+.mobile-discount-alert {
+    border-radius: 8px;
+    margin: 12px 0;
+}

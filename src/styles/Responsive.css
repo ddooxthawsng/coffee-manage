@@ -1,0 +1,219 @@
+/* Mobile Portrait - Điện thoại dọc */
+@media screen and (max-width: 480px) {
+    /* Header responsive */
+    .app-header {
+        padding: 0 8px !important;
+    }
+
+    .app-menu {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        white-space: nowrap !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        justify-content: flex-start !important;
+    }
+
+    .app-menu::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .app-menu > .ant-menu-item {
+        margin: 0 2px !important;
+        padding: 0 8px !important;
+        min-width: 80px !important;
+        text-align: center !important;
+        font-size: 12px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .app-menu .ant-menu-item-icon {
+        font-size: 14px !important;
+        margin-right: 4px !important;
+    }
+
+    /* Content responsive */
+    .app-content {
+        padding: 0 !important;
+    }
+
+    .content-container {
+        padding: 16px 8px;
+    }
+
+    /* Drinks grid responsive */
+    .drinks-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        padding: 0 4px;
+    }
+
+    .drink-card-body {
+        padding: 12px;
+    }
+
+    .drink-name {
+        font-size: 15px;
+    }
+
+    .drink-description {
+        font-size: 13px;
+        min-height: 35px;
+    }
+
+    .size-buttons {
+        gap: 6px;
+    }
+
+    .size-button {
+        min-width: 50px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    /* Cart responsive */
+    .cart-section {
+        position: static;
+        margin: 16px 8px;
+        padding: 12px;
+    }
+
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 0;
+    }
+
+    .cart-item-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .cart-total {
+        padding: 12px;
+        margin: 12px 0;
+    }
+
+    .total-amount {
+        font-size: 18px;
+    }
+
+    .payment-button {
+        height: 44px;
+        font-size: 14px;
+    }
+}
+
+/* Mobile Landscape - Điện thoại ngang */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    .app-menu > .ant-menu-item {
+        padding: 0 12px !important;
+        min-width: 100px !important;
+        font-size: 14px !important;
+    }
+
+    .drinks-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .content-container {
+        padding: 20px 12px;
+    }
+}
+
+/* Tablet */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .app-menu > .ant-menu-item {
+        padding: 0 16px !important;
+    }
+
+    .drinks-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Desktop */
+@media screen and (min-width: 1025px) {
+    .drinks-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+    }
+}
+
+/* Landscape orientation fixes */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .cart-section {
+        position: static;
+    }
+
+    .drinks-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* High DPI screens */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+    .drink-card {
+        border-width: 0.5px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .size-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .cart-item {
+        padding: 16px 0;
+    }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .drink-card {
+        transition: none;
+    }
+
+    .drink-card:hover {
+        transform: none;
+    }
+
+    .app-menu > .ant-menu-item {
+        transition: none;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .app-content {
+        background: #141414;
+    }
+
+    .drink-card {
+        background: #1f1f1f;
+        border-color: #303030;
+    }
+
+    .drink-name {
+        color: #fff;
+    }
+
+    .drink-description {
+        color: #ccc;
+    }
+
+    .cart-section {
+        background: #1f1f1f;
+        border-color: #303030;
+    }
+}

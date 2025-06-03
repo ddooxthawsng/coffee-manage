@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "y",
+    "public": "build",  // hoặc "dist" tuỳ framework
     "ignore": [
       "firebase.json",
       "**/.*",

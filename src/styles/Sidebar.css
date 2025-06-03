@@ -1,0 +1,255 @@
+/* Sidebar Menu Styles - Completely Redesigned */
+.ant-layout-sider {
+    background: linear-gradient(180deg, #001529 0%, #002140 100%) !important;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15) !important;
+    position: relative !important;
+}
+
+.ant-layout-sider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+}
+
+/* Menu Dark Theme Override */
+.ant-menu-dark {
+    background: transparent !important;
+    border-right: none !important;
+}
+
+/* Menu Items - Normal State */
+.ant-menu-dark .ant-menu-item {
+    margin: 6px 12px !important;
+    border-radius: 12px !important;
+    height: 48px !important;
+    line-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.ant-menu-dark .ant-menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    transition: width 0.3s ease !important;
+    z-index: 0;
+}
+
+.ant-menu-dark .ant-menu-item > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Menu Items - Hover State */
+.ant-menu-dark .ant-menu-item:hover {
+    background: rgba(24, 144, 255, 0.15) !important;
+    color: #fff !important;
+    border-color: rgba(24, 144, 255, 0.3) !important;
+    transform: translateX(4px) !important;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2) !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover::before {
+    width: 4px !important;
+}
+
+/* Menu Items - Selected State */
+.ant-menu-dark .ant-menu-item-selected {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.2) 0%, rgba(9, 109, 217, 0.2) 100%) !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    border-color: #1890ff !important;
+    box-shadow: 0 4px 16px rgba(24, 144, 255, 0.3) !important;
+    transform: translateX(6px) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected::before {
+    width: 4px !important;
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected::after {
+    display: none !important;
+}
+
+/* Menu Icons */
+.ant-menu-dark .ant-menu-item-icon {
+    font-size: 18px !important;
+    margin-right: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover .ant-menu-item-icon {
+    transform: scale(1.1) !important;
+    color: #52c41a !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected .ant-menu-item-icon {
+    color: #52c41a !important;
+    transform: scale(1.1) !important;
+}
+
+/* Collapsed State */
+.ant-layout-sider-collapsed .ant-menu-item {
+    margin: 8px 12px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    height: 56px !important;
+    line-height: 56px !important;
+    border-radius: 16px !important;
+}
+
+.ant-layout-sider-collapsed .ant-menu-item-icon {
+    margin-right: 0 !important;
+    font-size: 20px !important;
+}
+
+.ant-layout-sider-collapsed .ant-menu-item:hover {
+    transform: scale(1.05) !important;
+}
+
+/* Group Titles */
+.ant-menu-dark .ant-menu-item-group-title {
+    color: rgba(255,255,255,0.7) !important;
+    font-weight: 600 !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    padding: 20px 24px 8px 24px !important;
+    margin-top: 16px !important;
+    position: relative !important;
+}
+
+.ant-menu-dark .ant-menu-item-group-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+}
+
+.ant-layout-sider-collapsed .ant-menu-item-group-title {
+    display: none !important;
+}
+
+/* Dividers */
+.ant-menu-dark .ant-menu-item-divider {
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%) !important;
+    margin: 20px 24px !important;
+    height: 1px !important;
+}
+
+.ant-layout-sider-collapsed .ant-menu-item-divider {
+    display: none !important;
+}
+
+/* SubMenu Styles */
+.ant-menu-dark .ant-menu-submenu {
+    margin: 6px 12px !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    transition: all 0.3s ease !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-title {
+    height: 48px !important;
+    line-height: 48px !important;
+    border-radius: 12px !important;
+    margin: 0 !important;
+    padding: 0 16px !important;
+    transition: all 0.3s ease !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-title:hover {
+    background: rgba(24, 144, 255, 0.15) !important;
+    color: #fff !important;
+    transform: translateX(4px) !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-open .ant-menu-submenu-title {
+    background: rgba(24, 144, 255, 0.1) !important;
+    color: #1890ff !important;
+}
+
+.ant-menu-dark .ant-menu-submenu .ant-menu-item {
+    margin: 4px 8px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    padding-left: 40px !important;
+    border-radius: 8px !important;
+}
+
+.ant-layout-sider-collapsed .ant-menu-submenu {
+    display: none !important;
+}
+
+/* Scrollbar for Menu */
+.ant-layout-sider .ant-menu {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    max-height: calc(100vh - 80px) !important;
+}
+
+.ant-layout-sider .ant-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ant-layout-sider .ant-menu::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+}
+
+.ant-layout-sider .ant-menu::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+}
+
+.ant-layout-sider .ant-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Animation for menu items */
+@keyframes menuItemSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.ant-menu-dark .ant-menu-item {
+    animation: menuItemSlide 0.3s ease-out !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .ant-layout-sider {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        z-index: 1001 !important;
+    }
+
+    .ant-layout-sider-collapsed {
+        margin-left: -80px !important;
+    }
+}
