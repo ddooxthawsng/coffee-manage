@@ -1,18 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-    Card, Button, List, Badge, InputNumber, Space, Typography,
-    Row, Col, Modal, Form, Input, message, Divider, Tag,
-    Avatar, Rate, Progress, Alert, Tabs, QRCode, Statistic
+    Alert,
+    Avatar,
+    Button,
+    Card,
+    Col,
+    InputNumber,
+    List,
+    message,
+    Modal,
+    Progress,
+    Rate,
+    Row,
+    Space,
+    Statistic,
+    Tabs,
+    Tag,
+    Typography
 } from 'antd';
 import {
-    ShoppingCartOutlined, UserOutlined, GiftOutlined,
-    StarOutlined, ClockCircleOutlined, PhoneOutlined,
-    EnvironmentOutlined, WifiOutlined, HeartOutlined,
-    HistoryOutlined, CrownOutlined, CalendarOutlined
+    CalendarOutlined,
+    CrownOutlined,
+    GiftOutlined,
+    HistoryOutlined,
+    PhoneOutlined,
+    ShoppingCartOutlined,
+    StarOutlined,
+    UserOutlined,
+    WifiOutlined
 } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
-const { TabPane } = Tabs;
+const {Title, Text} = Typography;
+const {TabPane} = Tabs;
 
 const CustomerMobileApp = () => {
     const [cart, setCart] = useState([]);
@@ -29,7 +48,7 @@ const CustomerMobileApp = () => {
             {
                 id: 1,
                 name: 'Cà phê đen',
-                price: { S: 20000, M: 25000, L: 30000 },
+                price: {S: 20000, M: 25000, L: 30000},
                 image: '/api/placeholder/150/150',
                 rating: 4.5,
                 description: 'Cà phê đen truyền thống'
@@ -37,7 +56,7 @@ const CustomerMobileApp = () => {
             {
                 id: 2,
                 name: 'Cappuccino',
-                price: { S: 35000, M: 40000, L: 45000 },
+                price: {S: 35000, M: 40000, L: 45000},
                 image: '/api/placeholder/150/150',
                 rating: 4.8,
                 description: 'Cappuccino thơm ngon'
@@ -45,7 +64,7 @@ const CustomerMobileApp = () => {
             {
                 id: 3,
                 name: 'Latte',
-                price: { S: 30000, M: 35000, L: 40000 },
+                price: {S: 30000, M: 35000, L: 40000},
                 image: '/api/placeholder/150/150',
                 rating: 4.6,
                 description: 'Latte mềm mại'
@@ -112,7 +131,7 @@ const CustomerMobileApp = () => {
             if (existing) {
                 return prev.map(item =>
                     item.id === cartItem.id
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? {...item, quantity: item.quantity + 1}
                         : item
                 );
             }
@@ -129,7 +148,7 @@ const CustomerMobileApp = () => {
             setCart(prev =>
                 prev.map(item =>
                     item.id === itemId
-                        ? { ...item, quantity: newQuantity }
+                        ? {...item, quantity: newQuantity}
                         : item
                 )
             );
@@ -169,10 +188,10 @@ const CustomerMobileApp = () => {
 
     const getMembershipBenefits = () => {
         const benefits = {
-            Bronze: { discount: 5, pointMultiplier: 1 },
-            Silver: { discount: 10, pointMultiplier: 1.2 },
-            Gold: { discount: 15, pointMultiplier: 1.5 },
-            Platinum: { discount: 20, pointMultiplier: 2 }
+            Bronze: {discount: 5, pointMultiplier: 1},
+            Silver: {discount: 10, pointMultiplier: 1.2},
+            Gold: {discount: 15, pointMultiplier: 1.5},
+            Platinum: {discount: 20, pointMultiplier: 2}
         };
         return benefits[customer?.membershipLevel] || benefits.Bronze;
     };
@@ -185,12 +204,12 @@ const CustomerMobileApp = () => {
             backgroundColor: '#f5f5f5',
             minHeight: '100vh'
         }}>
-            <Card style={{ marginBottom: 16, textAlign: 'center' }}>
+            <Card style={{marginBottom: 16, textAlign: 'center'}}>
                 <Title level={3}>☕ Cafe XYZ</Title>
                 <Text type="secondary">Ứng dụng đặt hàng</Text>
-                <div style={{ marginTop: 8 }}>
+                <div style={{marginTop: 8}}>
                     <Tag color="green">
-                        <WifiOutlined /> Online
+                        <WifiOutlined/> Online
                     </Tag>
                 </div>
             </Card>
@@ -200,7 +219,7 @@ const CustomerMobileApp = () => {
                     <List
                         dataSource={drinks}
                         renderItem={(drink) => (
-                            <Card style={{ marginBottom: 12 }}>
+                            <Card style={{marginBottom: 12}}>
                                 <Row gutter={16}>
                                     <Col span={8}>
                                         <img
@@ -218,14 +237,14 @@ const CustomerMobileApp = () => {
                                         <div>
                                             <Text strong>{drink.name}</Text>
                                             <div>
-                                                <Rate disabled defaultValue={drink.rating} size="small" />
+                                                <Rate disabled defaultValue={drink.rating} size="small"/>
                                                 <Text type="secondary"> ({drink.rating})</Text>
                                             </div>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                            <Text type="secondary" style={{fontSize: 12}}>
                                                 {drink.description}
                                             </Text>
                                         </div>
-                                        <div style={{ marginTop: 8 }}>
+                                        <div style={{marginTop: 8}}>
                                             <Space size="small" wrap>
                                                 {Object.entries(drink.price).map(([size, price]) => (
                                                     <Button
@@ -248,9 +267,9 @@ const CustomerMobileApp = () => {
 
                 <TabPane tab={`Giỏ hàng (${cart.length})`} key="cart">
                     {cart.length === 0 ? (
-                        <Card style={{ textAlign: 'center', padding: 40 }}>
-                            <ShoppingCartOutlined style={{ fontSize: 48, color: '#ccc' }} />
-                            <div style={{ marginTop: 16 }}>
+                        <Card style={{textAlign: 'center', padding: 40}}>
+                            <ShoppingCartOutlined style={{fontSize: 48, color: '#ccc'}}/>
+                            <div style={{marginTop: 16}}>
                                 <Text type="secondary">Giỏ hàng trống</Text>
                             </div>
                         </Card>
@@ -259,11 +278,11 @@ const CustomerMobileApp = () => {
                             <List
                                 dataSource={cart}
                                 renderItem={(item) => (
-                                    <Card size="small" style={{ marginBottom: 8 }}>
+                                    <Card size="small" style={{marginBottom: 8}}>
                                         <Row justify="space-between" align="middle">
                                             <Col span={12}>
                                                 <Text strong>{item.name}</Text>
-                                                <br />
+                                                <br/>
                                                 <Text type="secondary">Size {item.size}</Text>
                                             </Col>
                                             <Col span={6}>
@@ -274,7 +293,7 @@ const CustomerMobileApp = () => {
                                                     onChange={(value) => updateQuantity(item.id, value)}
                                                 />
                                             </Col>
-                                            <Col span={6} style={{ textAlign: 'right' }}>
+                                            <Col span={6} style={{textAlign: 'right'}}>
                                                 <Text strong>
                                                     {(item.price * item.quantity).toLocaleString()}đ
                                                 </Text>
@@ -284,13 +303,13 @@ const CustomerMobileApp = () => {
                                 )}
                             />
 
-                            <Card style={{ marginTop: 16 }}>
+                            <Card style={{marginTop: 16}}>
                                 <Row justify="space-between">
                                     <Col>
-                                        <Text strong style={{ fontSize: 16 }}>Tổng cộng:</Text>
+                                        <Text strong style={{fontSize: 16}}>Tổng cộng:</Text>
                                     </Col>
                                     <Col>
-                                        <Text strong style={{ fontSize: 16, color: '#52c41a' }}>
+                                        <Text strong style={{fontSize: 16, color: '#52c41a'}}>
                                             {getTotalAmount().toLocaleString()}đ
                                         </Text>
                                     </Col>
@@ -301,7 +320,7 @@ const CustomerMobileApp = () => {
                                         message={`Ưu đãi thành viên ${customer.membershipLevel}`}
                                         description={`Giảm ${getMembershipBenefits().discount}% - Tiết kiệm ${Math.round(getTotalAmount() * getMembershipBenefits().discount / 100).toLocaleString()}đ`}
                                         type="success"
-                                        style={{ margin: '12px 0' }}
+                                        style={{margin: '12px 0'}}
                                         size="small"
                                     />
                                 )}
@@ -310,7 +329,7 @@ const CustomerMobileApp = () => {
                                     type="primary"
                                     block
                                     size="large"
-                                    style={{ marginTop: 16 }}
+                                    style={{marginTop: 16}}
                                     onClick={handleOrder}
                                 >
                                     Đặt hàng ngay
@@ -321,35 +340,35 @@ const CustomerMobileApp = () => {
                 </TabPane>
 
                 <TabPane tab="Tài khoản" key="account">
-                    <Card style={{ marginBottom: 16 }}>
+                    <Card style={{marginBottom: 16}}>
                         <Row align="middle" gutter={16}>
                             <Col>
-                                <Avatar size={64} icon={<UserOutlined />} />
+                                <Avatar size={64} icon={<UserOutlined/>}/>
                             </Col>
                             <Col flex={1}>
-                                <Title level={4} style={{ margin: 0 }}>
+                                <Title level={4} style={{margin: 0}}>
                                     {customer?.name}
                                 </Title>
-                                <Tag color="gold" icon={<CrownOutlined />}>
+                                <Tag color="gold" icon={<CrownOutlined/>}>
                                     Thành viên {customer?.membershipLevel}
                                 </Tag>
-                                <div style={{ marginTop: 8 }}>
-                                    <PhoneOutlined /> {customer?.phone}
+                                <div style={{marginTop: 8}}>
+                                    <PhoneOutlined/> {customer?.phone}
                                 </div>
-                                <div style={{ marginTop: 4 }}>
-                                    <CalendarOutlined /> Tham gia từ {customer?.joinDate}
+                                <div style={{marginTop: 4}}>
+                                    <CalendarOutlined/> Tham gia từ {customer?.joinDate}
                                 </div>
                             </Col>
                         </Row>
                     </Card>
 
-                    <Card title="Điểm tích lũy" style={{ marginBottom: 16 }}>
+                    <Card title="Điểm tích lũy" style={{marginBottom: 16}}>
                         <Row justify="space-between" align="middle">
                             <Col>
                                 <Statistic
                                     title="Điểm hiện tại"
                                     value={loyaltyPoints}
-                                    prefix={<GiftOutlined />}
+                                    prefix={<GiftOutlined/>}
                                 />
                             </Col>
                             <Col>
@@ -359,8 +378,8 @@ const CustomerMobileApp = () => {
                                     size={80}
                                     format={() => `${1000 - (loyaltyPoints % 1000)}`}
                                 />
-                                <div style={{ textAlign: 'center', marginTop: 8 }}>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                <div style={{textAlign: 'center', marginTop: 8}}>
+                                    <Text type="secondary" style={{fontSize: 12}}>
                                         điểm đến ly miễn phí
                                     </Text>
                                 </div>
@@ -368,7 +387,7 @@ const CustomerMobileApp = () => {
                         </Row>
                     </Card>
 
-                    <Card title="Ưu đãi dành cho bạn" style={{ marginBottom: 16 }}>
+                    <Card title="Ưu đãi dành cho bạn" style={{marginBottom: 16}}>
                         <List
                             dataSource={notifications}
                             renderItem={(notification) => (
@@ -376,7 +395,8 @@ const CustomerMobileApp = () => {
                                     <List.Item.Meta
                                         avatar={
                                             <Avatar
-                                                icon={notification.type === 'promotion' ? <GiftOutlined /> : <StarOutlined />}
+                                                icon={notification.type === 'promotion' ? <GiftOutlined/> :
+                                                    <StarOutlined/>}
                                                 style={{
                                                     backgroundColor: notification.type === 'promotion' ? '#52c41a' : '#1890ff'
                                                 }}
@@ -386,7 +406,7 @@ const CustomerMobileApp = () => {
                                         description={
                                             <div>
                                                 <div>{notification.message}</div>
-                                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                                <Text type="secondary" style={{fontSize: 12}}>
                                                     {notification.date}
                                                 </Text>
                                             </div>
@@ -398,7 +418,7 @@ const CustomerMobileApp = () => {
                     </Card>
 
                     <Card title="Quyền lợi thành viên">
-                        <Space direction="vertical" style={{ width: '100%' }}>
+                        <Space direction="vertical" style={{width: '100%'}}>
                             <div>
                                 <Text strong>Giảm giá: </Text>
                                 <Tag color="green">{getMembershipBenefits().discount}%</Tag>
@@ -418,9 +438,9 @@ const CustomerMobileApp = () => {
                 <TabPane tab="Lịch sử" key="history">
                     <Card title="Đơn hàng gần đây">
                         {orderHistory.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: 40 }}>
-                                <HistoryOutlined style={{ fontSize: 48, color: '#ccc' }} />
-                                <div style={{ marginTop: 16 }}>
+                            <div style={{textAlign: 'center', padding: 40}}>
+                                <HistoryOutlined style={{fontSize: 48, color: '#ccc'}}/>
+                                <div style={{marginTop: 16}}>
                                     <Text type="secondary">Chưa có đơn hàng nào</Text>
                                 </div>
                             </div>
@@ -428,25 +448,25 @@ const CustomerMobileApp = () => {
                             <List
                                 dataSource={orderHistory}
                                 renderItem={(order) => (
-                                    <Card size="small" style={{ marginBottom: 12 }}>
+                                    <Card size="small" style={{marginBottom: 12}}>
                                         <Row justify="space-between" align="top">
                                             <Col span={16}>
                                                 <Text strong>Đơn hàng #{order.id}</Text>
-                                                <br />
+                                                <br/>
                                                 <Text type="secondary">{order.date}</Text>
-                                                <div style={{ marginTop: 8 }}>
+                                                <div style={{marginTop: 8}}>
                                                     {order.items.map((item, index) => (
-                                                        <Tag key={index} style={{ marginBottom: 4 }}>
+                                                        <Tag key={index} style={{marginBottom: 4}}>
                                                             {item}
                                                         </Tag>
                                                     ))}
                                                 </div>
                                             </Col>
-                                            <Col span={8} style={{ textAlign: 'right' }}>
-                                                <Text strong style={{ color: '#52c41a' }}>
+                                            <Col span={8} style={{textAlign: 'right'}}>
+                                                <Text strong style={{color: '#52c41a'}}>
                                                     {order.total.toLocaleString()}đ
                                                 </Text>
-                                                <br />
+                                                <br/>
                                                 <Tag color={order.status === 'completed' ? 'green' : 'orange'}>
                                                     {order.status === 'completed' ? 'Hoàn thành' : 'Đang xử lý'}
                                                 </Tag>

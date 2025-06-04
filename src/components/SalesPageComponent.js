@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
     Alert,
-    Badge,
     Button,
     Card,
     Col,
@@ -11,34 +10,30 @@ import {
     List,
     message,
     Modal,
-    QRCode,
+    Radio,
     Row,
     Select,
     Space,
     Statistic,
+    Switch,
     Tag,
     Tooltip,
-    Typography,
-    Switch,
-    Radio
+    Typography
 } from 'antd';
 import {
     CheckCircleOutlined,
     CoffeeOutlined,
-    CreditCardOutlined,
     DeleteOutlined,
     DollarOutlined,
-    ExperimentOutlined,
+    InfoCircleOutlined,
     MinusOutlined,
+    MoneyCollectOutlined,
     PlusOutlined,
     QrcodeOutlined,
     ShoppingCartOutlined,
-    WarningOutlined,
-    InfoCircleOutlined,
-    MoneyCollectOutlined,
-    WalletOutlined
+    WarningOutlined
 } from '@ant-design/icons';
-import {getDrinks, recordSale, addInvoice} from '../firebase/DrinkManagementService';
+import {addInvoice, getDrinks, recordSale} from '../firebase/DrinkManagementService';
 import {getProcessedIngredients, updateProcessedIngredientInventory} from '../firebase/ingredient_service';
 import {getQRCodes} from '../firebase/qrcode_service';
 
@@ -392,10 +387,10 @@ const SalesPage = () => {
                                     canMake > 5 ? 'green' :
                                         canMake > 0 ? 'orange' : 'red'
                             }
-                            style={{ marginBottom: 4 }}
+                            style={{marginBottom: 4}}
                         >
                             {ingredient.name}: {needed} {ingredient.unit}
-                            <Text style={{ fontSize: '11px' }}> (Có: {stock})</Text>
+                            <Text style={{fontSize: '11px'}}> (Có: {stock})</Text>
                         </Tag>
                     );
                 })}
@@ -514,18 +509,18 @@ const SalesPage = () => {
     return (
         <div className="drink-management-container">
             <Title level={2} className="page-title">
-                <ShoppingCartOutlined /> Bán Hàng
+                <ShoppingCartOutlined/> Bán Hàng
             </Title>
 
             {/* Statistics */}
-            <Row gutter={[24, 16]} style={{ marginBottom: 24 }}>
+            <Row gutter={[24, 16]} style={{marginBottom: 24}}>
                 <Col xs={24} sm={12} md={6}>
                     <Card className="stats-card">
                         <Statistic
                             title="Đồ uống có sẵn"
                             value={drinks.length}
-                            prefix={<CoffeeOutlined style={{ color: '#1890ff' }} />}
-                            valueStyle={{ color: '#1890ff' }}
+                            prefix={<CoffeeOutlined style={{color: '#1890ff'}}/>}
+                            valueStyle={{color: '#1890ff'}}
                         />
                     </Card>
                 </Col>
@@ -534,8 +529,8 @@ const SalesPage = () => {
                         <Statistic
                             title="Món trong giỏ"
                             value={getTotalItems()}
-                            prefix={<ShoppingCartOutlined style={{ color: '#52c41a' }} />}
-                            valueStyle={{ color: '#52c41a' }}
+                            prefix={<ShoppingCartOutlined style={{color: '#52c41a'}}/>}
+                            valueStyle={{color: '#52c41a'}}
                         />
                     </Card>
                 </Col>
@@ -546,8 +541,8 @@ const SalesPage = () => {
                             value={getTotalAmount()}
                             precision={0}
                             suffix="đ"
-                            prefix={<DollarOutlined style={{ color: '#faad14' }} />}
-                            valueStyle={{ color: '#faad14' }}
+                            prefix={<DollarOutlined style={{color: '#faad14'}}/>}
+                            valueStyle={{color: '#faad14'}}
                         />
                     </Card>
                 </Col>
@@ -557,10 +552,10 @@ const SalesPage = () => {
                             title="Phương thức"
                             value={paymentMethod === 'cash' ? 'Tiền mặt' : 'QR Code'}
                             prefix={paymentMethod === 'cash' ?
-                                <MoneyCollectOutlined style={{ color: '#52c41a' }} /> :
-                                <QrcodeOutlined style={{ color: '#722ed1' }} />
+                                <MoneyCollectOutlined style={{color: '#52c41a'}}/> :
+                                <QrcodeOutlined style={{color: '#722ed1'}}/>
                             }
-                            valueStyle={{ color: paymentMethod === 'cash' ? '#52c41a' : '#722ed1' }}
+                            valueStyle={{color: paymentMethod === 'cash' ? '#52c41a' : '#722ed1'}}
                         />
                     </Card>
                 </Col>
@@ -573,7 +568,7 @@ const SalesPage = () => {
                         className="glass-card"
                         title={
                             <Space>
-                                <CoffeeOutlined />
+                                <CoffeeOutlined/>
                                 Danh sách đồ uống
                             </Space>
                         }
@@ -586,8 +581,9 @@ const SalesPage = () => {
                                     checkedChildren="BẬT"
                                     unCheckedChildren="TẮT"
                                 />
-                                <Tooltip title="Khi bật, bạn có thể bán kể cả khi không đủ nguyên liệu. Tồn kho sẽ chuyển thành số âm.">
-                                    <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                                <Tooltip
+                                    title="Khi bật, bạn có thể bán kể cả khi không đủ nguyên liệu. Tồn kho sẽ chuyển thành số âm.">
+                                    <InfoCircleOutlined style={{color: '#1890ff'}}/>
                                 </Tooltip>
                             </Space>
                         }
@@ -597,7 +593,7 @@ const SalesPage = () => {
                                 message="Chế độ kiểm tra tồn kho"
                                 description="Hiện tại đang kiểm tra tồn kho. Bạn chỉ có thể bán khi đủ nguyên liệu."
                                 type="info"
-                                style={{ marginBottom: 16 }}
+                                style={{marginBottom: 16}}
                                 showIcon
                             />
                         )}
@@ -607,7 +603,7 @@ const SalesPage = () => {
                                 message="Chế độ tồn kho âm"
                                 description="Bạn có thể bán thoải mái. Tồn kho sẽ chuyển thành số âm nếu không đủ nguyên liệu."
                                 type="warning"
-                                style={{ marginBottom: 16 }}
+                                style={{marginBottom: 16}}
                                 showIcon
                             />
                         )}
@@ -626,13 +622,14 @@ const SalesPage = () => {
                                                 allowNegativeStock ? (
                                                     <Tag color="blue">Không giới hạn</Tag>
                                                 ) : (
-                                                    <Tag color={availability.canMake > 5 ? 'green' : availability.canMake > 0 ? 'orange' : 'red'}>
+                                                    <Tag
+                                                        color={availability.canMake > 5 ? 'green' : availability.canMake > 0 ? 'orange' : 'red'}>
                                                         {availability.canMake > 0 ? `Còn ${availability.canMake}` : 'Hết'}
                                                     </Tag>
                                                 )
                                             }
                                             actions={[
-                                                <Button
+                                                drink.price?.S && <Button
                                                     size="small"
                                                     onClick={() => addToCart(drink, 'S')}
                                                     disabled={!canSell}
@@ -640,7 +637,7 @@ const SalesPage = () => {
                                                 >
                                                     S: {drink.price?.S?.toLocaleString()}đ
                                                 </Button>,
-                                                <Button
+                                                drink.price?.M && <Button
                                                     size="small"
                                                     onClick={() => addToCart(drink, 'M')}
                                                     disabled={!canSell}
@@ -648,7 +645,7 @@ const SalesPage = () => {
                                                 >
                                                     M: {drink.price?.M?.toLocaleString()}đ
                                                 </Button>,
-                                                <Button
+                                                drink.price?.L && <Button
                                                     size="small"
                                                     onClick={() => addToCart(drink, 'L')}
                                                     disabled={!canSell}
@@ -656,23 +653,23 @@ const SalesPage = () => {
                                                 >
                                                     L: {drink.price?.L?.toLocaleString()}đ
                                                 </Button>
-                                            ]}
+                                            ].filter(Boolean)}
                                         >
-                                            <div style={{ marginBottom: 8 }}>
+                                            <div style={{marginBottom: 8}}>
                                                 <Text type="secondary">{drink.description}</Text>
                                             </div>
-                                            <div>
-                                                <Text strong>Nguyên liệu:</Text>
-                                                {renderIngredientsList(drink.ingredients)}
-                                            </div>
-                                            {!allowNegativeStock && availability.canMake <= 0 && (
-                                                <Alert
-                                                    message={`Thiếu: ${availability.limitingIngredient}`}
-                                                    type="error"
-                                                    size="small"
-                                                    style={{ marginTop: 8 }}
-                                                />
-                                            )}
+                                            {/*<div>*/}
+                                            {/*    <Text strong>Nguyên liệu:</Text>*/}
+                                            {/*    {renderIngredientsList(drink.ingredients)}*/}
+                                            {/*</div>*/}
+                                            {/*{!allowNegativeStock && availability.canMake <= 0 && (*/}
+                                            {/*    <Alert*/}
+                                            {/*        message={`Thiếu: ${availability.limitingIngredient}`}*/}
+                                            {/*        type="error"*/}
+                                            {/*        size="small"*/}
+                                            {/*        style={{marginTop: 8}}*/}
+                                            {/*    />*/}
+                                            {/*)}*/}
                                         </Card>
                                     </Col>
                                 );
@@ -687,28 +684,28 @@ const SalesPage = () => {
                         className="glass-card"
                         title={
                             <Space>
-                                <ShoppingCartOutlined />
+                                <ShoppingCartOutlined/>
                                 Giỏ hàng ({getTotalItems()} món)
                             </Space>
                         }
                     >
                         {/* Chọn phương thức thanh toán */}
-                        <div style={{ marginBottom: 16 }}>
+                        <div style={{marginBottom: 16}}>
                             <Text strong>Phương thức thanh toán:</Text>
                             <Radio.Group
                                 value={paymentMethod}
                                 onChange={(e) => setPaymentMethod(e.target.value)}
-                                style={{ width: '100%', marginTop: 8 }}
+                                style={{width: '100%', marginTop: 8}}
                             >
-                                <Radio.Button value="cash" style={{ width: '50%', textAlign: 'center' }}>
+                                <Radio.Button value="cash" style={{width: '50%', textAlign: 'center'}}>
                                     <Space>
-                                        <MoneyCollectOutlined />
+                                        <MoneyCollectOutlined/>
                                         Tiền mặt
                                     </Space>
                                 </Radio.Button>
-                                <Radio.Button value="qr" style={{ width: '50%', textAlign: 'center' }}>
+                                <Radio.Button value="qr" style={{width: '50%', textAlign: 'center'}}>
                                     <Space>
-                                        <QrcodeOutlined />
+                                        <QrcodeOutlined/>
                                         QR Code
                                     </Space>
                                 </Radio.Button>
@@ -717,10 +714,10 @@ const SalesPage = () => {
 
                         {/* Chọn QR Code (chỉ hiện khi chọn phương thức QR) */}
                         {paymentMethod === 'qr' && (
-                            <div style={{ marginBottom: 16 }}>
+                            <div style={{marginBottom: 16}}>
                                 <Text strong>Chọn QR Code:</Text>
                                 <Select
-                                    style={{ width: '100%', marginTop: 8 }}
+                                    style={{width: '100%', marginTop: 8}}
                                     placeholder="Chọn QR code"
                                     value={selectedQRId}
                                     onChange={setSelectedQRId}
@@ -739,7 +736,7 @@ const SalesPage = () => {
                             </div>
                         )}
 
-                        <Divider />
+                        <Divider/>
 
                         {/* Danh sách món trong giỏ */}
                         <List
@@ -749,7 +746,7 @@ const SalesPage = () => {
                                     actions={[
                                         <Button
                                             type="text"
-                                            icon={<MinusOutlined />}
+                                            icon={<MinusOutlined/>}
                                             onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
                                         />,
                                         <InputNumber
@@ -758,18 +755,18 @@ const SalesPage = () => {
                                             max={allowNegativeStock ? 999 : item.maxQuantity}
                                             value={item.quantity}
                                             onChange={(value) => updateCartQuantity(item.id, value)}
-                                            style={{ width: 60 }}
+                                            style={{width: 60}}
                                         />,
                                         <Button
                                             type="text"
-                                            icon={<PlusOutlined />}
+                                            icon={<PlusOutlined/>}
                                             onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
                                             disabled={!allowNegativeStock && item.quantity >= item.maxQuantity}
                                         />,
                                         <Button
                                             type="text"
                                             danger
-                                            icon={<DeleteOutlined />}
+                                            icon={<DeleteOutlined/>}
                                             onClick={() => removeFromCart(item.id)}
                                         />
                                     ]}
@@ -780,17 +777,17 @@ const SalesPage = () => {
                                                 <Text>{item.drinkName}</Text>
                                                 <Tag color="blue">{item.size}</Tag>
                                                 {!item.hasStock && !allowNegativeStock && (
-                                                    <Tag color="red" icon={<WarningOutlined />}>Thiếu NL</Tag>
+                                                    <Tag color="red" icon={<WarningOutlined/>}>Thiếu NL</Tag>
                                                 )}
                                                 {!item.hasStock && allowNegativeStock && (
-                                                    <Tag color="orange" icon={<InfoCircleOutlined />}>Tồn kho âm</Tag>
+                                                    <Tag color="orange" icon={<InfoCircleOutlined/>}>Tồn kho âm</Tag>
                                                 )}
                                             </Space>
                                         }
                                         description={
                                             <Space direction="vertical" size="small">
                                                 <Text>{item.price.toLocaleString()}đ x {item.quantity}</Text>
-                                                <Text strong style={{ color: '#52c41a' }}>
+                                                <Text strong style={{color: '#52c41a'}}>
                                                     = {(item.price * item.quantity).toLocaleString()}đ
                                                 </Text>
                                             </Space>
@@ -808,22 +805,22 @@ const SalesPage = () => {
                             }}
                         />
 
-                        <Divider />
+                        <Divider/>
 
                         {/* Tổng tiền và thanh toán */}
-                        <div style={{ textAlign: 'center' }}>
-                            <Title level={3} style={{ color: '#52c41a', margin: '16px 0' }}>
+                        <div style={{textAlign: 'center'}}>
+                            <Title level={3} style={{color: '#52c41a', margin: '16px 0'}}>
                                 Tổng: {getTotalAmount().toLocaleString()}đ
                             </Title>
 
                             <Button
                                 type="primary"
                                 size="large"
-                                icon={paymentMethod === 'cash' ? <MoneyCollectOutlined /> : <QrcodeOutlined />}
+                                icon={paymentMethod === 'cash' ? <MoneyCollectOutlined/> : <QrcodeOutlined/>}
                                 onClick={handleCheckout}
                                 disabled={cart.length === 0 || (paymentMethod === 'qr' && !selectedQRId)}
                                 loading={loading && paymentMethod === 'cash'}
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                             >
                                 {paymentMethod === 'cash' ? 'Thanh toán tiền mặt' : 'Thanh toán QR Code'}
                             </Button>
@@ -836,7 +833,7 @@ const SalesPage = () => {
             <Modal
                 title={
                     <Space>
-                        <QrcodeOutlined />
+                        <QrcodeOutlined/>
                         Thanh toán QR Code - {paymentQR?.bankName}
                     </Space>
                 }
@@ -851,7 +848,7 @@ const SalesPage = () => {
                         type="primary"
                         loading={loading}
                         onClick={handlePaymentComplete}
-                        icon={<CheckCircleOutlined />}
+                        icon={<CheckCircleOutlined/>}
                     >
                         Xác nhận đã thanh toán
                     </Button>
@@ -859,8 +856,8 @@ const SalesPage = () => {
                 width={700}
             >
                 {paymentQR && (
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ marginBottom: 20 }}>
+                    <div style={{textAlign: 'center'}}>
+                        <div style={{marginBottom: 20}}>
                             <img
                                 src={paymentQR.vietQRUrl}
                                 alt="VietQR Code"
@@ -875,7 +872,7 @@ const SalesPage = () => {
                             />
                         </div>
 
-                        <Card style={{ marginTop: 20, textAlign: 'left' }}>
+                        <Card style={{marginTop: 20, textAlign: 'left'}}>
                             <Row gutter={16}>
                                 <Col span={12}>
                                     <Text strong>Ngân hàng:</Text> {paymentQR.bankName}
@@ -888,7 +885,7 @@ const SalesPage = () => {
                                 </Col>
                                 <Col span={12}>
                                     <Text strong>Số tiền:</Text>
-                                    <Text style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                                    <Text style={{color: '#52c41a', fontWeight: 'bold'}}>
                                         {paymentQR.amount.toLocaleString()}đ
                                     </Text>
                                 </Col>
@@ -902,13 +899,15 @@ const SalesPage = () => {
                             message="Hướng dẫn thanh toán"
                             description={
                                 <div>
-                                    <p><strong>Cách 1:</strong> Mở ứng dụng ngân hàng → Quét QR → Quét mã QR phía trên</p>
+                                    <p><strong>Cách 1:</strong> Mở ứng dụng ngân hàng → Quét QR → Quét mã QR phía trên
+                                    </p>
                                     <p><strong>Cách 2:</strong> Mở MoMo/ZaloPay → Quét QR → Quét mã QR phía trên</p>
-                                    <p><strong>Lưu ý:</strong> Kiểm tra số tiền và nội dung trước khi xác nhận thanh toán</p>
+                                    <p><strong>Lưu ý:</strong> Kiểm tra số tiền và nội dung trước khi xác nhận thanh
+                                        toán</p>
                                 </div>
                             }
                             type="info"
-                            style={{ marginTop: 16, textAlign: 'left' }}
+                            style={{marginTop: 16, textAlign: 'left'}}
                         />
                     </div>
                 )}

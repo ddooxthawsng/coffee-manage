@@ -1,0 +1,350 @@
+/* Mobile Sales Page Styles */
+.sales-page-container {
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+
+/* Mobile Layout */
+.mobile-layout {
+    padding-bottom: 80px; /* Space for fixed cart */
+}
+
+.desktop-layout {
+    padding: 24px;
+}
+
+/* Mobile Header */
+.mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.mobile-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.mobile-cart-button {
+    position: relative;
+    border-radius: 20px;
+    height: 40px;
+}
+
+/* Settings Card */
+.settings-card {
+    margin: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mobile-layout .settings-card {
+    margin-top: 70px; /* Account for fixed header */
+}
+
+/* Drinks Menu */
+.drinks-menu-card {
+    margin: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.drinks-grid {
+    padding: 8px 0;
+}
+
+/* Drink Cards */
+.drink-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.drink-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.drink-card.out-of-stock {
+    opacity: 0.6;
+    background: #f5f5f5;
+}
+
+.drink-card-content {
+    padding: 16px;
+}
+
+.drink-name {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    color: #333;
+    text-align: center;
+}
+
+.drink-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+    text-align: center;
+    display: block;
+    min-height: 20px;
+}
+
+.size-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.size-button {
+    flex: 1;
+    min-width: 80px;
+    height: 40px;
+    font-size: 14px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* Desktop Cart */
+.cart-section {
+    position: sticky;
+    top: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cart-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.cart-item-details {
+    font-size: 12px;
+    color: #666;
+}
+
+.cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quantity-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-total {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    text-align: center;
+}
+
+.payment-buttons {
+    width: 100%;
+}
+
+.payment-button {
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* Mobile Cart Fixed Bottom */
+.mobile-cart-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: white;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.15);
+    padding: 12px 16px;
+    cursor: pointer;
+}
+
+.mobile-cart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Mobile Cart Drawer */
+.mobile-cart-drawer .ant-drawer-body {
+    padding: 16px;
+}
+
+.mobile-cart-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-cart-item:last-child {
+    border-bottom: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    .mobile-header-content {
+        padding: 8px 12px;
+    }
+
+    .settings-card,
+    .drinks-menu-card {
+        margin: 12px 8px;
+    }
+
+    .drink-card-content {
+        padding: 12px;
+    }
+
+    .drink-name {
+        font-size: 15px !important;
+    }
+
+    .drink-description {
+        font-size: 13px;
+    }
+
+    .size-button {
+        min-width: 70px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .mobile-cart-fixed {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 375px) {
+    .size-buttons {
+        flex-direction: column;
+    }
+
+    .size-button {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .mobile-header {
+        position: relative;
+    }
+
+    .mobile-layout {
+        padding-bottom: 60px;
+    }
+
+    .settings-card {
+        margin-top: 16px;
+    }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .drinks-grid .ant-col {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+/* Animation */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.mobile-cart-drawer {
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .size-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .quantity-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .mobile-cart-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .sales-page-container {
+        background: #141414;
+    }
+
+    .drink-card {
+        background: #1f1f1f;
+        border-color: #303030;
+    }
+
+    .drink-name {
+        color: #fff;
+    }
+
+    .drink-description {
+        color: #ccc;
+    }
+
+    .mobile-cart-fixed {
+        background: #1f1f1f;
+        border-top: 1px solid #303030;
+    }
+}

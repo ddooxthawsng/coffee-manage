@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {ConfigProvider, Layout, Menu, Button, Typography, Space} from 'antd';
+import React, {useState, useEffect} from 'react';
+import {ConfigProvider, Layout, Menu, Button, Typography, Space, Drawer} from 'antd';
 import {
     BarChartOutlined,
     CoffeeOutlined,
@@ -17,6 +17,7 @@ import {
     UserOutlined,
     SettingOutlined
 } from '@ant-design/icons';
+
 import ExpenseManagement from "./components/ExpenseManagement";
 import IngredientManagement from "./components/ingredient_management";
 import ProcessedIngredientManagement from "./components/processed_ingredient_management";
@@ -36,9 +37,65 @@ const App = () => {
     const [selectedKey, setSelectedKey] = useState('5');
     const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState(['ingredients']);
+    const [isMobile, setIsMobile] = useState(false);
+    const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
 
-    // Menu items được tối ưu hóa
+    // Detect mobile screen
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+            if (window.innerWidth <= 768) {
+                setCollapsed(true);
+            }
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Menu items tối ưu cho order
     const getMenuItems = () => {
+        // Menu đơn giản cho mobile order
+        if (isMobile) {
+            return [
+                {
+                    key: '5',
+                    icon: <ShoppingCartOutlined />,
+                    label: 'Bán Hàng',
+                },
+                {
+                    key: '6',
+                    icon: <BarChartOutlined />,
+                    label: 'Thống Kê',
+                },
+                {
+                    key: '4',
+                    icon: <CoffeeOutlined />,
+                    label: 'Đồ Uống',
+                },
+                {
+                    key: '9',
+                    icon: <DashboardOutlined />,
+                    label: 'Dashboard',
+                },
+                {
+                    type: 'divider',
+                },
+                {
+                    key: '7',
+                    icon: <QrcodeOutlined />,
+                    label: 'QR Code',
+                },
+                {
+                    key: '2',
+                    icon: <ExperimentOutlined />,
+                    label: 'Nguyên Liệu',
+                },
+            ];
+        }
+
+        // Menu đầy đủ cho desktop
         const baseItems = [
             {
                 key: 'dashboard-section',
@@ -153,6 +210,13 @@ const App = () => {
         }
     };
 
+    const handleMenuClick = (key) => {
+        setSelectedKey(key);
+        if (isMobile) {
+            setMobileMenuVisible(false);
+        }
+    };
+
     const getCurrentPageName = () => {
         const pageNames = {
             '1': 'Quản Lý Chi Phí',
@@ -198,112 +262,202 @@ const App = () => {
                 return <SalesPage />;
         }
     };
+
+    // Mobile Menu Component
+    const MobileMenu = () => (
+        <Menu
+            selectedKeys={[selectedKey]}
+            items={getMenuItems()}
+            onClick={({key}) => handleMenuClick(key)}
+            mode="vertical"
+            style={{
+                border: 'none',
+                background: 'transparent',
+            }}
+        />
+    );
+
+    // Desktop Layout
+    if (!isMobile) {
+        return (
+            <ConfigProvider
+                theme={{
+                    token: {
+                        colorPrimary: '#667eea',
+                    },
+                }}
+            >
+                <Layout style={{ minHeight: '100vh' }}>
+                    <Sider
+                        collapsible
+                        collapsed={collapsed}
+                        onCollapse={handleCollapse}
+                        style={{
+                            background: 'linear-gradient(180deg, #001529 0%, #002140 100%)',
+                            boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+                        }}
+                    >
+                        {/* Logo Section */}
+                        <div style={{
+                            height: 64,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(255,255,255,0.1)',
+                            margin: '16px 12px',
+                            borderRadius: '12px',
+                        }}>
+                            {!collapsed ? (
+                                <Title level={4} style={{ color: 'white', margin: 0 }}>
+                                    <CoffeeOutlined /> Cafe Manager
+                                </Title>
+                            ) : (
+                                <CoffeeOutlined style={{ color: 'white', fontSize: '24px' }} />
+                            )}
+                        </div>
+
+                        {/* Menu */}
+                        <Menu
+                            theme="dark"
+                            selectedKeys={[selectedKey]}
+                            openKeys={openKeys}
+                            items={getMenuItems()}
+                            onClick={({key}) => setSelectedKey(key)}
+                            onOpenChange={handleOpenChange}
+                            style={{
+                                border: 'none',
+                                background: 'transparent',
+                                marginTop: 16,
+                            }}
+                        />
+                    </Sider>
+
+                    <Layout>
+                        {/* Header */}
+                        <Header style={{
+                            padding: '0 24px',
+                            background: '#fff',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Title level={3} style={{ margin: 0, color: '#333' }}>
+                                {getCurrentPageName()}
+                            </Title>
+                        </Header>
+
+                        {/* Content */}
+                        <Content style={{
+                            margin: 0,
+                            padding: 0,
+                            background: '#f5f5f5',
+                            minHeight: 'calc(100vh - 64px)',
+                        }}>
+                            {renderContent()}
+                        </Content>
+                    </Layout>
+                </Layout>
+            </ConfigProvider>
+        );
+    }
+
+    // Mobile Layout
     return (
         <ConfigProvider
             theme={{
                 token: {
-                    colorPrimary: '#1890ff',
-                    borderRadius: 8,
+                    colorPrimary: '#667eea',
                 },
             }}
         >
             <Layout style={{ minHeight: '100vh' }}>
-                <Sider
-                    collapsible
-                    collapsed={collapsed}
-                    onCollapse={handleCollapse}
-                    width={280}
-                    collapsedWidth={80}
-                    style={{
-                        background: 'linear-gradient(180deg, #001529 0%, #002140 100%)',
-                        boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
-                    }}
-                >
-                    {/* Logo Section */}
-                    <div style={{
-                        height: 64,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: collapsed ? 'center' : 'flex-start',
-                        padding: collapsed ? '0' : '0 24px',
-                        background: 'rgba(255,255,255,0.1)',
-                        borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    }}>
-                        {!collapsed ? (
-                            <Space>
-                                <CoffeeOutlined style={{ fontSize: 24, color: '#1890ff' }} />
-                                <Title level={4} style={{ color: 'white', margin: 0 }}>
-                                    Cafe Manager
-                                </Title>
-                            </Space>
-                        ) : (
-                            <CoffeeOutlined style={{ fontSize: 24, color: '#1890ff' }} />
-                        )}
-                    </div>
-
-                    {/* Menu */}
-                    <Menu
-                        theme="dark"
-                        selectedKeys={[selectedKey]}
-                        openKeys={openKeys}
-                        mode="inline"
-                        items={getMenuItems()}
-                        onClick={({ key }) => setSelectedKey(key)}
-                        onOpenChange={handleOpenChange}
+                {/* Mobile Header */}
+                <Header className="mobile-header" style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 1000,
+                    padding: '0 16px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    height: 56,
+                }}>
+                    <Button
+                        type="text"
+                        icon={<MenuFoldOutlined />}
+                        onClick={() => setMobileMenuVisible(true)}
                         style={{
+                            color: 'white',
+                            fontSize: '18px',
                             border: 'none',
-                            background: 'transparent',
-                            marginTop: 16,
+                            background: 'rgba(255,255,255,0.1)',
+                            borderRadius: '8px',
                         }}
                     />
-                </Sider>
 
-                <Layout>
-                    {/* Header */}
-                    <Header style={{
-                        padding: '0 24px',
-                        background: 'white',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
+                    <Title level={4} style={{
+                        color: 'white',
+                        margin: 0,
+                        fontSize: '16px',
+                        textAlign: 'center',
+                        flex: 1,
+                        marginLeft: 16,
                     }}>
-                        <Space>
-                            <Button
-                                type="text"
-                                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                                onClick={() => handleCollapse(!collapsed)}
-                                style={{
-                                    fontSize: '16px',
-                                    width: 40,
-                                    height: 40,
-                                }}
-                            />
-                            <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
-                                {getCurrentPageName()}
-                            </Title>
-                        </Space>
+                        <CoffeeOutlined /> {getCurrentPageName()}
+                    </Title>
 
-                        <Space>
-                            <Button type="text" icon={<UserOutlined />}>
-                                Admin
-                            </Button>
-                            <Button type="text" icon={<SettingOutlined />} />
-                        </Space>
-                    </Header>
+                    {selectedKey === '5' && (
+                        <Button
+                            type="primary"
+                            size="small"
+                            style={{
+                                background: 'rgba(255,255,255,0.2)',
+                                border: 'none',
+                                borderRadius: '6px',
+                            }}
+                        >
+                            Order
+                        </Button>
+                    )}
+                </Header>
 
-                    {/* Content */}
-                    <Content style={{
-                        margin: '24px',
-                        padding: '24px',
-                        background: 'white',
-                        borderRadius: 8,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                        minHeight: 'calc(100vh - 112px)',
-                    }}>
-                        {renderContent()}
-                    </Content>
-                </Layout>
+                {/* Mobile Menu Drawer */}
+                <Drawer
+                    title={
+                        <Space>
+                            <CoffeeOutlined style={{ color: '#667eea' }} />
+                            <span style={{ color: '#333', fontWeight: 600 }}>Cafe Manager</span>
+                        </Space>
+                    }
+                    placement="left"
+                    onClose={() => setMobileMenuVisible(false)}
+                    open={mobileMenuVisible}
+                    width={280}
+                    bodyStyle={{ padding: 0 }}
+                    headerStyle={{
+                        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                        borderBottom: '1px solid #dee2e6',
+                    }}
+                >
+                    <div style={{ padding: '16px 0' }}>
+                        <MobileMenu />
+                    </div>
+                </Drawer>
+
+                {/* Mobile Content */}
+                <Content style={{
+                    marginTop: 56,
+                    padding: 0,
+                    background: '#f5f5f5',
+                    minHeight: 'calc(100vh - 56px)',
+                }}>
+                    {renderContent()}
+                </Content>
             </Layout>
         </ConfigProvider>
     );

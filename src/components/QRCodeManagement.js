@@ -1,43 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Card,
+    Col,
+    Empty,
     Form,
     Input,
     message,
     Modal,
     Popconfirm,
+    Row,
+    Select,
     Space,
+    Statistic,
     Table,
     Tag,
-    Row,
-    Col,
-    Typography,
-    Statistic,
-    Empty,
     Tooltip,
-    Select
+    Typography
 } from 'antd';
 import {
+    BankOutlined,
+    CheckCircleOutlined,
+    CreditCardOutlined,
     DeleteOutlined,
     EditOutlined,
     EyeOutlined,
     PlusOutlined,
-    QrcodeOutlined,
-    BankOutlined,
-    CreditCardOutlined,
-    CheckCircleOutlined
+    QrcodeOutlined
 } from '@ant-design/icons';
-import { QRCodeSVG } from 'qrcode.react'; // Sửa import này
-import {
-    addQRCode,
-    getQRCodes,
-    updateQRCode,
-    deleteQRCode
-} from '../firebase/qrcode_service';
+import {QRCodeSVG} from 'qrcode.react'; // Sửa import này
+import {addQRCode, deleteQRCode, getQRCodes, updateQRCode} from '../firebase/qrcode_service';
 
-const { Title, Text } = Typography;
-const { Option } = Select;
+const {Title, Text} = Typography;
+const {Option} = Select;
 
 const QRCodeManagement = () => {
     const [qrCodes, setQrCodes] = useState([]);
@@ -50,16 +45,16 @@ const QRCodeManagement = () => {
 
     // Danh sách ngân hàng Việt Nam với mã BIN chuẩn
     const vietnameseBanks = [
-        { code: '970436', name: 'Vietcombank', fullName: 'Ngân hàng TMCP Ngoại thương Việt Nam' },
-        { code: '970415', name: 'VietinBank', fullName: 'Ngân hàng TMCP Công thương Việt Nam' },
-        { code: '970418', name: 'BIDV', fullName: 'Ngân hàng TMCP Đầu tư và Phát triển Việt Nam' },
-        { code: '970416', name: 'ACB', fullName: 'Ngân hàng TMCP Á Châu' },
-        { code: '970407', name: 'Techcombank', fullName: 'Ngân hàng TMCP Kỹ thương Việt Nam' },
-        { code: '970422', name: 'MBBank', fullName: 'Ngân hàng TMCP Quân đội' },
-        { code: '970432', name: 'VPBank', fullName: 'Ngân hàng TMCP Việt Nam Thịnh vượng' },
-        { code: '970423', name: 'TPBank', fullName: 'Ngân hàng TMCP Tiên Phong' },
-        { code: '970403', name: 'Sacombank', fullName: 'Ngân hàng TMCP Sài Gòn Thương tín' },
-        { code: '970437', name: 'HDBank', fullName: 'Ngân hàng TMCP Phát triển Thành phố Hồ Chí Minh' }
+        {code: '970436', name: 'Vietcombank', fullName: 'Ngân hàng TMCP Ngoại thương Việt Nam'},
+        {code: '970415', name: 'VietinBank', fullName: 'Ngân hàng TMCP Công thương Việt Nam'},
+        {code: '970418', name: 'BIDV', fullName: 'Ngân hàng TMCP Đầu tư và Phát triển Việt Nam'},
+        {code: '970416', name: 'ACB', fullName: 'Ngân hàng TMCP Á Châu'},
+        {code: '970407', name: 'Techcombank', fullName: 'Ngân hàng TMCP Kỹ thương Việt Nam'},
+        {code: '970422', name: 'MBBank', fullName: 'Ngân hàng TMCP Quân đội'},
+        {code: '970432', name: 'VPBank', fullName: 'Ngân hàng TMCP Việt Nam Thịnh vượng'},
+        {code: '970423', name: 'TPBank', fullName: 'Ngân hàng TMCP Tiên Phong'},
+        {code: '970403', name: 'Sacombank', fullName: 'Ngân hàng TMCP Sài Gòn Thương tín'},
+        {code: '970437', name: 'HDBank', fullName: 'Ngân hàng TMCP Phát triển Thành phố Hồ Chí Minh'}
     ];
 
     useEffect(() => {
@@ -180,11 +175,11 @@ const QRCodeManagement = () => {
             key: 'bank',
             render: (_, record) => (
                 <Space>
-                    <BankOutlined style={{ color: '#1890ff' }} />
+                    <BankOutlined style={{color: '#1890ff'}}/>
                     <div>
                         <Text strong>{record.bankName}</Text>
-                        <br />
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                        <br/>
+                        <Text type="secondary" style={{fontSize: '12px'}}>
                             {record.bankFullName}
                         </Text>
                     </div>
@@ -197,7 +192,7 @@ const QRCodeManagement = () => {
             key: 'accountNumber',
             render: (text) => (
                 <Space>
-                    <CreditCardOutlined style={{ color: '#52c41a' }} />
+                    <CreditCardOutlined style={{color: '#52c41a'}}/>
                     <Text code>{text}</Text>
                 </Space>
             )
@@ -216,14 +211,14 @@ const QRCodeManagement = () => {
                     <Tooltip title="Xem QR">
                         <Button
                             type="text"
-                            icon={<EyeOutlined />}
+                            icon={<EyeOutlined/>}
                             onClick={() => viewQR(record)}
                         />
                     </Tooltip>
                     <Tooltip title="Chỉnh sửa">
                         <Button
                             type="text"
-                            icon={<EditOutlined />}
+                            icon={<EditOutlined/>}
                             onClick={() => openEditModal(record)}
                         />
                     </Tooltip>
@@ -238,7 +233,7 @@ const QRCodeManagement = () => {
                             <Button
                                 type="text"
                                 danger
-                                icon={<DeleteOutlined />}
+                                icon={<DeleteOutlined/>}
                             />
                         </Tooltip>
                     </Popconfirm>
@@ -251,18 +246,18 @@ const QRCodeManagement = () => {
     return (
         <div className="drink-management-container">
             <Title level={2} className="page-title">
-                <QrcodeOutlined /> Quản Lý QR Code Thanh Toán
+                <QrcodeOutlined/> Quản Lý QR Code Thanh Toán
             </Title>
 
             {/* Statistics Cards */}
-            <Row gutter={[24, 16]} style={{ marginBottom: 24 }}>
+            <Row gutter={[24, 16]} style={{marginBottom: 24}}>
                 <Col xs={24} sm={12} md={6}>
                     <Card className="stats-card">
                         <Statistic
                             title="Tổng QR Code"
                             value={qrCodes.length}
-                            prefix={<QrcodeOutlined style={{ color: '#1890ff' }} />}
-                            valueStyle={{ color: '#1890ff' }}
+                            prefix={<QrcodeOutlined style={{color: '#1890ff'}}/>}
+                            valueStyle={{color: '#1890ff'}}
                         />
                     </Card>
                 </Col>
@@ -271,8 +266,8 @@ const QRCodeManagement = () => {
                         <Statistic
                             title="Ngân hàng"
                             value={new Set(qrCodes.map(qr => qr.bankCode)).size}
-                            prefix={<BankOutlined style={{ color: '#52c41a' }} />}
-                            valueStyle={{ color: '#52c41a' }}
+                            prefix={<BankOutlined style={{color: '#52c41a'}}/>}
+                            valueStyle={{color: '#52c41a'}}
                         />
                     </Card>
                 </Col>
@@ -281,8 +276,8 @@ const QRCodeManagement = () => {
                         <Statistic
                             title="Trạng thái"
                             value="Hoạt động"
-                            prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                            valueStyle={{ color: '#52c41a' }}
+                            prefix={<CheckCircleOutlined style={{color: '#52c41a'}}/>}
+                            valueStyle={{color: '#52c41a'}}
                         />
                     </Card>
                 </Col>
@@ -293,7 +288,7 @@ const QRCodeManagement = () => {
                 className="glass-card"
                 title={
                     <Space>
-                        <QrcodeOutlined />
+                        <QrcodeOutlined/>
                         Danh sách QR Code
                         <Tag color="blue">{qrCodes.length} mã</Tag>
                     </Space>
@@ -301,7 +296,7 @@ const QRCodeManagement = () => {
                 extra={
                     <Button
                         type="primary"
-                        icon={<PlusOutlined />}
+                        icon={<PlusOutlined/>}
                         onClick={openAddModal}
                     >
                         Thêm QR Code
@@ -334,7 +329,7 @@ const QRCodeManagement = () => {
             <Modal
                 title={
                     <Space>
-                        {editingQR ? <EditOutlined /> : <PlusOutlined />}
+                        {editingQR ? <EditOutlined/> : <PlusOutlined/>}
                         {editingQR ? 'Chỉnh sửa QR Code' : 'Thêm QR Code mới'}
                     </Space>
                 }
@@ -355,7 +350,7 @@ const QRCodeManagement = () => {
                     <Form.Item
                         label="Chọn ngân hàng"
                         name="bankCode"
-                        rules={[{ required: true, message: 'Vui lòng chọn ngân hàng!' }]}
+                        rules={[{required: true, message: 'Vui lòng chọn ngân hàng!'}]}
                     >
                         <Select
                             placeholder="Chọn ngân hàng"
@@ -367,10 +362,10 @@ const QRCodeManagement = () => {
                             {vietnameseBanks.map(bank => (
                                 <Option key={bank.code} value={bank.code}>
                                     <Space>
-                                        <BankOutlined />
+                                        <BankOutlined/>
                                         <div>
                                             <div>{bank.name}</div>
-                                            <div style={{ fontSize: '12px', color: '#666' }}>
+                                            <div style={{fontSize: '12px', color: '#666'}}>
                                                 {bank.fullName}
                                             </div>
                                         </div>
@@ -385,18 +380,18 @@ const QRCodeManagement = () => {
                             <Form.Item
                                 label="Số tài khoản"
                                 name="accountNumber"
-                                rules={[{ required: true, message: 'Vui lòng nhập số tài khoản!' }]}
+                                rules={[{required: true, message: 'Vui lòng nhập số tài khoản!'}]}
                             >
-                                <Input placeholder="VD: 1234567890" />
+                                <Input placeholder="VD: 1234567890"/>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
                                 label="Tên chủ tài khoản"
                                 name="accountName"
-                                rules={[{ required: true, message: 'Vui lòng nhập tên chủ tài khoản!' }]}
+                                rules={[{required: true, message: 'Vui lòng nhập tên chủ tài khoản!'}]}
                             >
-                                <Input placeholder="VD: NGUYEN VAN A" />
+                                <Input placeholder="VD: NGUYEN VAN A"/>
                             </Form.Item>
                         </Col>
                     </Row>
@@ -406,7 +401,7 @@ const QRCodeManagement = () => {
                             <Button
                                 type="primary"
                                 htmlType="submit"
-                                icon={editingQR ? <EditOutlined /> : <PlusOutlined />}
+                                icon={editingQR ? <EditOutlined/> : <PlusOutlined/>}
                             >
                                 {editingQR ? 'Cập nhật' : 'Thêm mới'}
                             </Button>
@@ -426,7 +421,7 @@ const QRCodeManagement = () => {
             <Modal
                 title={
                     <Space>
-                        <EyeOutlined />
+                        <EyeOutlined/>
                         Xem QR Code - {selectedQR?.bankName}
                     </Space>
                 }
@@ -440,7 +435,7 @@ const QRCodeManagement = () => {
                 width={500}
             >
                 {selectedQR && (
-                    <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }}>
+                    <Space direction="vertical" style={{width: '100%', textAlign: 'center'}}>
                         <QRCodeSVG
                             value={generateEMVQRContent(selectedQR, 100000, "Demo Payment")}
                             size={300}
@@ -453,10 +448,10 @@ const QRCodeManagement = () => {
                                 background: 'white'
                             }}
                         />
-                        <div style={{ textAlign: 'left', width: '100%', marginTop: 16 }}>
-                            <Text strong>Ngân hàng:</Text> {selectedQR.bankName}<br />
-                            <Text strong>Tên đầy đủ:</Text> {selectedQR.bankFullName}<br />
-                            <Text strong>Số tài khoản:</Text> {selectedQR.accountNumber}<br />
+                        <div style={{textAlign: 'left', width: '100%', marginTop: 16}}>
+                            <Text strong>Ngân hàng:</Text> {selectedQR.bankName}<br/>
+                            <Text strong>Tên đầy đủ:</Text> {selectedQR.bankFullName}<br/>
+                            <Text strong>Số tài khoản:</Text> {selectedQR.accountNumber}<br/>
                             <Text strong>Tên chủ tài khoản:</Text> {selectedQR.accountName}
                         </div>
                     </Space>

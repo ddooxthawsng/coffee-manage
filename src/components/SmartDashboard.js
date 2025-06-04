@@ -1,23 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-    Card, Row, Col, Statistic, Typography, Progress, Table,
-    DatePicker, Select, Space, Alert, Badge, Tag, Tooltip,
-    Button, Modal, List, Avatar, Timeline, Empty, Spin
+    Alert,
+    Avatar,
+    Badge,
+    Button,
+    Card,
+    Col,
+    DatePicker,
+    Empty,
+    List,
+    Progress,
+    Row,
+    Space,
+    Statistic,
+    Table,
+    Tag,
+    Typography
 } from 'antd';
 import {
-    DollarOutlined, ShoppingCartOutlined, UserOutlined,
-    TrophyOutlined, ArrowUpOutlined, ArrowDownOutlined,
-    ClockCircleOutlined, WarningOutlined, FireOutlined,
-    EyeOutlined, BellOutlined, CalendarOutlined
+    ArrowDownOutlined,
+    ArrowUpOutlined,
+    BellOutlined,
+    DollarOutlined,
+    ShoppingCartOutlined,
+    TrophyOutlined,
+    UserOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
-import { getInvoices, getDrinks } from '../firebase/DrinkManagementService';
-import { getProcessedIngredients } from '../firebase/ingredient_service';
-import { getExpenses } from '../firebase/expense_management_service';
+import {getDrinks, getInvoices} from '../firebase/DrinkManagementService';
+import {getProcessedIngredients} from '../firebase/ingredient_service';
+import {getExpenses} from '../firebase/expense_management_service';
 import dayjs from 'dayjs';
 
-const { Title, Text } = Typography;
-const { RangePicker } = DatePicker;
-const { Option } = Select;
+const {Title, Text} = Typography;
+const {RangePicker} = DatePicker;
 
 const SmartDashboard = () => {
     const [dateRange, setDateRange] = useState([
@@ -25,10 +41,10 @@ const SmartDashboard = () => {
         dayjs()
     ]);
     const [dashboardData, setDashboardData] = useState({
-        revenue: { current: 0, previous: 0, growth: 0 },
-        orders: { current: 0, previous: 0, growth: 0 },
-        customers: { current: 0, previous: 0, growth: 0 },
-        avgOrder: { current: 0, previous: 0, growth: 0 }
+        revenue: {current: 0, previous: 0, growth: 0},
+        orders: {current: 0, previous: 0, growth: 0},
+        customers: {current: 0, previous: 0, growth: 0},
+        avgOrder: {current: 0, previous: 0, growth: 0}
     });
     const [topProducts, setTopProducts] = useState([]);
     const [notifications, setNotifications] = useState([]);
@@ -115,10 +131,10 @@ const SmartDashboard = () => {
         const avgOrderGrowth = previousAvgOrder > 0 ? ((currentAvgOrder - previousAvgOrder) / previousAvgOrder) * 100 : 0;
 
         setDashboardData({
-            revenue: { current: currentRevenue, previous: previousRevenue, growth: revenueGrowth },
-            orders: { current: currentOrders, previous: previousOrders, growth: ordersGrowth },
-            customers: { current: currentCustomers, previous: previousCustomers, growth: customersGrowth },
-            avgOrder: { current: currentAvgOrder, previous: previousAvgOrder, growth: avgOrderGrowth }
+            revenue: {current: currentRevenue, previous: previousRevenue, growth: revenueGrowth},
+            orders: {current: currentOrders, previous: previousOrders, growth: ordersGrowth},
+            customers: {current: currentCustomers, previous: previousCustomers, growth: customersGrowth},
+            avgOrder: {current: currentAvgOrder, previous: previousAvgOrder, growth: avgOrderGrowth}
         });
     };
 
@@ -179,7 +195,7 @@ const SmartDashboard = () => {
                 title: 'Nguyên liệu sắp hết',
                 message: `${ing.name} còn lại ${ing.inventory || 0} ${ing.unit}`,
                 time: 'Vừa xong',
-                icon: <WarningOutlined />
+                icon: <WarningOutlined/>
             });
         });
 
@@ -202,7 +218,7 @@ const SmartDashboard = () => {
                 title: 'Đạt mục tiêu doanh thu',
                 message: `Doanh thu hôm nay đã đạt ${todayRevenue.toLocaleString()}đ`,
                 time: '1 giờ trước',
-                icon: <TrophyOutlined />
+                icon: <TrophyOutlined/>
             });
         }
 
@@ -224,7 +240,7 @@ const SmartDashboard = () => {
                 title: 'Đơn hàng mới',
                 message: `${recentInvoices} đơn hàng mới trong 1 giờ qua`,
                 time: '30 phút trước',
-                icon: <ShoppingCartOutlined />
+                icon: <ShoppingCartOutlined/>
             });
         }
 
@@ -242,7 +258,7 @@ const SmartDashboard = () => {
             title: 'Số lượng',
             dataIndex: 'quantity',
             key: 'quantity',
-            render: (value) => <Badge count={value} style={{ backgroundColor: '#52c41a' }} />
+            render: (value) => <Badge count={value} style={{backgroundColor: '#52c41a'}}/>
         },
         {
             title: 'Doanh thu',
@@ -256,7 +272,7 @@ const SmartDashboard = () => {
             key: 'growth',
             render: (value) => (
                 <Tag color={value >= 0 ? 'green' : 'red'}>
-                    {value >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                    {value >= 0 ? <ArrowUpOutlined/> : <ArrowDownOutlined/>}
                     {Math.abs(value).toFixed(1)}%
                 </Tag>
             )
@@ -264,8 +280,8 @@ const SmartDashboard = () => {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
-            <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+        <div style={{padding: '24px'}}>
+            <Row justify="space-between" align="middle" style={{marginBottom: 24}}>
                 <Col>
                     <Title level={2}>
                         📊 Dashboard thông minh
@@ -279,9 +295,9 @@ const SmartDashboard = () => {
                             format="DD/MM/YYYY"
                         />
                         <Button
-                            icon={<BellOutlined />}
+                            icon={<BellOutlined/>}
                             type="text"
-                            badge={{ count: notifications.length }}
+                            badge={{count: notifications.length}}
                         >
                             Thông báo
                         </Button>
@@ -290,21 +306,21 @@ const SmartDashboard = () => {
             </Row>
 
             {/* Thống kê tổng quan */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
+            <Row gutter={16} style={{marginBottom: 24}}>
                 <Col span={6}>
                     <Card loading={loading}>
                         <Statistic
                             title="Doanh thu"
                             value={dashboardData.revenue.current}
                             precision={0}
-                            valueStyle={{ color: '#3f8600' }}
-                            prefix={<DollarOutlined />}
+                            valueStyle={{color: '#3f8600'}}
+                            prefix={<DollarOutlined/>}
                             suffix="đ"
                             formatter={(value) => value.toLocaleString()}
                         />
-                        <div style={{ marginTop: 8 }}>
+                        <div style={{marginTop: 8}}>
                             <Text type={dashboardData.revenue.growth >= 0 ? 'success' : 'danger'}>
-                                {dashboardData.revenue.growth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                {dashboardData.revenue.growth >= 0 ? <ArrowUpOutlined/> : <ArrowDownOutlined/>}
                                 {Math.abs(dashboardData.revenue.growth).toFixed(1)}%
                             </Text>
                             <Text type="secondary"> so với kỳ trước</Text>
@@ -316,12 +332,12 @@ const SmartDashboard = () => {
                         <Statistic
                             title="Đơn hàng"
                             value={dashboardData.orders.current}
-                            valueStyle={{ color: '#1890ff' }}
-                            prefix={<ShoppingCartOutlined />}
+                            valueStyle={{color: '#1890ff'}}
+                            prefix={<ShoppingCartOutlined/>}
                         />
-                        <div style={{ marginTop: 8 }}>
+                        <div style={{marginTop: 8}}>
                             <Text type={dashboardData.orders.growth >= 0 ? 'success' : 'danger'}>
-                                {dashboardData.orders.growth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                {dashboardData.orders.growth >= 0 ? <ArrowUpOutlined/> : <ArrowDownOutlined/>}
                                 {Math.abs(dashboardData.orders.growth).toFixed(1)}%
                             </Text>
                             <Text type="secondary"> so với kỳ trước</Text>
@@ -333,12 +349,12 @@ const SmartDashboard = () => {
                         <Statistic
                             title="Khách hàng"
                             value={dashboardData.customers.current}
-                            valueStyle={{ color: '#722ed1' }}
-                            prefix={<UserOutlined />}
+                            valueStyle={{color: '#722ed1'}}
+                            prefix={<UserOutlined/>}
                         />
-                        <div style={{ marginTop: 8 }}>
+                        <div style={{marginTop: 8}}>
                             <Text type={dashboardData.customers.growth >= 0 ? 'success' : 'danger'}>
-                                {dashboardData.customers.growth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                {dashboardData.customers.growth >= 0 ? <ArrowUpOutlined/> : <ArrowDownOutlined/>}
                                 {Math.abs(dashboardData.customers.growth).toFixed(1)}%
                             </Text>
                             <Text type="secondary"> so với kỳ trước</Text>
@@ -351,14 +367,14 @@ const SmartDashboard = () => {
                             title="Đơn hàng TB"
                             value={dashboardData.avgOrder.current}
                             precision={0}
-                            valueStyle={{ color: '#fa541c' }}
-                            prefix={<TrophyOutlined />}
+                            valueStyle={{color: '#fa541c'}}
+                            prefix={<TrophyOutlined/>}
                             suffix="đ"
                             formatter={(value) => value.toLocaleString()}
                         />
-                        <div style={{ marginTop: 8 }}>
+                        <div style={{marginTop: 8}}>
                             <Text type={dashboardData.avgOrder.growth >= 0 ? 'success' : 'danger'}>
-                                {dashboardData.avgOrder.growth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                {dashboardData.avgOrder.growth >= 0 ? <ArrowUpOutlined/> : <ArrowDownOutlined/>}
                                 {Math.abs(dashboardData.avgOrder.growth).toFixed(1)}%
                             </Text>
                             <Text type="secondary"> so với kỳ trước</Text>
@@ -368,28 +384,29 @@ const SmartDashboard = () => {
             </Row>
 
             {/* Placeholder cho biểu đồ - sẽ thêm charts sau */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
+            <Row gutter={16} style={{marginBottom: 24}}>
                 <Col span={16}>
                     <Card title="Xu hướng doanh thu" loading={loading}>
                         <Alert
                             message="Biểu đồ doanh thu theo thời gian"
                             description={`Doanh thu từ ${dateRange[0].format('DD/MM')} đến ${dateRange[1].format('DD/MM')}: ${dashboardData.revenue.current.toLocaleString()}đ`}
                             type="info"
-                            style={{ textAlign: 'center', padding: '40px 0' }}
+                            style={{textAlign: 'center', padding: '40px 0'}}
                         />
                     </Card>
                 </Col>
                 <Col span={8}>
                     <Card title="Tình trạng tồn kho" loading={loading}>
-                        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <div style={{textAlign: 'center', padding: '20px 0'}}>
                             <Progress
                                 type="circle"
                                 percent={Math.round((ingredients.filter(ing => (ing.inventory || 0) > (ing.minStock || 10)).length / Math.max(ingredients.length, 1)) * 100)}
                                 format={percent => `${percent}%\nĐủ hàng`}
                             />
-                            <div style={{ marginTop: 16 }}>
+                            <div style={{marginTop: 16}}>
                                 <Text type="secondary">
-                                    {ingredients.filter(ing => (ing.inventory || 0) <= (ing.minStock || 10)).length} nguyên liệu sắp hết
+                                    {ingredients.filter(ing => (ing.inventory || 0) <= (ing.minStock || 10)).length} nguyên
+                                    liệu sắp hết
                                 </Text>
                             </div>
                         </div>
@@ -408,7 +425,7 @@ const SmartDashboard = () => {
                                 size="small"
                             />
                         ) : (
-                            <Empty description="Chưa có dữ liệu bán hàng trong khoảng thời gian này" />
+                            <Empty description="Chưa có dữ liệu bán hàng trong khoảng thời gian này"/>
                         )}
                     </Card>
                 </Col>
@@ -434,7 +451,7 @@ const SmartDashboard = () => {
                                             description={
                                                 <div>
                                                     <div>{item.message}</div>
-                                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                                    <Text type="secondary" style={{fontSize: 12}}>
                                                         {item.time}
                                                     </Text>
                                                 </div>
@@ -444,7 +461,7 @@ const SmartDashboard = () => {
                                 )}
                             />
                         ) : (
-                            <Empty description="Không có thông báo mới" />
+                            <Empty description="Không có thông báo mới"/>
                         )}
                     </Card>
                 </Col>

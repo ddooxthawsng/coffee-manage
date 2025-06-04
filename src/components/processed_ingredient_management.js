@@ -1,54 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Alert,
+    Button,
     Card,
+    Col,
+    Divider,
+    Empty,
     Form,
     Input,
-    Button,
     InputNumber,
-    Space,
-    Row,
-    Col,
-    List,
-    Tag,
-    Typography,
     message,
-    Popconfirm,
-    Empty,
-    Tooltip,
-    Alert,
     Modal,
+    Popconfirm,
+    Progress,
+    Row,
     Select,
-    Table,
-    Divider,
+    Space,
     Statistic,
-    Progress
+    Table,
+    Tag,
+    Tooltip,
+    Typography
 } from 'antd';
 import {
-    PlusOutlined,
-    EditOutlined,
+    CheckCircleOutlined,
     DeleteOutlined,
+    DollarOutlined,
+    EditOutlined,
     ExperimentOutlined,
     InboxOutlined,
-    WarningOutlined,
-    PlusCircleOutlined,
     MinusCircleOutlined,
-    CoffeeOutlined,
+    PlusCircleOutlined,
+    PlusOutlined,
     ToolOutlined,
-    CheckCircleOutlined,
-    DollarOutlined
+    WarningOutlined
 } from '@ant-design/icons';
 import {
     addProcessedIngredient,
-    getProcessedIngredients,
-    updateProcessedIngredient,
     deleteProcessedIngredient,
-    processRawToProcessed
+    getIngredients,
+    getProcessedIngredients,
+    processRawToProcessed,
+    updateProcessedIngredient
 } from '../firebase/ingredient_service';
-import { getIngredients } from '../firebase/ingredient_service';
 
-const { Title, Text } = Typography;
-const { Option } = Select;
-const { TextArea } = Input;
+const {Title, Text} = Typography;
+const {Option} = Select;
+const {TextArea} = Input;
 
 const ProcessedIngredientManagement = () => {
     const [processedIngredients, setProcessedIngredients] = useState([]);
@@ -218,7 +216,7 @@ const ProcessedIngredientManagement = () => {
     const handleProcessIngredients = async (values) => {
         try {
             setLoading(true);
-            const { processedId, batchQuantity } = values;
+            const {processedId, batchQuantity} = values;
 
             await processRawToProcessed(processedId, batchQuantity);
             message.success(`Chế biến thành công ${batchQuantity} lô!`);
@@ -242,11 +240,11 @@ const ProcessedIngredientManagement = () => {
         const stock = processed.inventory || 0;
         const minStock = processed.minStock || 10;
         if (stock === 0) {
-            return { color: 'red', text: 'Hết hàng', progress: 0 };
+            return {color: 'red', text: 'Hết hàng', progress: 0};
         } else if (stock <= minStock) {
-            return { color: 'orange', text: 'Sắp hết', progress: 30 };
+            return {color: 'orange', text: 'Sắp hết', progress: 30};
         } else {
-            return { color: 'green', text: 'Còn đủ', progress: 100 };
+            return {color: 'green', text: 'Còn đủ', progress: 100};
         }
     };
 
@@ -258,7 +256,7 @@ const ProcessedIngredientManagement = () => {
         return (
             <div>
                 {recipe.map((ingredient, index) => (
-                    <Tag key={index} color="blue" style={{ marginBottom: 4 }}>
+                    <Tag key={index} color="blue" style={{marginBottom: 4}}>
                         {ingredient.name}: {ingredient.quantity} {ingredient.unit}
                     </Tag>
                 ))}
@@ -274,8 +272,8 @@ const ProcessedIngredientManagement = () => {
             render: (text, record) => (
                 <div>
                     <Text strong>{text}</Text>
-                    <br />
-                    <Text type="secondary" style={{ fontSize: '12px' }}>
+                    <br/>
+                    <Text type="secondary" style={{fontSize: '12px'}}>
                         {record.description}
                     </Text>
                 </div>
@@ -318,7 +316,7 @@ const ProcessedIngredientManagement = () => {
             dataIndex: 'unitPrice',
             key: 'unitPrice',
             render: (price) => (
-                <Text strong style={{ color: '#52c41a' }}>
+                <Text strong style={{color: '#52c41a'}}>
                     {price?.toLocaleString()}đ
                 </Text>
             ),
@@ -331,7 +329,7 @@ const ProcessedIngredientManagement = () => {
                 const status = getStockStatus(record);
                 return (
                     <div>
-                        <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                        <Space direction="vertical" size="small" style={{width: '100%'}}>
                             <Text>{record.inventory || 0} {record.unit}</Text>
                             <Progress
                                 percent={status.progress}
@@ -368,7 +366,7 @@ const ProcessedIngredientManagement = () => {
                     <Tooltip title="Chỉnh sửa">
                         <Button
                             type="text"
-                            icon={<EditOutlined />}
+                            icon={<EditOutlined/>}
                             onClick={() => editProcessedIngredient(record)}
                         />
                     </Tooltip>
@@ -380,7 +378,7 @@ const ProcessedIngredientManagement = () => {
                         cancelText="Hủy"
                     >
                         <Tooltip title="Xóa">
-                            <Button type="text" danger icon={<DeleteOutlined />} />
+                            <Button type="text" danger icon={<DeleteOutlined/>}/>
                         </Tooltip>
                     </Popconfirm>
                 </Space>
@@ -397,18 +395,18 @@ const ProcessedIngredientManagement = () => {
     return (
         <div className="drink-management-container">
             <Title level={2} className="page-title">
-                <ExperimentOutlined /> Quản Lý Nguyên Liệu Thành Phẩm
+                <ExperimentOutlined/> Quản Lý Nguyên Liệu Thành Phẩm
             </Title>
 
             {/* Statistics Cards */}
-            <Row gutter={[24, 16]} style={{ marginBottom: 24 }}>
+            <Row gutter={[24, 16]} style={{marginBottom: 24}}>
                 <Col xs={24} sm={12} md={6}>
                     <Card className="stats-card">
                         <Statistic
                             title="Tổng số loại"
                             value={processedIngredients.length}
-                            prefix={<ExperimentOutlined style={{ color: '#1890ff' }} />}
-                            valueStyle={{ color: '#1890ff' }}
+                            prefix={<ExperimentOutlined style={{color: '#1890ff'}}/>}
+                            valueStyle={{color: '#1890ff'}}
                         />
                     </Card>
                 </Col>
@@ -417,8 +415,8 @@ const ProcessedIngredientManagement = () => {
                         <Statistic
                             title="Sắp hết hàng"
                             value={lowStockItems.filter(item => item.inventory > 0).length}
-                            prefix={<WarningOutlined style={{ color: '#faad14' }} />}
-                            valueStyle={{ color: '#faad14' }}
+                            prefix={<WarningOutlined style={{color: '#faad14'}}/>}
+                            valueStyle={{color: '#faad14'}}
                         />
                     </Card>
                 </Col>
@@ -427,8 +425,8 @@ const ProcessedIngredientManagement = () => {
                         <Statistic
                             title="Hết hàng"
                             value={lowStockItems.filter(item => item.inventory <= 0).length}
-                            prefix={<WarningOutlined style={{ color: '#ff4d4f' }} />}
-                            valueStyle={{ color: '#ff4d4f' }}
+                            prefix={<WarningOutlined style={{color: '#ff4d4f'}}/>}
+                            valueStyle={{color: '#ff4d4f'}}
                         />
                     </Card>
                 </Col>
@@ -439,8 +437,8 @@ const ProcessedIngredientManagement = () => {
                             value={processedIngredients.filter(item =>
                                 (item.inventory || 0) > (item.minStock || 10)
                             ).length}
-                            prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                            valueStyle={{ color: '#52c41a' }}
+                            prefix={<CheckCircleOutlined style={{color: '#52c41a'}}/>}
+                            valueStyle={{color: '#52c41a'}}
                         />
                     </Card>
                 </Col>
@@ -453,7 +451,7 @@ const ProcessedIngredientManagement = () => {
                         className="glass-card"
                         title={
                             <Space>
-                                <PlusOutlined />
+                                <PlusOutlined/>
                                 {editingProcessed ? 'Chỉnh Sửa Nguyên Liệu Thành Phẩm' : 'Thêm Nguyên Liệu Thành Phẩm'}
                             </Space>
                         }
@@ -469,18 +467,18 @@ const ProcessedIngredientManagement = () => {
                                     <Form.Item
                                         label="Tên nguyên liệu thành phẩm"
                                         name="name"
-                                        rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
+                                        rules={[{required: true, message: 'Vui lòng nhập tên!'}]}
                                     >
-                                        <Input placeholder="VD: Nước đường" />
+                                        <Input placeholder="VD: Nước đường"/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item
                                         label="Đơn vị tính"
                                         name="unit"
-                                        rules={[{ required: true, message: 'Vui lòng nhập đơn vị!' }]}
+                                        rules={[{required: true, message: 'Vui lòng nhập đơn vị!'}]}
                                     >
-                                        <Input placeholder="VD: ml, lít, kg" />
+                                        <Input placeholder="VD: ml, lít, kg"/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -489,7 +487,7 @@ const ProcessedIngredientManagement = () => {
                                 label="Mô tả"
                                 name="description"
                             >
-                                <TextArea rows={2} placeholder="Mô tả nguyên liệu thành phẩm..." />
+                                <TextArea rows={2} placeholder="Mô tả nguyên liệu thành phẩm..."/>
                             </Form.Item>
 
                             <Row gutter={16}>
@@ -497,7 +495,7 @@ const ProcessedIngredientManagement = () => {
                                     <Form.Item
                                         label="Danh mục"
                                         name="category"
-                                        rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
+                                        rules={[{required: true, message: 'Vui lòng chọn danh mục!'}]}
                                     >
                                         <Select placeholder="Chọn danh mục">
                                             <Option value="syrup">Syrup</Option>
@@ -512,12 +510,12 @@ const ProcessedIngredientManagement = () => {
                                     <Form.Item
                                         label="Sản lượng/lô"
                                         name="outputQuantity"
-                                        rules={[{ required: true, message: 'Vui lòng nhập sản lượng!' }]}
+                                        rules={[{required: true, message: 'Vui lòng nhập sản lượng!'}]}
                                     >
                                         <InputNumber
                                             min={0}
                                             step={0.1}
-                                            style={{ width: '100%' }}
+                                            style={{width: '100%'}}
                                             placeholder="VD: 1250"
                                         />
                                     </Form.Item>
@@ -529,7 +527,7 @@ const ProcessedIngredientManagement = () => {
                                     >
                                         <InputNumber
                                             min={0}
-                                            style={{ width: '100%' }}
+                                            style={{width: '100%'}}
                                             placeholder="10"
                                         />
                                     </Form.Item>
@@ -539,13 +537,13 @@ const ProcessedIngredientManagement = () => {
                             <Divider>Công thức chế biến</Divider>
 
                             {selectedRawIngredients.map((ingredient, index) => (
-                                <Row key={index} gutter={8} style={{ marginBottom: 8 }}>
+                                <Row key={index} gutter={8} style={{marginBottom: 8}}>
                                     <Col span={8}>
                                         <Select
                                             placeholder="Chọn nguyên liệu thô"
                                             value={ingredient.ingredientId}
                                             onChange={(value) => updateRawIngredientInRecipe(index, 'ingredientId', value)}
-                                            style={{ width: '100%' }}
+                                            style={{width: '100%'}}
                                         >
                                             {rawIngredients.map(raw => (
                                                 <Option key={raw.id} value={raw.id}>
@@ -559,7 +557,7 @@ const ProcessedIngredientManagement = () => {
                                             placeholder="Số lượng"
                                             value={ingredient.quantity}
                                             onChange={(value) => updateRawIngredientInRecipe(index, 'quantity', value)}
-                                            style={{ width: '100%' }}
+                                            style={{width: '100%'}}
                                             min={0}
                                             step={0.1}
                                         />
@@ -569,14 +567,14 @@ const ProcessedIngredientManagement = () => {
                                             placeholder="Đơn vị"
                                             value={ingredient.unit}
                                             disabled
-                                            style={{ width: '100%' }}
+                                            style={{width: '100%'}}
                                         />
                                     </Col>
                                     <Col span={4}>
                                         <Button
                                             type="text"
                                             danger
-                                            icon={<MinusCircleOutlined />}
+                                            icon={<MinusCircleOutlined/>}
                                             onClick={() => removeRawIngredientFromRecipe(index)}
                                         />
                                     </Col>
@@ -586,8 +584,8 @@ const ProcessedIngredientManagement = () => {
                             <Button
                                 type="dashed"
                                 onClick={addRawIngredientToRecipe}
-                                icon={<PlusCircleOutlined />}
-                                style={{ width: '100%', marginBottom: 16 }}
+                                icon={<PlusCircleOutlined/>}
+                                style={{width: '100%', marginBottom: 16}}
                             >
                                 Thêm nguyên liệu thô
                             </Button>
@@ -598,7 +596,8 @@ const ProcessedIngredientManagement = () => {
                                         <div>
                                             <Space direction="vertical" size="small">
                                                 <Text strong>
-                                                    <DollarOutlined /> Tổng chi phí: {calculateTotalCost().toLocaleString()}đ
+                                                    <DollarOutlined/> Tổng chi
+                                                    phí: {calculateTotalCost().toLocaleString()}đ
                                                 </Text>
                                                 <Text>
                                                     Giá thành/đơn vị: {calculateUnitPrice().toLocaleString()}đ
@@ -607,7 +606,7 @@ const ProcessedIngredientManagement = () => {
                                         </div>
                                     }
                                     type="info"
-                                    style={{ marginBottom: 16 }}
+                                    style={{marginBottom: 16}}
                                 />
                             )}
 
@@ -617,7 +616,7 @@ const ProcessedIngredientManagement = () => {
                                         type="primary"
                                         htmlType="submit"
                                         loading={loading}
-                                        icon={editingProcessed ? <EditOutlined /> : <PlusOutlined />}
+                                        icon={editingProcessed ? <EditOutlined/> : <PlusOutlined/>}
                                     >
                                         {editingProcessed ? 'Cập nhật' : 'Thêm mới'}
                                     </Button>
@@ -636,18 +635,18 @@ const ProcessedIngredientManagement = () => {
                         className="glass-card"
                         title={
                             <Space>
-                                <ToolOutlined />
+                                <ToolOutlined/>
                                 Chế biến nguyên liệu
                             </Space>
                         }
                     >
-                        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                        <Space direction="vertical" size="large" style={{width: '100%'}}>
                             <Button
                                 type="primary"
-                                icon={<ExperimentOutlined />}
+                                icon={<ExperimentOutlined/>}
                                 onClick={openProcessModal}
                                 size="large"
-                                style={{ width: '100%' }}
+                                style={{width: '100%'}}
                             >
                                 Bắt đầu chế biến
                             </Button>
@@ -664,11 +663,12 @@ const ProcessedIngredientManagement = () => {
                                     description={
                                         <div>
                                             {lowStockItems.slice(0, 3).map(item => (
-                                                <Tag key={item.id} color="red" style={{ marginBottom: 4 }}>
+                                                <Tag key={item.id} color="red" style={{marginBottom: 4}}>
                                                     {item.name}: {item.inventory} {item.unit}
                                                 </Tag>
                                             ))}
-                                            {lowStockItems.length > 3 && <Text>... và {lowStockItems.length - 3} mục khác</Text>}
+                                            {lowStockItems.length > 3 &&
+                                                <Text>... và {lowStockItems.length - 3} mục khác</Text>}
                                         </div>
                                     }
                                     type="warning"
@@ -680,13 +680,13 @@ const ProcessedIngredientManagement = () => {
             </Row>
 
             {/* Danh sách nguyên liệu thành phẩm */}
-            <Row style={{ marginTop: 24 }}>
+            <Row style={{marginTop: 24}}>
                 <Col span={24}>
                     <Card
                         className="glass-card"
                         title={
                             <Space>
-                                <InboxOutlined />
+                                <InboxOutlined/>
                                 Danh sách nguyên liệu thành phẩm
                                 <Tag color="blue">{processedIngredients.length} mục</Tag>
                             </Space>
@@ -702,7 +702,7 @@ const ProcessedIngredientManagement = () => {
                                 showQuickJumper: true,
                                 showTotal: (total) => `Tổng ${total} nguyên liệu thành phẩm`
                             }}
-                            scroll={{ x: 1200 }}
+                            scroll={{x: 1200}}
                             locale={{
                                 emptyText: (
                                     <Empty
@@ -720,7 +720,7 @@ const ProcessedIngredientManagement = () => {
             <Modal
                 title={
                     <Space>
-                        <ExperimentOutlined />
+                        <ExperimentOutlined/>
                         Chế biến nguyên liệu
                     </Space>
                 }
@@ -737,7 +737,7 @@ const ProcessedIngredientManagement = () => {
                     <Form.Item
                         label="Chọn nguyên liệu thành phẩm"
                         name="processedId"
-                        rules={[{ required: true, message: 'Vui lòng chọn nguyên liệu!' }]}
+                        rules={[{required: true, message: 'Vui lòng chọn nguyên liệu!'}]}
                     >
                         <Select placeholder="Chọn nguyên liệu thành phẩm">
                             {processedIngredients.map(processed => (
@@ -751,11 +751,11 @@ const ProcessedIngredientManagement = () => {
                     <Form.Item
                         label="Số lô chế biến"
                         name="batchQuantity"
-                        rules={[{ required: true, message: 'Vui lòng nhập số lô!' }]}
+                        rules={[{required: true, message: 'Vui lòng nhập số lô!'}]}
                     >
                         <InputNumber
                             min={1}
-                            style={{ width: '100%' }}
+                            style={{width: '100%'}}
                             placeholder="VD: 2 (chế biến 2 lô)"
                         />
                     </Form.Item>
@@ -766,7 +766,7 @@ const ProcessedIngredientManagement = () => {
                                 type="primary"
                                 htmlType="submit"
                                 loading={loading}
-                                icon={<ExperimentOutlined />}
+                                icon={<ExperimentOutlined/>}
                             >
                                 Bắt đầu chế biến
                             </Button>
