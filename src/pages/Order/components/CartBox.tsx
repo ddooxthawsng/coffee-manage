@@ -132,26 +132,46 @@ const CartBox: React.FC<Props> = ({
                 </div>
             )}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 6 : 12, marginTop: isMobile ? 8 : 24 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 10 : 16, marginTop: isMobile ? 12 : 28 }}>
             <Button
                 type="primary"
                 className="w-full"
-                size={isMobile ? "small" : "large"}
-                style={{ padding: isMobile ? "8px 0" : "13px 0", fontSize: isMobile ? 14 : 18, fontWeight: "bold", borderRadius: 14, background: "#52c41a", border: "none", color: "#fff" }}
+                size={isMobile ? "middle" : "large"}
+                style={{ 
+                    padding: isMobile ? "12px 0" : "16px 0", 
+                    fontSize: isMobile ? 16 : 20, 
+                    height: "auto",
+                    fontWeight: "bold", 
+                    borderRadius: 16, 
+                    background: "#52c41a", 
+                    border: "none", 
+                    color: "#fff",
+                    boxShadow: "0 4px 12px rgba(82, 196, 26, 0.3)"
+                }}
                 onClick={handleCheckout}
                 loading={loading}
             >
-                <CreditCardOutlined /> Thanh toán
+                <CreditCardOutlined style={{ fontSize: isMobile ? 18 : 22 }} /> Thanh toán
             </Button>
             <Button
                 type="primary"
                 className="w-full"
-                size={isMobile ? "small" : "large"}
-                style={{ background: "#1890ff", padding: isMobile ? "8px 0" : "13px 0", fontSize: isMobile ? 14 : 18, fontWeight: "bold", borderRadius: 14, border: "none", color: "#fff" }}
+                size={isMobile ? "middle" : "large"}
+                style={{ 
+                    background: "#1890ff", 
+                    padding: isMobile ? "12px 0" : "16px 0", 
+                    fontSize: isMobile ? 16 : 20, 
+                    height: "auto",
+                    fontWeight: "bold", 
+                    borderRadius: 16, 
+                    border: "none", 
+                    color: "#fff",
+                    boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)"
+                }}
                 onClick={() => setShowQR(true)}
                 disabled={cart.length === 0}
             >
-                <QrcodeOutlined /> QR
+                <QrcodeOutlined style={{ fontSize: isMobile ? 18 : 22 }} /> QR
             </Button>
         </div>
     </div>

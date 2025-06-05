@@ -22,8 +22,10 @@ const QRModal: React.FC<Props> = ({
         onCancel={() => setShowQR(false)}
         footer={null}
         centered
-        width={390}
+        width={440}
         title="Thanh toán bằng mã QR"
+        bodyStyle={{ padding: "24px 16px" }}
+        style={{ fontSize: 18, fontWeight: "bold" }}
     >
         <div className="flex flex-col items-center gap-3">
             <div className="w-full mb-2">
@@ -51,9 +53,9 @@ const QRModal: React.FC<Props> = ({
                             addInfo: invoiceId ? `Thanh toan don #${invoiceId}` : "",
                         })}
                         alt="QR VietQR"
-                        width={200}
-                        height={200}
-                        style={{ border: "4px solid #1890ff", borderRadius: 12, background: "#fff" }}
+                        width={240}
+                        height={240}
+                        style={{ border: "6px solid #1890ff", borderRadius: 16, background: "#fff", boxShadow: "0 4px 16px rgba(24, 144, 255, 0.2)" }}
                     />
                     <div className="mt-2 text-gray-600 text-center">
                         Quét mã này bằng app ngân hàng để thanh toán đơn hàng.
@@ -62,7 +64,18 @@ const QRModal: React.FC<Props> = ({
                         type="primary"
                         className="mt-4"
                         size="large"
-                        style={{ background: "#52c41a", borderColor: "#52c41a" }}
+                        style={{ 
+                            background: "#52c41a", 
+                            borderColor: "#52c41a",
+                            height: "auto",
+                            padding: "14px 24px",
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            borderRadius: 12,
+                            boxShadow: "0 4px 12px rgba(82, 196, 26, 0.3)",
+                            width: "100%",
+                            maxWidth: 280
+                        }}
                         onClick={async () => {
                             if (!selectedQr) return;
                             if (!invoiceId) {
