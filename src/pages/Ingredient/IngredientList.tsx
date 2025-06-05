@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Button, message, Modal, Table, Tabs} from "antd";
+import {Button, message, Modal, Table, Tabs, Space, Tooltip, Popconfirm} from "antd";
+import {PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, ReloadOutlined, InboxOutlined, CoffeeOutlined} from "@ant-design/icons";
 import IngredientForm from "./IngredientForm";
 import {
     createIngredient,
@@ -99,33 +100,57 @@ const IngredientList: React.FC = () => {
             title: "Thao tác",
             key: "actions",
             render: (_: any, record: any) => (
-                <>
-                    <Button
-                        type="link"
-                        onClick={() => setModal({open: true, item: record, type: record.type})}
-                    >
-                        Sửa
-                    </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDelete(record.id, record.type)}
-                    >
-                        Xóa
-                    </Button>
-                </>
+                <Space size="middle">
+                    <Tooltip title="Sửa">
+                        <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={() => setModal({open: true, item: record, type: record.type})}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Xóa">
+                        <Popconfirm
+                            title="Bạn có chắc muốn xóa mục này?"
+                            onConfirm={() => handleDelete(record.id, record.type)}
+                            okText="Có"
+                            cancelText="Không"
+                            icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
+                        >
+                            <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                            />
+                        </Popconfirm>
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
 
     return (
         <div className="p-4 bg-white min-h-screen">
-            <h2 className="text-xl font-bold mb-4">Quản lý nguyên liệu</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold flex items-center">
+                    <InboxOutlined className="mr-2" /> Quản lý nguyên liệu
+                </h2>
+                <Tooltip title="Làm mới dữ liệu">
+                    <Button 
+                        icon={<ReloadOutlined />} 
+                        onClick={() => {
+                            fetchInputs();
+                            fetchOutputs();
+                        }}
+                        loading={loading}
+                    />
+                </Tooltip>
+            </div>
             <Tabs defaultActiveKey="input">
                 <TabPane tab="Nguyên liệu thô" key="input">
                     <div className="flex justify-end mb-2">
                         <Button
                             type="primary"
+                            icon={<PlusOutlined />}
                             onClick={() => setModal({open: true, item: null, type: "input"})}
                         >
                             Thêm nguyên liệu thô
@@ -143,6 +168,7 @@ const IngredientList: React.FC = () => {
                     <div className="flex justify-end mb-2">
                         <Button
                             type="primary"
+                            icon={<PlusOutlined />}
                             onClick={() => setModal({open: true, item: null, type: "output"})}
                         >
                             Thêm thành phẩm

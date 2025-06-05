@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Button, message, Modal, Table} from "antd";
-import {CheckCircleTwoTone, DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {Button, message, Modal, Table, Space, Tooltip, Popconfirm} from "antd";
+import {CheckCircleTwoTone, DeleteOutlined, EditOutlined, PlusOutlined, ExclamationCircleOutlined, TagOutlined, ReloadOutlined} from "@ant-design/icons";
 import {createPromotion, deletePromotion, getPromotions, updatePromotion,} from "../../services/promotionService";
 import PromotionForm from "./PromotionForm";
 
@@ -81,13 +81,25 @@ const PromotionList: React.FC = () => {
     return (
         <div className="p-4 bg-white min-h-screen">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-                <h2 className="text-xl font-bold mb-2 sm:mb-0">Quản lý khuyến mãi</h2>
-                <Button
-                    type="primary"
-                    onClick={() => setModal({open: true, item: null})}
-                >
-                    Thêm khuyến mãi mới
-                </Button>
+                <h2 className="text-xl font-bold mb-2 sm:mb-0 flex items-center">
+                    <TagOutlined className="mr-2" /> Quản lý khuyến mãi
+                </h2>
+                <Space>
+                    <Tooltip title="Làm mới dữ liệu">
+                        <Button 
+                            icon={<ReloadOutlined />} 
+                            onClick={fetchPromotions}
+                            loading={loading}
+                        />
+                    </Tooltip>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => setModal({open: true, item: null})}
+                    >
+                        Thêm khuyến mãi mới
+                    </Button>
+                </Space>
             </div>
             <Table
                 dataSource={promotions}
@@ -137,23 +149,30 @@ const PromotionList: React.FC = () => {
                         title: "Thao tác",
                         key: "actions",
                         render: (_: any, record: any) => (
-                            <>
-                                <Button
-                                    icon={<EditOutlined/>}
-                                    type="link"
-                                    onClick={() => setModal({open: true, item: record})}
-                                >
-                                    Sửa
-                                </Button>
-                                <Button
-                                    icon={<DeleteOutlined/>}
-                                    type="link"
-                                    danger
-                                    onClick={() => handleDelete(record.id)}
-                                >
-                                    Xóa
-                                </Button>
-                            </>
+                            <Space size="middle">
+                                <Tooltip title="Sửa">
+                                    <Button
+                                        icon={<EditOutlined/>}
+                                        type="text"
+                                        onClick={() => setModal({open: true, item: record})}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="Xóa">
+                                    <Popconfirm
+                                        title="Bạn có chắc muốn xóa khuyến mãi này?"
+                                        onConfirm={() => handleDelete(record.id)}
+                                        okText="Có"
+                                        cancelText="Không"
+                                        icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
+                                    >
+                                        <Button
+                                            icon={<DeleteOutlined/>}
+                                            type="text"
+                                            danger
+                                        />
+                                    </Popconfirm>
+                                </Tooltip>
+                            </Space>
                         ),
                     },
                 ]}

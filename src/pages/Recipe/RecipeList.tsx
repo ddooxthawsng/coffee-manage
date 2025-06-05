@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Select, InputNumber, message, Space } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Form, Select, InputNumber, message, Space, Tooltip, Popconfirm } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, ExperimentOutlined, ReloadOutlined, BuildOutlined } from "@ant-design/icons";
 import {
     getIngredientsByType,
     updateIngredient,
@@ -250,9 +250,14 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialValues, onSubmit, loadin
                                     <InputNumber min={1} placeholder="Số lượng" style={{ width: 100 }} />
                                 </Form.Item>
                                 {fields.length > 1 && (
-                                    <Button type="link" danger onClick={() => remove(name)}>
-                                        Xóa
-                                    </Button>
+                                    <Tooltip title="Xóa nguyên liệu">
+                                        <Button 
+                                            type="text" 
+                                            danger 
+                                            icon={<DeleteOutlined />} 
+                                            onClick={() => remove(name)}
+                                        />
+                                    </Tooltip>
                                 )}
                             </Space>
                         ))}
@@ -263,7 +268,13 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialValues, onSubmit, loadin
                 )}
             </Form.List>
             <Form.Item>
-                <Button type="primary" htmlType="submit" block loading={loading}>
+                <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    block 
+                    loading={loading}
+                    icon={initialValues ? <EditOutlined /> : <PlusOutlined />}
+                >
                     {initialValues ? "Cập nhật" : "Tạo mới"}
                 </Button>
             </Form.Item>
@@ -292,7 +303,12 @@ const ProcessForm: React.FC<{ recipe: any; onProcess: (recipe: any, quantity: nu
                 <InputNumber min={1} value={quantity} onChange={setQuantity} className="w-full" />
             </Form.Item>
             <Form.Item>
-                <Button type="primary" htmlType="submit" block>
+                <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    block
+                    icon={<BuildOutlined />}
+                >
                     Chế biến
                 </Button>
             </Form.Item>
