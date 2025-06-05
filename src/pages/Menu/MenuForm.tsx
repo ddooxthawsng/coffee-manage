@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Select, Space, InputNumber } from "antd";
+import { Form, Input, Button, Select, Space, InputNumber, Tooltip } from "antd";
+import { DeleteOutlined, PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { getIngredientsByType } from "../../services/ingredientService";
 
 const { Option } = Select;
@@ -42,7 +43,8 @@ const MenuForm: React.FC<MenuFormProps> = ({
                 <Select>
                     <Option value="Cà phê">Cà phê</Option>
                     <Option value="Trà">Trà</Option>
-                    <Option value="Nước ép">Nước ép</Option>
+                    <Option value="Matcha">Matcha</Option>
+                    <Option value="Bánh mỳ">Bánh mỳ</Option>
                     <Option value="Khác">Khác</Option>
                 </Select>
             </Form.Item>
@@ -72,13 +74,23 @@ const MenuForm: React.FC<MenuFormProps> = ({
                                     />
                                 </Form.Item>
                                 {fields.length > 1 && (
-                                    <Button type="link" danger onClick={() => remove(name)}>
-                                        Xóa
-                                    </Button>
+                                    <Tooltip title="Xóa size">
+                                        <Button 
+                                            type="text" 
+                                            danger 
+                                            icon={<DeleteOutlined />} 
+                                            onClick={() => remove(name)}
+                                        />
+                                    </Tooltip>
                                 )}
                             </Space>
                         ))}
-                        <Button type="dashed" onClick={() => add()} block>
+                        <Button 
+                            type="dashed" 
+                            icon={<PlusOutlined />} 
+                            onClick={() => add()} 
+                            block
+                        >
                             Thêm size
                         </Button>
                     </>
@@ -108,7 +120,13 @@ const MenuForm: React.FC<MenuFormProps> = ({
                 </Select>
             </Form.Item>
             <Form.Item>
-                <Button type="primary" htmlType="submit" block loading={loading}>
+                <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    block 
+                    loading={loading}
+                    icon={initialValues ? <EditOutlined /> : <PlusOutlined />}
+                >
                     {initialValues ? "Cập nhật" : "Tạo mới"}
                 </Button>
             </Form.Item>

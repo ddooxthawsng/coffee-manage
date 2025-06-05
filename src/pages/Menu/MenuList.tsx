@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Tag, message } from "antd";
+import { Table, Button, Modal, Tag, message, Space, Tooltip, Popconfirm } from "antd";
 import MenuForm from "./MenuForm";
 import {
     getMenus,
@@ -7,7 +7,7 @@ import {
     updateMenu,
     deleteMenu,
 } from "../../services/menuService";
-import { CoffeeOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { CoffeeOutlined, CheckCircleOutlined, CloseCircleOutlined, EditOutlined, DeleteOutlined, PlusOutlined, ExclamationCircleOutlined, ReloadOutlined } from "@ant-design/icons";
 
 const MenuList: React.FC = () => {
     const [menus, setMenus] = useState<any[]>([]);
@@ -70,13 +70,25 @@ const MenuList: React.FC = () => {
                     <CoffeeOutlined className="mr-2 text-2xl" />
                     Quản lý Menu
                 </h2>
-                <Button
-                    type="primary"
-                    className="bg-menu hover:bg-orange-600 text-white"
-                    onClick={() => setModal({ open: true, item: null })}
-                >
-                    Thêm món mới
-                </Button>
+                <Space>
+                    <Tooltip title="Làm mới dữ liệu">
+                        <Button 
+                            icon={<ReloadOutlined />} 
+                            onClick={fetchMenus}
+                            loading={loading}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Thêm món mới">
+                        <Button
+                            type="primary"
+                            className="bg-menu hover:bg-orange-600 text-white"
+                            icon={<PlusOutlined />}
+                            onClick={() => setModal({ open: true, item: null })}
+                        >
+                            Thêm món mới
+                        </Button>
+                    </Tooltip>
+                </Space>
             </div>
             <Table
                 dataSource={menus}
@@ -141,21 +153,30 @@ const MenuList: React.FC = () => {
                         title: "Thao tác",
                         key: "actions",
                         render: (_, record) => (
-                            <>
-                                <Button
-                                    type="link"
-                                    onClick={() => setModal({ open: true, item: record })}
-                                >
-                                    Sửa
-                                </Button>
-                                <Button
-                                    type="link"
-                                    danger
-                                    onClick={() => handleDelete(record.id)}
-                                >
-                                    Xóa
-                                </Button>
-                            </>
+                            <Space size="middle">
+                                <Tooltip title="Sửa">
+                                    <Button
+                                        type="text"
+                                        icon={<EditOutlined />}
+                                        onClick={() => setModal({ open: true, item: record })}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="Xóa">
+                                    <Popconfirm
+                                        title="Bạn có chắc muốn xóa món này?"
+                                        onConfirm={() => handleDelete(record.id)}
+                                        okText="Có"
+                                        cancelText="Không"
+                                        icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
+                                    >
+                                        <Button
+                                            type="text"
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                        />
+                                    </Popconfirm>
+                                </Tooltip>
+                            </Space>
                         ),
                     },
                 ]}
