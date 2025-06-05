@@ -1,0 +1,12 @@
+src/
+│
+├── components/   # Các component UI tái sử dụng (Button, Modal, Table, v.v.)
+├── pages/        # Các trang chính (Dashboard, Menu, Hóa đơn, Đăng nhập, v.v.)
+├── services/     # Xử lý logic, gọi API, thao tác với Firestore, Firebase
+├── types/        # Định nghĩa các kiểu dữ liệu TypeScript
+├── firebase/     # Cấu hình và các hàm liên quan đến Firebase (Auth, Firestore, Functions)
+├── hooks/        # Các custom React hooks (useAuth, useInventory, v.v.)
+├── assets/       # Hình ảnh, icon, fonts
+├── styles/       # File CSS, Tailwind config, custom theme Ant Design
+├── utils/        # Các hàm tiện ích (format, validate, xử lý ngày tháng, ...)
+└── config/       # Cấu hình chung (biến môi trường, routes, constant)
