@@ -13,6 +13,7 @@ import {
     UserOutlined,
     LogoutOutlined,
     ClusterOutlined,
+    MobileOutlined,
 } from "@ant-design/icons";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 
@@ -23,7 +24,7 @@ const menuGroups = [
     {
         label: "Quản lý & Quy trình",
         children: [
-            { key: "dashboard", icon: <HomeOutlined style={{ color: "#1890ff" }} />, label: "Trang chủ" },
+            { key: "orders", icon: <HomeOutlined style={{ color: "#1890ff" }} />, label: "Trang chủ (Bán hàng)" },
             { key: "menu", icon: <CoffeeOutlined style={{ color: "#fa8c16" }} />, label: "Menu" },
             { key: "inventory", icon: <DatabaseOutlined style={{ color: "#52c41a" }} />, label: "Nguyên liệu" },
             { key: "recipe", icon: <ClusterOutlined style={{ color: "#722ed1" }} />, label: "Công thức" },
@@ -35,14 +36,14 @@ const menuGroups = [
         label: "Giao dịch",
         children: [
             { key: "qrcode", icon: <BarcodeOutlined style={{ color: "#13c2c2" }} />, label: "QR Code" },
-            { key: "orders", icon: <ShoppingCartOutlined style={{ color: "#faad14" }} />, label: "Bán hàng" },
             { key: "invoices", icon: <FileTextOutlined style={{ color: "#2f54eb" }} />, label: "Hóa đơn" },
         ],
     },
     {
         label: "Báo cáo & Hệ thống",
         children: [
-            { key: "report", icon: <BarChartOutlined style={{ color: "#722ed1" }} />, label: "Dashboard" },
+            { key: "smart-dashboard", icon: <BarChartOutlined style={{ color: "#1890ff" }} />, label: "Dashboard Thông Minh AI" },
+            { key: "app-download", icon: <MobileOutlined style={{ color: "#13c2c2" }} />, label: "Tải ứng dụng Mobile" },
             { key: "users", icon: <UserOutlined style={{ color: "#eb2f96" }} />, label: "Tài khoản" },
         ],
     },
@@ -50,7 +51,7 @@ const menuGroups = [
 
 // Map đường dẫn sang key menu
 const pathToKey: Record<string, string> = {
-    "/": "dashboard",
+    "/": "orders",
     "/menu": "menu",
     "/inventory": "inventory",
     "/process-output": "process-output",
@@ -60,7 +61,7 @@ const pathToKey: Record<string, string> = {
     "/qrcode": "qrcode",
     "/orders": "orders",
     "/invoices": "invoices",
-    "/report": "report",
+    "/smart-dashboard": "smart-dashboard",
     "/users": "users",
 };
 
@@ -73,11 +74,11 @@ const MainLayout: React.FC = () => {
             // Xử lý đăng xuất (xóa token, clear state, ...)
             navigate("/login");
         } else {
-            navigate(`/${key === "dashboard" ? "" : key}`);
+            navigate(`/${key === "orders" ? "" : key}`);
         }
     };
 
-    const selectedKey = pathToKey[location.pathname] || "dashboard";
+    const selectedKey = pathToKey[location.pathname] || "orders";
 
     // Tạo mảng menu item chính (không gồm logout)
     const menuItems = menuGroups.flatMap((group) => [
@@ -152,8 +153,7 @@ const MainLayout: React.FC = () => {
                 >
                     Hệ thống quản lý Pickup
                 </Header>
-                sx
-                <Content
+                            <Content
                     style={{
                         margin: 0,
                         background: "#fff",

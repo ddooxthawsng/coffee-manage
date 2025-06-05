@@ -1,5 +1,5 @@
-import React from "react";
-import { Modal, Button, Select } from "antd";
+import React, { useEffect } from "react";
+import { Modal, Button, Select, notification } from "antd";
 import { getVietQRUrl } from "../../../utils/vietqr";
 
 interface Props {
@@ -16,7 +16,54 @@ interface Props {
 }
 const QRModal: React.FC<Props> = ({
                                       showQR, setShowQR, selectedQr, setSelectedQr, qrList, finalTotal, invoiceId, handleCheckoutQR, handleConfirmPaid, loading
-                                  }) => (
+                                  }) => {
+                                      // Auto-select default QR code when modal opens
+                                      useEffect(() => {
+                                          if (showQR && qrList.length > 0 && !selectedQr) {
+                                              // Find default QR code
+                                              const defaultQr = qrList.find(qr => qr.isDefault === true);
+                                              // If default exists, select it, otherwise select the first one
+                                              setSelectedQr(defaultQr || qrList[0]);
+                                          }
+                                      }, [showQR, qrList, selectedQr, setSelectedQr]);
+
+                                      // Auto-create invoice and show QR when modal opens
+                                      useEffect(() => {
+                                          const autoCreateInvoice = async () => {
+                                              // Only create invoice if modal is open, a QR is selected, and no invoice exists yet
+                                              if (showQR && selectedQr && !invoiceId && !loading) {
+                                                  await handleCheckoutQR();
+                                              }
+                                          };
+
+                                          autoCreateInvoice();
+                                      }, [showQR, selectedQr, invoiceId, loading, handleCheckoutQR]);
+
+                                      // Handle payment confirmation with notification
+                                      const handlePaymentConfirmation = async () => {
+                                          try {
+                                              await handleConfirmPaid();
+                                              notification.success({
+                                                  message: 'Thanh toán thành công',
+                                                  description: 'Đơn hàng đã được thanh toán và xử lý thành công!',
+                                                  placement: 'top',
+                                                  duration: 4,
+                                                  style: {
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                                                  }
+                                              });
+                                          } catch (error) {
+                                              notification.error({
+                                                  message: 'Lỗi thanh toán',
+                                                  description: 'Có lỗi xảy ra khi xác nhận thanh toán. Vui lòng thử lại.',
+                                                  placement: 'top',
+                                                  duration: 4
+                                              });
+                                          }
+                                      };
+
+                                      return (
     <Modal
         open={showQR}
         onCancel={() => setShowQR(false)}
@@ -76,21 +123,16 @@ const QRModal: React.FC<Props> = ({
                             width: "100%",
                             maxWidth: 280
                         }}
-                        onClick={async () => {
-                            if (!selectedQr) return;
-                            if (!invoiceId) {
-                                await handleCheckoutQR();
-                            } else {
-                                await handleConfirmPaid();
-                            }
-                        }}
+                        onClick={handlePaymentConfirmation}
                         loading={loading}
+                        disabled={!invoiceId}
                     >
-                        {invoiceId ? "Xác nhận đã thanh toán" : "Tạo hóa đơn & hiển thị QR"}
+                        Xác nhận đã thanh toán
                     </Button>
                 </>
             )}
         </div>
     </Modal>
-);
+    );
+};
 export default QRModal;

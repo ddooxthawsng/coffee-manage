@@ -4,11 +4,12 @@ import MenuGrid from "./components/MenuGrid";
 import CartBox from "./components/CartBox";
 import DrawerCart from "./components/DrawerCart";
 import QRModal from "./components/QRModal";
-import { getMenus } from "../../services/menuService";
+import { getMenus, refreshMenuCache } from "../../services/menuService";
 import { createInvoice, updateInvoiceStatus } from "../../services/invoiceService";
 import { getQRCodes } from "../../services/qrcodeService";
 import { getPromotions, getDefaultPromotion } from "../../services/promotionService";
-import { Row, Col } from "antd";
+import { Row, Col, Button, message } from "antd";
+import { ShoppingCartOutlined, ReloadOutlined } from "@ant-design/icons";
 
 const OrderPOS: React.FC = () => {
     // Responsive mobile: true nếu nhỏ hơn 900px
@@ -27,6 +28,7 @@ const OrderPOS: React.FC = () => {
     const [selectedQr, setSelectedQr] = useState<any>();
     const [invoiceId, setInvoiceId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [menuLoading, setMenuLoading] = useState(false);
 
     // Giảm giá
     const [promotions, setPromotions] = useState<any[]>([]);
@@ -36,12 +38,45 @@ const OrderPOS: React.FC = () => {
     const [categories, setCategories] = useState<string[]>([]);
     const [activeCategory, setActiveCategory] = useState<string>("Tất cả");
 
-    useEffect(() => {
-        getMenus().then((menus) => {
+    // Function to load menu data
+    const loadMenuData = async () => {
+        setMenuLoading(true);
+        try {
+            const menus = await getMenus();
             setMenu(menus);
             const cats = Array.from(new Set(menus.map((m: any) => m.category).filter(Boolean)));
-            setCategories(["Tất cả", ...cats]);
-        });
+            // Move 'Tất cả' to the end instead of beginning
+            setCategories([...cats, "Tất cả"]);
+        } catch (error) {
+            console.error('Error loading menu data:', error);
+            message.error('Không thể tải danh sách món. Vui lòng thử lại sau.');
+        } finally {
+            setMenuLoading(false);
+        }
+    };
+
+    // Function to force refresh menu data
+    const handleRefreshMenu = async () => {
+        setMenuLoading(true);
+        try {
+            const menus = await refreshMenuCache();
+            setMenu(menus);
+            const cats = Array.from(new Set(menus.map((m: any) => m.category).filter(Boolean)));
+            setCategories([...cats, "Tất cả"]);
+            message.success('Đã tải lại danh sách món mới nhất!');
+        } catch (error) {
+            console.error('Error refreshing menu data:', error);
+            message.error('Không thể tải lại danh sách món. Vui lòng thử lại sau.');
+        } finally {
+            setMenuLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        // Load menu data with caching
+        loadMenuData();
+
+        // Load other data
         getQRCodes().then(setQrList);
         getPromotions().then(setPromotions);
         getDefaultPromotion().then((promo) => {
@@ -161,14 +196,13 @@ const OrderPOS: React.FC = () => {
                 style={{
                     minHeight: "100vh",
                     background: "#f6f7fa",
-                    width: "100vw",
-                    maxWidth: "100vw",
-                    overflow: "hidden",
+                    width: "100%",
                     display: "flex",
                     flexDirection: "column",
                     boxSizing: "border-box",
                     position: "relative",
                     height: "100vh",
+                    overflow: "hidden",
                 }}
             >
                 <div
@@ -180,8 +214,7 @@ const OrderPOS: React.FC = () => {
                         alignItems: "center",
                         justifyContent: "flex-start",
                         boxSizing: "border-box",
-                        width: "100vw",
-                        maxWidth: "100vw",
+                        width: "100%",
                         overflow: "auto",
                         padding: "12px 4px 0 4px",
                     }}
@@ -196,7 +229,7 @@ const OrderPOS: React.FC = () => {
                     </div>
                 </div>
                 {/* CartBox luôn là phần cuối cùng */}
-                <div style={{ width: "100vw", maxWidth: "100vw", flexShrink: 0 }}>
+                <div style={{ width: "100%", flexShrink: 0, overflow: "hidden" }}>
                     <CartBox
                         cart={cart}
                         promotions={promotions}
@@ -243,21 +276,34 @@ const OrderPOS: React.FC = () => {
             style={{
                 minHeight: "100vh",
                 background: "#f6f7fa",
-                width: "100vw",
-                maxWidth: "100vw",
-                overflowX: "hidden",
+                width: "100%", // Changed from 100vw to prevent overflow
                 boxSizing: "border-box",
                 position: "relative",
+                padding: "0", // Remove padding from container
+                overflow: "hidden", // Prevent all overflow
             }}
         >
+            <div style={{ padding: "12px 16px", fontWeight: 600, fontSize: "18px", color: "#1890ff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                    <ShoppingCartOutlined /> Bán hàng - Tạo đơn hàng mới
+                </div>
+                <Button 
+                    type="link" 
+                    icon={<ReloadOutlined spin={menuLoading} />} 
+                    onClick={handleRefreshMenu}
+                    loading={menuLoading}
+                >
+                    {menuLoading ? 'Đang tải...' : 'Làm mới menu'}
+                </Button>
+            </div>
             <Row
-                gutter={[24, 24]}
-                justify="center"
+                gutter={[8, 8]} // Further reduce gutter spacing
+                justify="start" // Align to start instead of center to reduce left spacing
                 style={{
                     margin: 0,
                     width: "100%",
                     boxSizing: "border-box",
-                    maxWidth: "100vw",
+                    maxWidth: "100%", // Changed from 100vw
                 }}
             >
                 <Col
@@ -269,16 +315,14 @@ const OrderPOS: React.FC = () => {
                         flexDirection: "column",
                         position: "relative",
                         width: "100%",
-                        maxWidth: 900,
                         boxSizing: "border-box",
+                        padding: 0, // Remove all padding
                     }}
                 >
                     <div
                         style={{
-                            padding: 16,
+                            padding: "12px 8px", // Reduce padding
                             width: "100%",
-                            maxWidth: 900,
-                            margin: "0 auto",
                             boxSizing: "border-box",
                         }}
                     >
@@ -296,12 +340,14 @@ const OrderPOS: React.FC = () => {
                     style={{
                         minWidth: 0,
                         display: "flex",
-                        width: 360,
-                        maxWidth: 410,
-                        justifyContent: "center",
+                        width: "100%",
+                        maxWidth: 400,
+                        justifyContent: "flex-start",
+                        padding: 0, // Remove all padding
+                        overflow: "hidden", // Prevent overflow
                     }}
                 >
-                    <div style={{ padding: 16, width: "100%", maxWidth: 410 }}>
+                    <div style={{ padding: "12px 4px", width: "100%", overflow: "hidden" }}>
                         <CartBox
                             cart={cart}
                             promotions={promotions}
