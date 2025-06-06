@@ -6,6 +6,8 @@
   ],
   "compilerOptions": {
     "noEmitOnError": false,
-    "typeRoots": ["./node_modules/@types", "./src/types", "./typings"]
+    "typeRoots": ["./node_modules/@types", "./src/types", "./typings"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   }
 }

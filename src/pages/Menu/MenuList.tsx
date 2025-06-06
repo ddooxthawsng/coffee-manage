@@ -1,39 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Tag, message, Space, Tooltip, Popconfirm } from "antd";
+import { Table, Button, Modal, Space, Tooltip } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import MenuForm from "./MenuForm";
-import {
-    getMenus,
-    createMenu,
-    updateMenu,
-    deleteMenu,
-} from "../../services/menuService";
-import { CoffeeOutlined, CheckCircleOutlined, CloseCircleOutlined, EditOutlined, DeleteOutlined, PlusOutlined, ExclamationCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import { getMenus, createMenu, updateMenu, deleteMenu } from "../../services/menuService";
+import { getIngredientsByType } from "../../services/ingredientService";
 
 const MenuList: React.FC = () => {
     const [menus, setMenus] = useState<any[]>([]);
+    const [outputs, setOutputs] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [modal, setModal] = useState<any>({ open: false, item: null });
+    const [modal, setModal] = useState<{ open: boolean; item: any }>({ open: false, item: null });
     const [formLoading, setFormLoading] = useState(false);
 
+    // Lấy danh sách menu và thành phẩm (outputs)
     const fetchMenus = async () => {
         setLoading(true);
         setMenus(await getMenus());
         setLoading(false);
     };
+    const fetchOutputs = async () => {
+        setOutputs(await getIngredientsByType("output"));
+    };
 
     useEffect(() => {
         fetchMenus();
+        fetchOutputs();
     }, []);
 
     const handleCreate = async (values: any) => {
         setFormLoading(true);
         try {
             await createMenu(values);
-            message.success("Thêm món mới thành công!");
-            setModal({ open: false, item: null });
             fetchMenus();
+            setModal({ open: false, item: null });
         } catch {
-            message.error("Lỗi khi thêm món!");
+            // Xử lý lỗi
         }
         setFormLoading(false);
     };
@@ -42,11 +43,10 @@ const MenuList: React.FC = () => {
         setFormLoading(true);
         try {
             await updateMenu(modal.item.id, values);
-            message.success("Cập nhật món thành công!");
-            setModal({ open: false, item: null });
             fetchMenus();
+            setModal({ open: false, item: null });
         } catch {
-            message.error("Lỗi khi cập nhật!");
+            // Xử lý lỗi
         }
         setFormLoading(false);
     };
@@ -55,131 +55,192 @@ const MenuList: React.FC = () => {
         setLoading(true);
         try {
             await deleteMenu(id);
-            message.success("Đã xóa món!");
             fetchMenus();
         } catch {
-            message.error("Lỗi khi xóa!");
+            // Xử lý lỗi
         }
         setLoading(false);
     };
 
-    return (
-        <div className="p-4 bg-white min-h-screen">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-                <h2 className="text-xl font-bold mb-2 sm:mb-0 flex items-center text-menu">
-                    <CoffeeOutlined className="mr-2 text-2xl" />
-                    Quản lý Menu
-                </h2>
-                <Space>
-                    <Tooltip title="Làm mới dữ liệu">
-                        <Button 
-                            icon={<ReloadOutlined />} 
-                            onClick={fetchMenus}
-                            loading={loading}
+    // Hàm lấy giá cost nhỏ nhất và đơn vị của thành phẩm (output)
+    const getOutputCostAndUnit = (outputId: string) => {
+        const output = outputs.find((o) => o.id === outputId);
+        return {
+            cost: output?.costMin ?? 0,
+            unit: output?.unit || "",
+            name: output?.name || "",
+        };
+    };
+
+    const columns = [
+        { title: "Tên món", dataIndex: "name" },
+        {
+            title: "Size & Thành phẩm sử dụng",
+            dataIndex: "sizes",
+            render: (sizes: any[]) =>
+                sizes && sizes.length > 0 ? (
+                    <div>
+                        {sizes.map((s, idx) => (
+                            <div key={s.size || idx}>
+                                <span style={{ fontWeight: 500 }}>{s.size}</span>
+                                {": "}
+                                {s.outputs && s.outputs.length > 0 ? (
+                                    s.outputs.map((out: any, i: number) => {
+                                        const { name, unit } = getOutputCostAndUnit(out.outputId);
+                                        return (
+                                            <span key={i}>
+                                                {name || "?"} ({out.quantity} {unit})
+                                                {i < s.outputs.length - 1 ? ", " : ""}
+                                            </span>
+                                        );
+                                    })
+                                ) : (
+                                    <span style={{ color: "#aaa" }}>Chưa khai báo</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <span style={{ color: "#aaa" }}>-</span>
+                ),
+        },
+        {
+            title: "Giá bán",
+            dataIndex: "sizes",
+            render: (sizes: any[]) =>
+                sizes && sizes.length > 0 ? (
+                    <div>
+                        {sizes.map((s, idx) => (
+                            <div key={s.size || idx}>
+                                <span style={{ fontWeight: 500 }}>{s.size}</span>
+                                {": "}
+                                <span style={{ color: "#fa8c16", fontWeight: 500 }}>
+                                    {s.price ? `${s.price.toLocaleString()}đ` : "-"}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <span style={{ color: "#aaa" }}>-</span>
+                ),
+        },
+        {
+            title: "Cost (ước tính)",
+            dataIndex: "sizes",
+            render: (sizes: any[]) =>
+                sizes && sizes.length > 0 ? (
+                    <div>
+                        {sizes.map((s, idx) => {
+                            let totalCost = 0;
+                            let unit = "";
+                            if (s.outputs && s.outputs.length > 0) {
+                                totalCost = s.outputs.reduce((sum: number, output: any) => {
+                                    const { cost, unit: u } = getOutputCostAndUnit(output.outputId);
+                                    unit = u;
+                                    return sum + (cost || 0) * (output.quantity || 0);
+                                }, 0);
+                            }
+                            return (
+                                <div key={s.size || idx}>
+                                    <span style={{ fontWeight: 500 }}>{s.size}</span>
+                                    {": "}
+                                    <span style={{ color: "#52c41a" }}>
+                                        {totalCost > 0 ? `${totalCost.toLocaleString()} đ${unit ? "/" + unit : ""}` : "-"}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <span style={{ color: "#aaa" }}>-</span>
+                ),
+        },
+        {
+            title: "Lãi (ước tính)",
+            dataIndex: "sizes",
+            render: (sizes: any[]) =>
+                sizes && sizes.length > 0 ? (
+                    <div>
+                        {sizes.map((s, idx) => {
+                            let totalCost = 0;
+                            if (s.outputs && s.outputs.length > 0) {
+                                totalCost = s.outputs.reduce((sum: number, output: any) => {
+                                    const { cost } = getOutputCostAndUnit(output.outputId);
+                                    return sum + (cost || 0) * (output.quantity || 0);
+                                }, 0);
+                            }
+                            const price = s.price || 0;
+                            const profit = price - totalCost;
+                            const percent = totalCost > 0 ? Math.round((profit / totalCost) * 100)-100 : null;
+                            return (
+                                <div key={s.size || idx}>
+                                    <span style={{
+                                        color: profit >= 0 ? "#1890ff" : "#f5222d",
+                                        fontWeight: 500
+                                    }}>
+                                        {price && totalCost ? `${profit.toLocaleString()} đ` : "-"}
+                                    </span>
+                                    {percent !== null && price && totalCost ? (
+                                        <span style={{
+                                            color: profit >= 0 ? "#1890ff" : "#f5222d",
+                                            marginLeft: 8
+                                        }}>
+                                            ({percent}%)
+                                        </span>
+                                    ) : null}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <span style={{ color: "#aaa" }}>-</span>
+                ),
+        },
+        {
+            title: "Thao tác",
+            key: "actions",
+            render: (_: any, record: any) => (
+                <Space size="middle">
+                    <Tooltip title="Sửa">
+                        <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={() => setModal({ open: true, item: record })}
                         />
                     </Tooltip>
-                    <Tooltip title="Thêm món mới">
+                    <Tooltip title="Xóa">
                         <Button
-                            type="primary"
-                            className="bg-menu hover:bg-orange-600 text-white"
-                            icon={<PlusOutlined />}
-                            onClick={() => setModal({ open: true, item: null })}
-                        >
-                            Thêm món mới
-                        </Button>
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => handleDelete(record.id)}
+                        />
                     </Tooltip>
                 </Space>
+            ),
+        },
+    ];
+
+    return (
+        <div className="p-4 bg-white min-h-screen">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold flex items-center">
+                    Danh sách món ăn/đồ uống
+                </h2>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setModal({ open: true, item: null })}
+                >
+                    Thêm món mới
+                </Button>
             </div>
             <Table
                 dataSource={menus}
                 rowKey="id"
                 loading={loading}
+                columns={columns}
                 scroll={{ x: true }}
-                columns={[
-                    {
-                        title: "Tên món",
-                        dataIndex: "name",
-                        render: (name: string) => (
-                            <span className="text-menu font-semibold flex items-center">
-                <CoffeeOutlined className="mr-1" />
-                                {name}
-              </span>
-                        ),
-                    },
-                    {
-                        title: "Danh mục",
-                        dataIndex: "category",
-                        filters: [
-                            { text: "Cà phê", value: "Cà phê" },
-                            { text: "Trà", value: "Trà" },
-                            { text: "Nước ép", value: "Nước ép" },
-                            { text: "Khác", value: "Khác" },
-                        ],
-                        onFilter: (value, record) => record.category === value,
-                    },
-                    {
-                        title: "Size & Giá",
-                        dataIndex: "sizes",
-                        render: (sizes: any[]) =>
-                            sizes && sizes.length > 0 ? (
-                                <div>
-                                    {sizes.map((s, idx) => (
-                                        <div key={s.size || idx}>
-                                            <span style={{ fontWeight: 500 }}>{s.size}</span>
-                                            {": "}
-                                            <span style={{ color: "#fa8c16" }}>{s.price?.toLocaleString()}đ</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <span style={{ color: "#aaa" }}>Chưa có</span>
-                            ),
-                    },
-                    {
-                        title: "Trạng thái",
-                        dataIndex: "status",
-                        render: (status: string) =>
-                            status === "active" ? (
-                                <Tag color="success" icon={<CheckCircleOutlined />}>
-                                    Đang bán
-                                </Tag>
-                            ) : (
-                                <Tag color="danger" icon={<CloseCircleOutlined />}>
-                                    Ngừng bán
-                                </Tag>
-                            ),
-                    },
-                    {
-                        title: "Thao tác",
-                        key: "actions",
-                        render: (_, record) => (
-                            <Space size="middle">
-                                <Tooltip title="Sửa">
-                                    <Button
-                                        type="text"
-                                        icon={<EditOutlined />}
-                                        onClick={() => setModal({ open: true, item: record })}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="Xóa">
-                                    <Popconfirm
-                                        title="Bạn có chắc muốn xóa món này?"
-                                        onConfirm={() => handleDelete(record.id)}
-                                        okText="Có"
-                                        cancelText="Không"
-                                        icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
-                                    >
-                                        <Button
-                                            type="text"
-                                            danger
-                                            icon={<DeleteOutlined />}
-                                        />
-                                    </Popconfirm>
-                                </Tooltip>
-                            </Space>
-                        ),
-                    },
-                ]}
             />
             <Modal
                 open={modal.open}
@@ -187,6 +248,7 @@ const MenuList: React.FC = () => {
                 onCancel={() => setModal({ open: false, item: null })}
                 footer={null}
                 destroyOnClose
+                width={700}
             >
                 <MenuForm
                     initialValues={modal.item}

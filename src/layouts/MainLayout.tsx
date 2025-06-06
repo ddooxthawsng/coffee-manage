@@ -1,50 +1,51 @@
 import React from "react";
-import { Layout, Menu, Avatar } from "antd";
+import {Avatar, Layout, Menu} from "antd";
 import {
-    HomeOutlined,
+    BarChartOutlined,
+    BarcodeOutlined,
     CoffeeOutlined,
     DatabaseOutlined,
     DollarOutlined,
-    GiftOutlined,
-    BarcodeOutlined,
-    ShoppingCartOutlined,
     FileTextOutlined,
-    BarChartOutlined,
-    UserOutlined,
+    GiftOutlined,
+    HomeOutlined,
     LogoutOutlined,
-    ClusterOutlined,
     MobileOutlined,
+    UserOutlined,
 } from "@ant-design/icons";
-import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
 
-const { Header, Sider, Content } = Layout;
+const {Header, Sider, Content} = Layout;
 
 // Menu cấu trúc nhóm
 const menuGroups = [
     {
         label: "Quản lý & Quy trình",
         children: [
-            { key: "orders", icon: <HomeOutlined style={{ color: "#1890ff" }} />, label: "Trang chủ (Bán hàng)" },
-            { key: "menu", icon: <CoffeeOutlined style={{ color: "#fa8c16" }} />, label: "Menu" },
-            { key: "inventory", icon: <DatabaseOutlined style={{ color: "#52c41a" }} />, label: "Nguyên liệu" },
-            { key: "recipe", icon: <ClusterOutlined style={{ color: "#722ed1" }} />, label: "Công thức" },
-            { key: "cost", icon: <DollarOutlined style={{ color: "#cf1322" }} />, label: "Chi phí" },
-            { key: "promotion", icon: <GiftOutlined style={{ color: "#722ed1" }} />, label: "Khuyến mãi" },
+            {key: "orders", icon: <HomeOutlined style={{color: "#1890ff"}}/>, label: "Trang chủ (Bán hàng)"},
+            {key: "menu", icon: <CoffeeOutlined style={{color: "#fa8c16"}}/>, label: "Menu"},
+            {key: "inventory", icon: <DatabaseOutlined style={{color: "#52c41a"}}/>, label: "Nguyên liệu"},
+            {key: "cost", icon: <DollarOutlined style={{color: "#cf1322"}}/>, label: "Chi phí"},
+            {key: "promotion", icon: <GiftOutlined style={{color: "#722ed1"}}/>, label: "Khuyến mãi"},
         ],
     },
     {
         label: "Giao dịch",
         children: [
-            { key: "qrcode", icon: <BarcodeOutlined style={{ color: "#13c2c2" }} />, label: "QR Code" },
-            { key: "invoices", icon: <FileTextOutlined style={{ color: "#2f54eb" }} />, label: "Hóa đơn" },
+            {key: "qrcode", icon: <BarcodeOutlined style={{color: "#13c2c2"}}/>, label: "QR Code"},
+            {key: "invoices", icon: <FileTextOutlined style={{color: "#2f54eb"}}/>, label: "Hóa đơn"},
         ],
     },
     {
         label: "Báo cáo & Hệ thống",
         children: [
-            { key: "smart-dashboard", icon: <BarChartOutlined style={{ color: "#1890ff" }} />, label: "Dashboard Thông Minh AI" },
-            { key: "app-download", icon: <MobileOutlined style={{ color: "#13c2c2" }} />, label: "Tải ứng dụng Mobile" },
-            { key: "users", icon: <UserOutlined style={{ color: "#eb2f96" }} />, label: "Tài khoản" },
+            {
+                key: "smart-dashboard",
+                icon: <BarChartOutlined style={{color: "#1890ff"}}/>,
+                label: "Dashboard Thông Minh AI"
+            },
+            {key: "app-download", icon: <MobileOutlined style={{color: "#13c2c2"}}/>, label: "Tải ứng dụng Mobile"},
+            {key: "users", icon: <UserOutlined style={{color: "#eb2f96"}}/>, label: "Tài khoản"},
         ],
     },
 ];
@@ -69,7 +70,7 @@ const MainLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const handleMenuClick = ({ key }: { key: string }) => {
+    const handleMenuClick = ({key}: { key: string }) => {
         if (key === "logout") {
             // Xử lý đăng xuất (xóa token, clear state, ...)
             navigate("/login");
@@ -93,21 +94,21 @@ const MainLayout: React.FC = () => {
     const logoutItem = [
         {
             key: "logout",
-            icon: <LogoutOutlined style={{ color: "#cf1322" }} />,
+            icon: <LogoutOutlined style={{color: "#cf1322"}}/>,
             label: <span className="font-semibold text-danger">Đăng xuất</span>,
         },
     ];
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
+        <Layout style={{minHeight: "100vh"}}>
             <Sider
                 breakpoint="lg"
                 collapsedWidth="0"
-                style={{ background: "#fff", borderRight: "1px solid #eee" }}
+                style={{background: "#fff", borderRight: "1px solid #eee"}}
                 width={240}
             >
                 <div className="flex flex-col items-center py-6">
-                    <Avatar size={48} icon={<UserOutlined />} className="mb-2 bg-user" />
+                    <Avatar size={48} icon={<UserOutlined/>} className="mb-2 bg-user"/>
                     <span className="font-semibold text-black">Xin chào, Admin</span>
                 </div>
                 <div className="flex flex-col h-[calc(100vh-80px)] relative">
@@ -115,7 +116,7 @@ const MainLayout: React.FC = () => {
                         <Menu
                             mode="inline"
                             selectedKeys={[selectedKey]}
-                            style={{ borderRight: 0, fontWeight: 500, fontSize: 16 }}
+                            style={{borderRight: 0, fontWeight: 500, fontSize: 16}}
                             // @ts-ignore
                             items={menuItems}
                             onClick={handleMenuClick}
@@ -153,7 +154,7 @@ const MainLayout: React.FC = () => {
                 >
                     Hệ thống quản lý Pickup
                 </Header>
-                            <Content
+                <Content
                     style={{
                         margin: 0,
                         background: "#fff",
@@ -162,7 +163,7 @@ const MainLayout: React.FC = () => {
                     }}
                 >
                     {/*<div className="px-4"> /!* chỉ padding trái/phải *!/*/}
-                        <Outlet />
+                    <Outlet/>
                     {/*</div>*/}
                 </Content>
             </Layout>

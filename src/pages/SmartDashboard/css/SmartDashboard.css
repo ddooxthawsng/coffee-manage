@@ -315,3 +315,10 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
+.dashboard-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.period-selector {
+    font-weight: 500;
+}

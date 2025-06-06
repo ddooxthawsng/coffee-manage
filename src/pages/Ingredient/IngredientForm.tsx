@@ -1,126 +1,97 @@
-import React, { useEffect } from "react";
-import { Form, Input, InputNumber, Select, Button, Row, Col, Card } from "antd";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import React from "react";
+import { Form, Input, InputNumber, Button, Select } from "antd";
 
-const { Option } = Select;
+const UNIT_OPTIONS = [
+    { value: "g", label: "Gram (g)" },
+    { value: "kg", label: "Kilogram (kg)" },
+    { value: "ml", label: "Mililít (ml)" },
+    { value: "l", label: "Lít (l)" },
+    { value: "cái", label: "Cái" },
+    { value: "hộp", label: "Hộp" },
+    { value: "gói", label: "Gói" },
+    { value: "chai", label: "Chai" },
+    { value: "bình", label: "Bình" },
+    { value: "ly", label: "Ly" },
+    { value: "tách", label: "Tách" },
+];
 
 interface IngredientFormProps {
     initialValues?: any;
     onSubmit: (values: any) => void;
     loading?: boolean;
-    isEdit?: boolean;
 }
-
-const UNIT_OPTIONS = [
-    "gram", "ml", "cái", "kg", "lít", "hộp", "gói"
-];
-
-const TYPE_OPTIONS = [
-    { value: "input", label: "Nguyên liệu đầu vào" },
-    { value: "output", label: "Thành phẩm" }
-];
 
 const IngredientForm: React.FC<IngredientFormProps> = ({
                                                            initialValues,
                                                            onSubmit,
                                                            loading,
-                                                           isEdit,
                                                        }) => {
-    const [form] = Form.useForm();
-    const unit = Form.useWatch("unit", form);
-
-    useEffect(() => {
-        if (initialValues) {
-            form.setFieldsValue(initialValues);
-        }
-    }, [initialValues, form]);
-
     return (
-        <Card
-            title={isEdit ? "Cập nhật nguyên liệu" : "Thêm nguyên liệu mới"}
-            bordered={false}
-            className="max-w-xl mx-auto my-4"
-            bodyStyle={{ padding: 24 }}
+        <Form
+            layout="vertical"
+            initialValues={initialValues || { unit: "g", price: 0, quantity: 1, quantityUnit: "g" }}
+            onFinish={onSubmit}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={{
-                    name: "",
-                    type: "input",
-                    unit: "gram",
-                    cost: 0,
-                    ...initialValues
-                }}
-                onFinish={onSubmit}
+            <Form.Item
+                label="Tên nguyên liệu"
+                name="name"
+                rules={[{ required: true, message: "Nhập tên nguyên liệu" }]}
             >
-                <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            label="Tên nguyên liệu"
-                            name="name"
-                            rules={[{ required: true, message: "Nhập tên nguyên liệu" }]}
-                        >
-                            <Input placeholder="Ví dụ: Cà phê bột, Sữa đặc,..." />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            label="Loại"
-                            name="type"
-                            rules={[{ required: true, message: "Chọn loại nguyên liệu" }]}
-                        >
-                            <Select>
-                                {TYPE_OPTIONS.map(opt => (
-                                    <Option key={opt.value} value={opt.value}>{opt.label}</Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            label="Đơn vị nhỏ nhất"
-                            name="unit"
-                            rules={[{ required: true, message: "Chọn đơn vị" }]}
-                        >
-                            <Select>
-                                {UNIT_OPTIONS.map(u => (
-                                    <Option key={u} value={u}>{u}</Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            label="Giá cost (theo đơn vị nhỏ nhất)"
-                            name="cost"
-                            rules={[{ required: true, message: "Nhập giá cost!" }]}
-                        >
-                            <InputNumber
-                                min={0}
-                                step={100}
-                                className="w-full"
-                                placeholder="Nhập giá cost"
-                                addonAfter={unit || "đơn vị"}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Form.Item className="mb-0">
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        icon={isEdit ? <EditOutlined /> : <PlusOutlined />}
-                        loading={loading}
-                        block
+                <Input />
+            </Form.Item>
+            <Form.Item
+                label="Đơn vị tính"
+                name="unit"
+                rules={[{ required: true, message: "Chọn đơn vị" }]}
+            >
+                <Select placeholder="Chọn đơn vị">
+                    {UNIT_OPTIONS.map((u) => (
+                        <Select.Option key={u.value} value={u.value}>
+                            {u.label}
+                        </Select.Option>
+                    ))}
+                </Select>
+            </Form.Item>
+            <Form.Item
+                label="Giá cost (VNĐ)"
+                name="price"
+                rules={[{ required: true, message: "Nhập giá nguyên liệu" }]}
+            >
+                <InputNumber min={0} className="w-full" />
+            </Form.Item>
+            <Form.Item label="Định lượng áp dụng cho giá cost" required>
+                <Input.Group compact>
+                    <Form.Item
+                        name="quantity"
+                        noStyle
+                        rules={[{ required: true, message: "Nhập định lượng" }]}
                     >
-                        {isEdit ? "Cập nhật" : "Thêm mới"}
-                    </Button>
-                </Form.Item>
-            </Form>
-        </Card>
+                        <InputNumber min={0.01} step={0.01} placeholder="Định lượng" style={{ width: 120 }} />
+                    </Form.Item>
+                    <Form.Item
+                        name="quantityUnit"
+                        noStyle
+                        rules={[{ required: true, message: "Chọn đơn vị định lượng" }]}
+                    >
+                        <Select placeholder="Đơn vị" style={{ width: 100 }}>
+                            {UNIT_OPTIONS.map((u) => (
+                                <Select.Option key={u.value} value={u.value}>
+                                    {u.label}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                </Input.Group>
+                <div style={{ color: "#888", fontSize: 13 }}>
+                    VD: Giá cost này áp dụng cho 0.5 kg, 100g, 1 lít, 1 cái, v.v.
+                </div>
+            </Form.Item>
+            <Form.Item>
+                <Button type="primary" htmlType="submit" block loading={loading}>
+                    {initialValues ? "Cập nhật" : "Tạo mới"}
+                </Button>
+            </Form.Item>
+        </Form>
     );
 };
 

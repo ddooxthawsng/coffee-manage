@@ -1,5 +1,14 @@
-import { db } from "../firebase/config";
-import { collection, getDocs, query, where, orderBy, limit as firestoreLimit, Timestamp, addDoc } from "firebase/firestore";
+import {db} from "../firebase/config";
+import {
+    addDoc,
+    collection,
+    getDocs,
+    limit as firestoreLimit,
+    orderBy,
+    query,
+    Timestamp,
+    where
+} from "firebase/firestore";
 import dayjs from "dayjs";
 
 // Get analytics data for dashboard
@@ -36,12 +45,12 @@ export const getAnalyticsData = async (startDate: Date, endDate: Date) => {
         }));
 
         // Calculate metrics
-        const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
-        const totalCosts = costs.reduce((sum, cost) => sum + (cost.amount || 0), 0);
+        const totalRevenue = invoices.reduce((sum, inv:any) => sum + (inv.total || 0), 0);
+        const totalCosts = costs.reduce((sum, cost:any) => sum + (cost.amount || 0), 0);
         const profit = totalRevenue - totalCosts;
 
         // Get unique customers
-        const uniqueCustomers = new Set(invoices.map(inv => inv.customerId || inv.userId));
+        const uniqueCustomers = new Set(invoices.map((inv:any) => inv.customerId || inv.userId));
 
         // Calculate sales by hour of day
         const hourlyData = Array(24).fill(0);
@@ -90,7 +99,7 @@ export const saveInsight = async (insightData: any) => {
 };
 
 // Get previously saved insights
-    export const getSavedInsights = async (limitCount = 10) => {
+export const getSavedInsights = async (limitCount = 10) => {
     try {
         const insightsQuery = query(
             collection(db, "insights"),

@@ -1,7 +1,5 @@
-import { db } from "../firebase/config";
-import {
-    collection, doc, setDoc, getDocs, updateDoc, deleteDoc, serverTimestamp, getDoc
-} from "firebase/firestore";
+import {db} from "../firebase/config";
+import {collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc} from "firebase/firestore";
 
 // Thêm món mới (liên kết thành phẩm)
 export const createMenu = async (data: any) => {
@@ -50,11 +48,6 @@ export const getMenus = async () => {
     return menuData;
 };
 
-// Cập nhật bộ nhớ cache khi có thay đổi menu
-const updateMenuCache = (menuData: any[]) => {
-    localStorage.setItem('menu_cache', JSON.stringify(menuData));
-    localStorage.setItem('menu_cache_timestamp', Date.now().toString());
-};
 
 // Cập nhật món
 export const updateMenu = async (id: string, data: any) => {
@@ -76,7 +69,7 @@ export const deleteMenu = async (id: string) => {
 export const getMenuById = async (id: string) => {
     const docRef = doc(db, "menu", id);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+    return docSnap.exists() ? {id: docSnap.id, ...docSnap.data()} : null;
 };
 
 // Hàm xóa cache và bắt buộc tải lại dữ liệu từ server

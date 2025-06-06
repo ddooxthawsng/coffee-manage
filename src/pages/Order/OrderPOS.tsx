@@ -46,6 +46,7 @@ const OrderPOS: React.FC = () => {
             setMenu(menus);
             const cats = Array.from(new Set(menus.map((m: any) => m.category).filter(Boolean)));
             // Move 'Tất cả' to the end instead of beginning
+            // @ts-ignore
             setCategories([...cats, "Tất cả"]);
         } catch (error) {
             console.error('Error loading menu data:', error);
@@ -62,6 +63,7 @@ const OrderPOS: React.FC = () => {
             const menus = await refreshMenuCache();
             setMenu(menus);
             const cats = Array.from(new Set(menus.map((m: any) => m.category).filter(Boolean)));
+            // @ts-ignore
             setCategories([...cats, "Tất cả"]);
             message.success('Đã tải lại danh sách món mới nhất!');
         } catch (error) {
@@ -287,9 +289,9 @@ const OrderPOS: React.FC = () => {
                 <div>
                     <ShoppingCartOutlined /> Bán hàng - Tạo đơn hàng mới
                 </div>
-                <Button 
-                    type="link" 
-                    icon={<ReloadOutlined spin={menuLoading} />} 
+                <Button
+                    type="link"
+                    icon={<ReloadOutlined spin={menuLoading} />}
                     onClick={handleRefreshMenu}
                     loading={menuLoading}
                 >

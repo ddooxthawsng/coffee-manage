@@ -44,10 +44,10 @@ const InvoiceList: React.FC = () => {
         setLoading(true);
         try {
             await deleteInvoice(id);
-            message.success("Đã xóa hóa đơn!");
+            message.success("Đã hủy hóa đơn!");
             fetchInvoices();
         } catch {
-            message.error("Lỗi khi xóa!");
+            message.error("Lỗi khi hủy!");
         }
         setLoading(false);
     };
@@ -69,8 +69,8 @@ const InvoiceList: React.FC = () => {
                 loading={loading}
                 scroll={{ x: true }}
                 columns={[
-                    { title: "Mã hóa đơn", dataIndex: "id" },
-                    { title: "Khách hàng", dataIndex: "customer" },
+                    // { title: "Mã hóa đơn", dataIndex: "id" },
+                    // { title: "Khách hàng", dataIndex: "customer" },
                     {
                         title: "Tổng tiền",
                         dataIndex: "total",
@@ -91,10 +91,13 @@ const InvoiceList: React.FC = () => {
                         render: (status: string) =>
                             status === "paid" ? (
                                 <Tag color="green">Đã thanh toán</Tag>
+                            ) : status === "deleted" ? (
+                                <Tag color="orange">Đã hủy</Tag>
                             ) : (
                                 <Tag color="red">Chưa thanh toán</Tag>
                             ),
                     },
+
                     {
                         title: "Thao tác",
                         key: "actions",
@@ -104,7 +107,7 @@ const InvoiceList: React.FC = () => {
                                     Xem chi tiết
                                 </Button>
                                 <Button type="link" danger onClick={() => handleDelete(record.id)}>
-                                    Xóa
+                                    Hủy
                                 </Button>
                             </>
                         ),
