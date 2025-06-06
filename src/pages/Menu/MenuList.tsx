@@ -224,9 +224,6 @@ const MenuList: React.FC = () => {
     return (
         <div className="p-4 bg-white min-h-screen">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold flex items-center">
-                    Danh sách món ăn/đồ uống
-                </h2>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}

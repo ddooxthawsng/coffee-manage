@@ -13,6 +13,8 @@ import {
 
 // Thêm chi phí
 export const createCost = async (data: any) => {
+    if(data.note == undefined)
+        data.note ='';
     const docRef = doc(collection(db, "costs"));
     await setDoc(docRef, {
         ...data,

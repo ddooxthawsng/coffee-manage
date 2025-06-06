@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Tag, message } from "antd";
+import { Table, Button, Modal, Tag, message, Divider, Card, Tabs } from "antd";
 import CostForm from "./CostForm";
+import CostStats from "./CostStats";
 import {
     getCosts,
     createCost,
     updateCost,
     deleteCost,
 } from "../../services/costService";
+
+const { TabPane } = Tabs;
 
 const CostList: React.FC = () => {
     const [costs, setCosts] = useState<any[]>([]);
@@ -64,71 +67,81 @@ const CostList: React.FC = () => {
 
     return (
         <div className="p-4 bg-white min-h-screen">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-                <h2 className="text-xl font-bold mb-2 sm:mb-0">Quản lý chi phí</h2>
-                <Button
-                    type="primary"
-                    onClick={() => setModal({ open: true, item: null })}
-                >
-                    Thêm chi phí
-                </Button>
-            </div>
-            <Table
-                dataSource={costs}
-                rowKey="id"
-                loading={loading}
-                scroll={{ x: true }}
-                columns={[
-                    { title: "Tên chi phí", dataIndex: "name" },
-                    {
-                        title: "Nhóm",
-                        dataIndex: "group",
-                        render: (group: string) => <Tag color="blue">{group}</Tag>,
-                    },
-                    {
-                        title: "Số tiền",
-                        dataIndex: "amount",
-                        render: (amount: number) =>
-                            amount.toLocaleString("vi-VN") + " ₫",
-                    },
-                    { title: "Ngày", dataIndex: "date" },
-                    { title: "Ghi chú", dataIndex: "note" },
-                    {
-                        title: "Thao tác",
-                        key: "actions",
-                        render: (_, record) => (
-                            <>
-                                <Button
-                                    type="link"
-                                    onClick={() => setModal({ open: true, item: record })}
-                                >
-                                    Sửa
-                                </Button>
-                                <Button
-                                    type="link"
-                                    danger
-                                    onClick={() => handleDelete(record.id)}
-                                >
-                                    Xóa
-                                </Button>
-                            </>
-                        ),
-                    },
-                ]}
-            />
-            <Modal
-                open={modal.open}
-                title={modal.item ? "Cập nhật chi phí" : "Thêm chi phí"}
-                onCancel={() => setModal({ open: false, item: null })}
-                footer={null}
-                destroyOnClose
-            >
-                <CostForm
-                    initialValues={modal.item}
-                    onSubmit={modal.item ? handleEdit : handleCreate}
-                    loading={formLoading}
-                />
-            </Modal>
+            <Tabs defaultActiveKey="1">
+                <TabPane tab="Danh sách chi phí" key="1">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+                        <div />
+                        <Button
+                            type="primary"
+                            onClick={() => setModal({ open: true, item: null })}
+                        >
+                            Thêm chi phí
+                        </Button>
+                    </div>
+                    <Divider />
+                    <Table
+                        dataSource={costs}
+                        rowKey="id"
+                        loading={loading}
+                        scroll={{ x: true }}
+                        columns={[
+                            { title: "Tên chi phí", dataIndex: "name" },
+                            {
+                                title: "Nhóm",
+                                dataIndex: "group",
+                                render: (group: string) => <Tag color="blue">{group}</Tag>,
+                            },
+                            {
+                                title: "Số tiền",
+                                dataIndex: "amount",
+                                render: (amount: number) =>
+                                    amount.toLocaleString("vi-VN") + " ₫",
+                            },
+                            { title: "Ngày", dataIndex: "date" },
+                            { title: "Ghi chú", dataIndex: "note" },
+                            {
+                                title: "Thao tác",
+                                key: "actions",
+                                render: (_, record) => (
+                                    <>
+                                        <Button
+                                            type="link"
+                                            onClick={() => setModal({ open: true, item: record })}
+                                        >
+                                            Sửa
+                                        </Button>
+                                        <Button
+                                            type="link"
+                                            danger
+                                            onClick={() => handleDelete(record.id)}
+                                        >
+                                            Xóa
+                                        </Button>
+                                    </>
+                                ),
+                            },
+                        ]}
+                    />
+                    <Modal
+                        open={modal.open}
+                        title={modal.item ? "Cập nhật chi phí" : "Thêm chi phí"}
+                        onCancel={() => setModal({ open: false, item: null })}
+                        footer={null}
+                        destroyOnClose
+                    >
+                        <CostForm
+                            initialValues={modal.item}
+                            onSubmit={modal.item ? handleEdit : handleCreate}
+                            loading={formLoading}
+                        />
+                    </Modal>
+                </TabPane>
+                <TabPane tab="Thống kê chi phí" key="2">
+                    <Card>
+                        <CostStats costs={costs} />
+                    </Card>
+                </TabPane>
+            </Tabs>
         </div>
     );
 };
