@@ -84,9 +84,12 @@ const MenuList: React.FC = () => {
                             <div key={s.size || idx}>
                                 <span style={{ fontWeight: 500 }}>{s.size}</span>
                                 {": "}
+
                                 {s.outputs && s.outputs.length > 0 ? (
                                     s.outputs.map((out: any, i: number) => {
+
                                         const { name, unit } = getOutputCostAndUnit(out.outputId);
+                                        {console.log("s.outputs",s,name,unit)}
                                         return (
                                             <span key={i}>
                                                 {name || "?"} ({out.quantity} {unit})
@@ -162,7 +165,7 @@ const MenuList: React.FC = () => {
                 sizes && sizes.length > 0 ? (
                     <div>
                         {sizes.map((s, idx) => {
-                            let totalCost = 0;
+                            let totalCost = s.price;
                             if (s.outputs && s.outputs.length > 0) {
                                 totalCost = s.outputs.reduce((sum: number, output: any) => {
                                     const { cost } = getOutputCostAndUnit(output.outputId);
@@ -171,7 +174,7 @@ const MenuList: React.FC = () => {
                             }
                             const price = s.price || 0;
                             const profit = price - totalCost;
-                            const percent = totalCost > 0 ? Math.round((profit / totalCost) * 100)-100 : null;
+                            const percent = totalCost > 0 ? Math.round((profit / totalCost) * 100) : null;
                             return (
                                 <div key={s.size || idx}>
                                     <span style={{

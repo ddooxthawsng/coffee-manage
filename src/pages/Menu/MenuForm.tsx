@@ -63,6 +63,7 @@ const MenuForm: React.FC<MenuFormProps> = ({
                     <Option value="Trà">Trà</Option>
                     <Option value="Matcha">Matcha</Option>
                     <Option value="Bánh mỳ">Bánh mỳ</Option>
+                    <Option value="Topping">Topping</Option>
                     <Option value="Khác">Khác</Option>
                 </Select>
             </Form.Item>
