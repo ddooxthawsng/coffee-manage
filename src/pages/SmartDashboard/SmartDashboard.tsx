@@ -15,6 +15,7 @@ import DashboardStats from './DashboardStats';
 import {fetchDashboardData} from './dashboardUtils.jsx';
 import ItemStatsTable from "./ItemStatsTable.tsx";
 import DiscountStatsTable from "./DiscountStatsTable.tsx";
+import ItemStatsTableCancel from "./ItemStatsTableCancel.tsx";
 
 const {Title} = Typography;
 const {RangePicker} = DatePicker;
@@ -97,6 +98,7 @@ const SmartDashboard: React.FC = () => {
             <DashboardStats loading={loading} dashboardData={dashboardData}/>
             <ItemStatsTable itemStats={dashboardData?.itemStats} title="Thống kê chi tiết từng món & từng size (tất cả đơn) (Chưa tính mã giảm giá)"/>
             <DiscountStatsTable discountStats={dashboardData?.discountStats}/>
+            {/*<ItemStatsTableCancel itemStats={dashboardData?.itemStatsCancel} title="Thống kê chi tiết đơn hủy"/>*/}
         </div>
     );
 };

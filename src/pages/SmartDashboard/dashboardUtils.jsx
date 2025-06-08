@@ -23,6 +23,7 @@ export const fetchDashboardData = async (dateRange, setDashboardData, setLoading
             orderBy("createdAt", "desc")
         );
         const invoicesSnapshot = await getDocs(invoicesQuery);
+
         const invoicesData = invoicesSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
@@ -84,7 +85,7 @@ const calculateDashboardStats = (invoicesData, menuData, outputs, dateRange, set
 
     // Thống kê từng món và từng size, có cost và lãi (tất cả đơn)
     const itemStats = {};
-    invoicesData.forEach(inv => {
+    invoicesData.filter(i=>i.status !="deleted").forEach(inv => {
         if (!inv.items) return;
         inv.items.forEach(item => {
             if (!itemStats[item.id]) {
@@ -132,9 +133,59 @@ const calculateDashboardStats = (invoicesData, menuData, outputs, dateRange, set
         });
     });
 
+    // const itemStatsCancel = {};
+    // invoicesData.filter(i=>i.status == "deleted").forEach(inv => {
+    //     if (!inv.items) return;
+    //     inv.items.forEach(item => {
+    //         if (!itemStatsCancel[item.id]) {
+    //             itemStatsCancel[item.id] = {
+    //                 name: item.name,
+    //                 totalQty: 0,
+    //                 sizes: {},
+    //                 totalOriginal: 0,
+    //                 totalCost: 0,
+    //                 totalProfit: 0
+    //             };
+    //         }
+    //         itemStatsCancel[item.id].totalQty += item.quantity;
+    //         itemStatsCancel[item.id].totalOriginal += (item.price || 0) * item.quantity;
+    //
+    //         // Tính cost/lãi từng size
+    //         const menuItem = menuData.find(m => m.id === item.id);
+    //         const sizeInfo = menuItem?.sizes?.find(s => s.size === item.size);
+    //         let costPerOne = 0;
+    //         if (sizeInfo?.outputs?.length) {
+    //             costPerOne = sizeInfo.outputs.reduce((sum, out) => {
+    //                 return sum + getOutputCost(out.outputId, outputs) * (out.quantity || 0);
+    //             }, 0);
+    //         }
+    //         const totalCost = costPerOne * item.quantity;
+    //         itemStatsCancel[item.id].totalCost += totalCost;
+    //         const profit = (item.price || 0) * item.quantity - totalCost;
+    //         itemStatsCancel[item.id].totalProfit += profit;
+    //
+    //         // Thống kê theo từng size
+    //         if (item.size) {
+    //             if (!itemStatsCancel[item.id].sizes[item.size]) {
+    //                 itemStatsCancel[item.id].sizes[item.size] = {
+    //                     qty: 0,
+    //                     original: 0,
+    //                     cost: 0,
+    //                     profit: 0
+    //                 };
+    //             }
+    //             itemStatsCancel[item.id].sizes[item.size].qty += item.quantity;
+    //             itemStatsCancel[item.id].sizes[item.size].original += (item.price || 0) * item.quantity;
+    //             itemStatsCancel[item.id].sizes[item.size].cost += totalCost;
+    //             itemStatsCancel[item.id].sizes[item.size].profit += profit;
+    //         }
+    //     });
+    // });
+
+    // console.log("itemStatsCancel",itemStatsCancel)
     // Thống kê mã giảm giá đã dùng
     const discountStats = {};
-    invoicesData.forEach(inv => {
+    invoicesData.filter(i=>i.status !="deleted").forEach(inv => {
         if (inv.promotionCode || inv.promotionName) {
             const code = inv.promotionCode || inv.promotionName;
             if (!discountStats[code]) {
@@ -183,6 +234,7 @@ const calculateDashboardStats = (invoicesData, menuData, outputs, dateRange, set
         conversionRate: { current: 0, previous: 0, growth: 0 },
         customerRetention: { current: 0, previous: 0, growth: 0 },
         itemStats,
-        discountStats
+        discountStats,
+        // itemStatsCancel
     });
 };
