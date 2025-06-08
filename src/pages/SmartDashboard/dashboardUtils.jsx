@@ -1,6 +1,13 @@
 import { db } from "../../firebase/config";
 import { collection, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
 import dayjs from 'dayjs';
+import { getIngredientsByType } from "../../services/ingredientService.js";
+
+// Hàm lấy costMin của thành phẩm (outputs là mảng truyền vào)
+const getOutputCost = (outputId, outputs) => {
+    const found = outputs.find(o => o.id === outputId);
+    return found?.costMin ?? 0;
+};
 
 export const fetchDashboardData = async (dateRange, setDashboardData, setLoading, notification) => {
     setLoading(true);
@@ -8,6 +15,7 @@ export const fetchDashboardData = async (dateRange, setDashboardData, setLoading
         const startDate = dateRange[0].startOf('day').toDate();
         const endDate = dateRange[1].endOf('day').toDate();
 
+        // Lấy hóa đơn
         const invoicesQuery = query(
             collection(db, "invoices"),
             where("createdAt", ">=", Timestamp.fromDate(startDate)),
@@ -21,6 +29,7 @@ export const fetchDashboardData = async (dateRange, setDashboardData, setLoading
             createdAt: doc.data().createdAt?.toDate?.() || new Date()
         }));
 
+        // Lấy menu
         const menuQuery = query(collection(db, "menu"), orderBy("name"));
         const menuSnapshot = await getDocs(menuQuery);
         const menuData = menuSnapshot.docs.map(doc => ({
@@ -28,7 +37,10 @@ export const fetchDashboardData = async (dateRange, setDashboardData, setLoading
             ...doc.data()
         }));
 
-        calculateDashboardStats(invoicesData, menuData, dateRange, setDashboardData);
+        // Lấy outputs (thành phẩm)
+        const outputs = await getIngredientsByType("output");
+
+        calculateDashboardStats(invoicesData, menuData, outputs, dateRange, setDashboardData);
         setLoading(false);
     } catch (error) {
         setLoading(false);
@@ -39,7 +51,7 @@ export const fetchDashboardData = async (dateRange, setDashboardData, setLoading
     }
 };
 
-const calculateDashboardStats = (invoicesData, expensesData, dateRange, setDashboardData) => {
+const calculateDashboardStats = (invoicesData, menuData, outputs, dateRange, setDashboardData) => {
     const startDate = dateRange[0].startOf('day');
     const endDate = dateRange[1].endOf('day');
     const periodDays = endDate.diff(startDate, 'day') + 1;
@@ -70,6 +82,81 @@ const calculateDashboardStats = (invoicesData, expensesData, dateRange, setDashb
         return ((current - previous) / previous) * 100;
     };
 
+    // Thống kê từng món và từng size, có cost và lãi (tất cả đơn)
+    const itemStats = {};
+    invoicesData.forEach(inv => {
+        if (!inv.items) return;
+        inv.items.forEach(item => {
+            if (!itemStats[item.id]) {
+                itemStats[item.id] = {
+                    name: item.name,
+                    totalQty: 0,
+                    sizes: {},
+                    totalOriginal: 0,
+                    totalCost: 0,
+                    totalProfit: 0
+                };
+            }
+            itemStats[item.id].totalQty += item.quantity;
+            itemStats[item.id].totalOriginal += (item.price || 0) * item.quantity;
+
+            // Tính cost/lãi từng size
+            const menuItem = menuData.find(m => m.id === item.id);
+            const sizeInfo = menuItem?.sizes?.find(s => s.size === item.size);
+            let costPerOne = 0;
+            if (sizeInfo?.outputs?.length) {
+                costPerOne = sizeInfo.outputs.reduce((sum, out) => {
+                    return sum + getOutputCost(out.outputId, outputs) * (out.quantity || 0);
+                }, 0);
+            }
+            const totalCost = costPerOne * item.quantity;
+            itemStats[item.id].totalCost += totalCost;
+            const profit = (item.price || 0) * item.quantity - totalCost;
+            itemStats[item.id].totalProfit += profit;
+
+            // Thống kê theo từng size
+            if (item.size) {
+                if (!itemStats[item.id].sizes[item.size]) {
+                    itemStats[item.id].sizes[item.size] = {
+                        qty: 0,
+                        original: 0,
+                        cost: 0,
+                        profit: 0
+                    };
+                }
+                itemStats[item.id].sizes[item.size].qty += item.quantity;
+                itemStats[item.id].sizes[item.size].original += (item.price || 0) * item.quantity;
+                itemStats[item.id].sizes[item.size].cost += totalCost;
+                itemStats[item.id].sizes[item.size].profit += profit;
+            }
+        });
+    });
+
+    // Thống kê mã giảm giá đã dùng
+    const discountStats = {};
+    invoicesData.forEach(inv => {
+        if (inv.promotionCode || inv.promotionName) {
+            const code = inv.promotionCode || inv.promotionName;
+            if (!discountStats[code]) {
+                discountStats[code] = {
+                    code,
+                    count: 0,
+                    totalDiscount: 0,
+                    totalOrder: 0,
+                    lastUsed: inv.createdAt,
+                    promotionType: inv.promotionType,
+                    promotionValue: inv.promotionValue
+                };
+            }
+            discountStats[code].count += 1;
+            discountStats[code].totalDiscount += inv.discount || 0;
+            discountStats[code].totalOrder += inv.finalTotal || inv.total || 0;
+            if (inv.createdAt && (!discountStats[code].lastUsed || inv.createdAt > discountStats[code].lastUsed)) {
+                discountStats[code].lastUsed = inv.createdAt;
+            }
+        }
+    });
+
     setDashboardData({
         revenue: {
             current: currentRevenue,
@@ -94,6 +181,8 @@ const calculateDashboardStats = (invoicesData, expensesData, dateRange, setDashb
         profit: { current: 0, previous: 0, growth: 0 },
         dailySales: { current: 0, previous: 0, growth: 0 },
         conversionRate: { current: 0, previous: 0, growth: 0 },
-        customerRetention: { current: 0, previous: 0, growth: 0 }
+        customerRetention: { current: 0, previous: 0, growth: 0 },
+        itemStats,
+        discountStats
     });
 };

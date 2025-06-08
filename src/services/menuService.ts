@@ -65,12 +65,6 @@ export const deleteMenu = async (id: string) => {
     localStorage.removeItem('menu_cache_timestamp');
 };
 
-// Lấy chi tiết 1 món (để kiểm tra tồn kho thành phẩm khi order)
-export const getMenuById = async (id: string) => {
-    const docRef = doc(db, "menu", id);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? {id: docSnap.id, ...docSnap.data()} : null;
-};
 
 // Hàm xóa cache và bắt buộc tải lại dữ liệu từ server
 export const refreshMenuCache = async () => {

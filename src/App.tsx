@@ -13,23 +13,37 @@ import OrderPOS from "./pages/Order/OrderPOS";
 import InvoiceList from "./pages/Invoice/InvoiceList";
 // SuperDashboard removed as it's no longer needed
 import SmartDashboard from "./pages/SmartDashboard/SmartDashboard";
+import RequireAuth from "./pages/Auth/RequireAuth.tsx";
+import {AuthProvider, useAuthLogin} from "./hooks/context/AuthContext.tsx";
+import ReceiptList from "./pages/Reciep/RecipeList.tsx";
 
 const App: React.FC = () => {
+    const {role} = useAuthLogin();
     return (
         <BrowserRouter>
             <Routes>
                 {/* Các route cần đăng nhập nằm trong MainLayout */}
-                <Route path="/" element={<MainLayout/>}>
-                    <Route index element={<OrderPOS/>}/>
-                    <Route path="menu" element={<MenuList/>}/>
-                    <Route path="inventory" element={<IngredientList/>}/>
-                    <Route path="users" element={<UserList/>}/>
-                    <Route path="promotion" element={<PromotionList/>}/>
-                    <Route path="cost" element={<CostList/>}/>
-                    <Route path="qrcode" element={<QRCodeList/>}/>
-                    <Route path="orders" element={<OrderPOS/>}/>
-                    <Route path="invoices" element={<InvoiceList/>}/>
-                    <Route path="smart-dashboard" element={<SmartDashboard/>}/>
+                <Route path="/" element={<RequireAuth>
+                    <MainLayout/>
+                </RequireAuth>}>
+                    {role ? <>
+                        <Route index element={<OrderPOS/>}/>
+                        <Route path="menu" element={<MenuList/>}/>
+                        <Route path="inventory" element={<IngredientList/>}/>
+                        <Route path="users" element={<UserList/>}/>
+                        <Route path="promotion" element={<PromotionList/>}/>
+                        <Route path="cost" element={<CostList/>}/>
+                        <Route path="qrcode" element={<QRCodeList/>}/>
+                        <Route path="orders" element={<OrderPOS/>}/>
+                        <Route path="invoices" element={<InvoiceList/>}/>
+                        <Route path="smart-dashboard" element={<SmartDashboard/>}/>
+                        <Route path="receipt" element={<ReceiptList/>}/>
+                    </> : <>
+                        <Route index element={<OrderPOS/>}/>
+                        {/*<Route path="smart-dashboard" element={<SmartDashboard/>}/>*/}
+                        <Route path="receipt" element={<ReceiptList/>}/>
+                    </>}
+
                 </Route>
                 {/* Route đăng nhập riêng biệt, không dùng layout */}
                 <Route path="/login" element={<Login/>}/>
@@ -40,4 +54,9 @@ const App: React.FC = () => {
     );
 };
 
-export default App;
+const AuthenApp = () => {
+    return (<AuthProvider>
+        <App/>
+    </AuthProvider>)
+}
+export default AuthenApp;

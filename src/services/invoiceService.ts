@@ -1,5 +1,16 @@
 import {db} from "../firebase/config";
-import {collection, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where,} from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    setDoc,
+    Timestamp,
+    updateDoc,
+    where,
+} from "firebase/firestore";
 
 // Thêm hóa đơn mới
 export const createInvoice = async (data: any) => {
@@ -8,22 +19,35 @@ export const createInvoice = async (data: any) => {
     return {id: docRef.id, ...data};
 };
 
-// Lấy danh sách hóa đơn, có thể lọc theo ngày/tuần/tháng, ẩn hóa đơn đã xóa
-export const getInvoices = async (filter: { from?: string; to?: string } = {}) => {
-    let q = query(collection(db, "invoices"), orderBy("createdAt", "desc"));
-    if (filter.from && filter.to) {
-        q = query(
-            collection(db, "invoices"),
-            where("createdAt", ">=", filter.from),
-            where("createdAt", "<=", filter.to),
-            orderBy("createdAt", "desc")
-        );
+// Lấy danh sách hóa đơn, lọc theo ngày và/hoặc createdUser (email)
+export const getInvoices = async (filter = {}) => {
+    try {
+        let q = collection(db, "invoices");
+        const wheres = [];
+        // Lọc theo email người tạo hóa đơn
+        if (filter.createdUser) {
+            wheres.push(where("createdUser", "==", filter.createdUser));
+        }
+
+        // Lọc theo ngày (chuyển sang Timestamp)
+        if (filter.from && filter.to) {
+            const fromTimestamp = Timestamp.fromDate(new Date(filter.from));
+            const toTimestamp = Timestamp.fromDate(new Date(filter.to));
+            wheres.push(where("createdAt", ">=", fromTimestamp));
+            wheres.push(where("createdAt", "<=", toTimestamp));
+        }
+
+        // Luôn order by ngày mới nhất
+        let queryRef = query(q, ...wheres, orderBy("createdAt", "desc"));
+
+        const querySnapshot = await getDocs(queryRef);
+        console.log("querySnapshot.docs", querySnapshot.docs)
+        return querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+    }catch (e){
     }
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-    })) as any[];
 };
 
 

@@ -1,180 +1,241 @@
-import React from "react";
-import { Badge, Button, Tag, Select } from "antd";
-import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, MinusOutlined, CreditCardOutlined, QrcodeOutlined } from "@ant-design/icons";
+import React, {useEffect, useState} from "react";
+import {Badge, Button, Select, Tooltip} from "antd";
+import {CloseCircleOutlined, DollarOutlined, MobileOutlined, ShoppingCartOutlined} from "@ant-design/icons";
+import dayjs from "dayjs";
+import CartItemList from "./CartItemList";
 
-interface Props {
-    cart: any[];
-    promotions: any[];
-    selectedPromotion: any;
-    setSelectedPromotion: (promo: any) => void;
-    changeQty: (key: string, qty: number) => void;
-    removeItem: (key: string) => void;
-    total: number;
-    discount: number;
-    finalTotal: number;
-    handleCheckout: () => void;
-    setShowDrawer: (open: boolean) => void;
-    setShowQR: (open: boolean) => void;
-    loading: boolean;
-    isMobile: boolean;
+function isPromotionValidByDate(promo) {
+    if (!promo) return false;
+    const now = dayjs();
+    if (promo.startDate && now.isBefore(dayjs(promo.startDate))) return false;
+    if (promo.endDate && now.isAfter(dayjs(promo.endDate).endOf("day")))
+        return false;
+    return true;
 }
-const CartBox: React.FC<Props> = ({
-                                      cart, promotions, selectedPromotion, setSelectedPromotion,
-                                      changeQty, removeItem, total, discount, finalTotal,
-                                      handleCheckout, setShowDrawer, setShowQR, loading, isMobile
-                                  }) => (
-    <div
-        style={{
-            background: "#fff",
-            borderRadius: isMobile ? "18px 18px 0 0" : 24,
-            boxShadow: "0 2px 18px #2196f11a",
-            padding: isMobile ? "12px 8px 10px 8px" : "28px 24px 20px 24px",
-            minWidth: isMobile ? "100vw" : 340,
-            maxWidth: isMobile ? "100vw" : 410,
-            width: isMobile ? "100vw" : "100%",
-            position: "static",
-            left: 0,
-            right: 0,
-            bottom: isMobile ? 0 : "auto",
-            zIndex: isMobile ? 100 : "auto",
-            boxSizing: "border-box",
-            margin: isMobile ? 0 : undefined,
-            borderTop: isMobile ? "2px solid #e3eafc" : undefined,
-        }}
-    >
-        <div style={{
-            color: "#222",
-            fontWeight: "bold",
-            fontSize: isMobile ? 16 : 22,
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginBottom: isMobile ? 8 : 18,
-        }}>
-            <ShoppingCartOutlined />
-            {!isMobile && <>Giỏ hàng <Badge count={cart.length} style={{ background: "#ff4d4f", marginLeft: 10 }} /></>}
-            <Button type="primary" size={isMobile ? "small" : "middle"} style={{ marginLeft: "auto", fontSize: isMobile ? 12 : 14 }} onClick={() => setShowDrawer(true)}>
-                {isMobile ? <ShoppingCartOutlined /> : "Xem chi tiết"}
-            </Button>
-        </div>
-        <div style={{ marginBottom: isMobile ? 8 : 16 }}>
-            <span style={{ fontWeight: 500, fontSize: isMobile ? 13 : 16 }}>Mã giảm giá:</span>
-            <Select
-                size={isMobile ? "small" : "middle"}
-                value={selectedPromotion?.id}
-                style={{ width: isMobile ? 120 : 200, marginLeft: 8 }}
-                placeholder="Chọn mã"
-                onChange={(id) => setSelectedPromotion(promotions.find(p => p.id === id))}
-                allowClear
-            >
-                {promotions.map((promo) => (
-                    <Select.Option key={promo.id} value={promo.id}>
-                        {promo.code} - {promo.type === "percent" ? `${promo.value}%` : `${promo.value?.toLocaleString()}đ`}
-                    </Select.Option>
-                ))}
-            </Select>
-        </div>
-        <div style={{
-            maxHeight: isMobile ? 120 : 220,
-            overflowY: "auto",
-            marginBottom: isMobile ? 8 : 18,
-            display: "flex",
-            flexDirection: "column",
-            gap: 0,
-        }}>
-            {cart.length === 0 ? (
-                <div style={{ color: "#888", textAlign: "center", fontSize: isMobile ? 13 : 16 }}>Chưa có món nào</div>
-            ) : (
-                cart.map((c) => (
-                    <div key={c.key} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        minHeight: isMobile ? 32 : 48,
-                        borderBottom: "1px solid #f3f3f3",
-                        paddingBottom: 4,
-                        marginBottom: 4,
-                        fontSize: isMobile ? 13 : 16
-                    }}>
-                        <span style={{
-                            fontWeight: 500,
-                            color: "#222",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 5,
-                            minWidth: 60,
-                            flex: 1,
-                        }}>
-                            <Tag color="blue" style={{ marginRight: 4, fontWeight: 600, fontSize: isMobile ? 12 : 15 }}>{c.size}</Tag>
-                            {c.name}
-                        </span>
-                        <span style={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Button size="small" icon={<MinusOutlined />} style={{ minWidth: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => changeQty(c.key, c.quantity - 1)} />
-                            <span style={{ width: 20, textAlign: "center", fontWeight: 600 }}>{c.quantity}</span>
-                            <Button size="small" icon={<PlusOutlined />} style={{ minWidth: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => changeQty(c.key, c.quantity + 1)} />
-                            <span style={{ fontWeight: "bold", color: "#1890ff", minWidth: isMobile ? 40 : 80, textAlign: "right", marginLeft: 3 }}>
-                                {(c.price * c.quantity).toLocaleString()}đ
-                            </span>
-                            <Button size="small" icon={<DeleteOutlined />} danger style={{ minWidth: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => removeItem(c.key)} />
-                        </span>
-                    </div>
-                ))
-            )}
-        </div>
-        <div style={{ marginTop: 0 }}>
-            <div style={{ fontSize: isMobile ? 15 : 22, fontWeight: "bold", color: "#1890ff", textAlign: "right" }}>
-                Tổng: {total.toLocaleString()}đ
-                {discount > 0 && <span style={{ color: "#43a047", fontSize: isMobile ? 12 : 16, marginLeft: 6 }}>{`- ${discount.toLocaleString()}đ`}</span>}
+
+function isPromotionUsable(promo, total) {
+    return promo && isPromotionValidByDate(promo) && (!promo.minOrder || total >= promo.minOrder);
+}
+
+const CartBox = ({
+                     cart,
+                     promotions,
+                     selectedPromotion,
+                     setSelectedPromotion,
+                     changeQty,
+                     removeItem,
+                     total,
+                     handleCheckout,
+                     setShowDrawer,
+                     setShowQR,
+                     loading,
+                     isMobile,
+                     onEditTopping
+                 }) => {
+    const [collapsed, setCollapsed] = useState(isMobile);
+
+    useEffect(() => {
+        setCollapsed(isMobile);
+    }, [isMobile]);
+
+    // Tính discount và finalTotal
+    let discount = 0;
+    let promotionInfo = null;
+    if (isPromotionUsable(selectedPromotion, total)) {
+        discount =
+            selectedPromotion.type === "percent"
+                ? Math.round((total * selectedPromotion.value) / 100)
+                : selectedPromotion.value;
+        promotionInfo = selectedPromotion;
+    }
+    const finalTotal = Math.max(0, total - discount);
+
+    const validPromotions = Array.isArray(promotions)
+        ? promotions.filter(p => isPromotionValidByDate(p))
+        : [];
+
+    const handleCheckoutWithPromo = () => {
+        handleCheckout({
+            promotion: promotionInfo,
+            discount: discount || 0,
+            finalTotal,
+        });
+    };
+
+    const handleCheckoutQRWithPromo = () => {
+        setShowQR({
+            promotion: promotionInfo,
+            discount: discount || 0,
+            finalTotal,
+        });
+    };
+
+    return (
+        <div
+            className="cartbox"
+            style={isMobile ? {
+                background: "#fff",
+                borderRadius: 14,
+                boxShadow: "0 2px 12px #0001",
+                padding: 0,
+                width: "100%",
+                maxWidth: 420,
+                minWidth: 0,
+                margin: "0 auto",
+                display: "flex",
+                flexDirection: "column",
+                boxSizing: "border-box",
+                height:"80%"
+            } :  {
+                background: "#fff",
+                borderRadius: 14,
+                boxShadow: "0 2px 12px #0001",
+                padding: 0,
+                width: "100%",
+                maxWidth: 420,
+                minWidth: 0,
+                margin: "0 auto",
+                display: "flex",
+                flexDirection: "column",
+                boxSizing: "border-box",
+            }}
+        >
+            {/* Khuyến mãi: chỉ hiển thị khi đã chọn */}
+            {/*{selectedPromotion && (*/}
+            <div style={{
+                padding: "14px 20px 4px 20px",
+                display: "flex",
+                alignItems: "center",
+                gap: 8
+            }}>
+                <span style={{fontWeight: 500, fontSize: 15, minWidth: 70}}>Khuyến mãi:</span>
+                <Select
+                    style={{minWidth: 140, flex: 1, height: "30px"}}
+                    value={selectedPromotion?.id}
+                    onChange={id => {
+                        const promo = promotions.find(p => p.id === id);
+                        if (promo && !isPromotionValidByDate(promo)) {
+                            setSelectedPromotion(null);
+                            return;
+                        }
+                        setSelectedPromotion(promo);
+                    }}
+                    allowClear
+                    clearIcon={<CloseCircleOutlined style={{color: "#ff4d4f", fontSize: 20, height: "100%"}}/>}
+                    placeholder="Chọn khuyến mãi"
+                    size="small"
+                >
+                    {validPromotions.map(p => (
+                        <Select.Option key={p.id} value={p.id}>
+                            {p.name} {p.type === "percent" ? `(-${p.value}%)` : `(-${p.value.toLocaleString()}đ)`}
+                            {p.minOrder ? ` (Từ ${p.minOrder.toLocaleString()}đ)` : ""}
+                        </Select.Option>
+                    ))}
+                </Select>
             </div>
-            {discount > 0 && (
-                <div style={{ color: "#d32f2f", fontSize: isMobile ? 15 : 22, fontWeight: "bold", textAlign: "right", marginTop: 2 }}>
-                    Còn lại: {finalTotal.toLocaleString()}đ
+            {/*)}*/}
+
+            {/* Dòng tổng tiền + icon giỏ hàng */}
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "2px 20px 2px 20px",
+                fontSize: 15
+            }}>
+                <div>
+                    Tạm tính: {(total - (discount ?? 0))?.toLocaleString()} đ (Giảm: -{discount?.toLocaleString()} đ)
+                </div>
+                <div style={{display: "flex", alignItems: "center", gap: 4}}>
+                    <Tooltip title={collapsed ? "Xem chi tiết giỏ hàng" : "Thu gọn giỏ hàng"}>
+                        <Badge count={cart.length} size="small" style={{background: "#1890ff"}}>
+                            <Button
+                                type="text"
+                                icon={<ShoppingCartOutlined/>}
+                                onClick={() => setCollapsed(!collapsed)}
+                                style={{fontSize: 20, color: "#1890ff", padding: 0}}
+                            />
+                        </Badge>
+                    </Tooltip>
+                </div>
+            </div>
+
+            {/* Danh sách món: chỉ hiển thị khi không collapse */}
+            {!collapsed && (
+                <div
+                    style={{
+                        height: "calc(100vh - 150px)", // hoặc "100%", hoặc "calc(100vh - [chiều cao header/footer])"
+                        minHeight: 0,
+                        overflowY: "auto",
+                        padding: "0 20px",
+                        background: "#fff" // hoặc màu phù hợp
+                    }}
+                >
+                    <CartItemList
+                        cart={cart}
+                        changeQty={changeQty}
+                        removeItem={removeItem}
+                        onEditTopping={onEditTopping}
+                    />
                 </div>
             )}
+
+            {/* 2 nút thanh toán trên 1 dòng, icon + text nhỏ */}
+            <div style={{
+                borderTop: "1px solid #f0f0f0",
+                background: "#fff",
+                padding: "16px 20px 12px 20px",
+                display: "flex",
+                gap: 10
+            }}>
+                <Button
+                    type="primary"
+                    block
+                    size="large"
+                    style={{
+                        fontWeight: 600,
+                        borderRadius: 8,
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        fontSize: 15,
+                        padding: "0 8px"
+                    }}
+                    onClick={handleCheckoutWithPromo}
+                    disabled={cart.length === 0 || loading}
+                    loading={loading}
+                >
+                    <DollarOutlined/>
+                    <span style={{fontSize: 14}}>Tiền mặt</span>
+                </Button>
+                <Button
+                    block
+                    size="large"
+                    style={{
+                        fontWeight: 600,
+                        borderRadius: 8,
+                        flex: 1,
+                        background: "#52c41a",
+                        color: "#fff",
+                        borderColor: "#52c41a",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        fontSize: 15,
+                        padding: "0 8px"
+                    }}
+                    onClick={handleCheckoutQRWithPromo}
+                    disabled={cart.length === 0 || loading}
+                >
+                    <MobileOutlined/>
+                    <span style={{fontSize: 14}}>QR</span>
+                </Button>
+            </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 10 : 16, marginTop: isMobile ? 12 : 28 }}>
-            <Button
-                type="primary"
-                className="w-full"
-                size={isMobile ? "middle" : "large"}
-                style={{ 
-                    padding: isMobile ? "12px 0" : "16px 0", 
-                    fontSize: isMobile ? 16 : 20, 
-                    height: "auto",
-                    fontWeight: "bold", 
-                    borderRadius: 16, 
-                    background: "#52c41a", 
-                    border: "none", 
-                    color: "#fff",
-                    boxShadow: "0 4px 12px rgba(82, 196, 26, 0.3)"
-                }}
-                onClick={handleCheckout}
-                loading={loading}
-            >
-                <CreditCardOutlined style={{ fontSize: isMobile ? 18 : 22 }} /> Thanh toán
-            </Button>
-            <Button
-                type="primary"
-                className="w-full"
-                size={isMobile ? "middle" : "large"}
-                style={{ 
-                    background: "#1890ff", 
-                    padding: isMobile ? "12px 0" : "16px 0", 
-                    fontSize: isMobile ? 16 : 20, 
-                    height: "auto",
-                    fontWeight: "bold", 
-                    borderRadius: 16, 
-                    border: "none", 
-                    color: "#fff",
-                    boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)"
-                }}
-                onClick={() => setShowQR(true)}
-                disabled={cart.length === 0}
-            >
-                <QrcodeOutlined style={{ fontSize: isMobile ? 18 : 22 }} /> QR
-            </Button>
-        </div>
-    </div>
-);
+    );
+};
 
 export default CartBox;

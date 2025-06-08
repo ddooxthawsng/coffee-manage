@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, Input, Button, DatePicker, InputNumber, Select, Switch } from "antd";
+import React, { useEffect, useMemo } from "react";
+import { Form, Input, Button, DatePicker, InputNumber, Select, Switch, Tooltip } from "antd";
 import dayjs from "dayjs";
 
 const { Option } = Select;
@@ -17,8 +17,39 @@ const PromotionForm: React.FC<PromotionFormProps> = ({
                                                      }) => {
     const [form] = Form.useForm();
 
-    // Hiển thị đúng addonAfter theo loại giảm giá
+    // Theo dõi loại giảm giá để hiển thị addonAfter
     const valueAddon = Form.useWatch("type", form) === "percent" ? "%" : "VNĐ";
+
+    // Theo dõi ngày bắt đầu để kiểm soát switch mặc định
+    const startDate = Form.useWatch("startDate", form);
+
+    // Kiểm tra ngày bắt đầu có lớn hơn hiện tại không
+    const isFutureStart = useMemo(() => {
+        if (!startDate) return false;
+        return dayjs(startDate).isAfter(dayjs().startOf("day"));
+    }, [startDate]);
+
+    // Nếu ngày bắt đầu > hiện tại, luôn set isDefault = false
+    useEffect(() => {
+        if (isFutureStart) {
+            form.setFieldValue("isDefault", false);
+        }
+    }, [isFutureStart, form]);
+
+    // Xử lý submit
+    const handleFinish = (values: any) => {
+        // Nếu ngày bắt đầu > hiện tại, luôn gửi isDefault = false
+        const isDefault = values.startDate && dayjs(values.startDate).isAfter(dayjs().startOf("day"))
+            ? false
+            : values.isDefault || false;
+        onSubmit({
+            ...values,
+            isDefault,
+            startDate: values.startDate ? values.startDate.format("YYYY-MM-DD") : null,
+            endDate: values.endDate ? values.endDate.format("YYYY-MM-DD") : null,
+            minOrder: values.minOrder || 0,
+        });
+    };
 
     return (
         <Form
@@ -30,14 +61,9 @@ const PromotionForm: React.FC<PromotionFormProps> = ({
                 endDate: initialValues?.endDate ? dayjs(initialValues.endDate) : undefined,
                 type: initialValues?.type || "percent",
                 isDefault: initialValues?.isDefault || false,
+                minOrder: initialValues?.minOrder || undefined,
             }}
-            onFinish={(values) => {
-                onSubmit({
-                    ...values,
-                    startDate: values.startDate ? values.startDate.format("YYYY-MM-DD") : null,
-                    endDate: values.endDate ? values.endDate.format("YYYY-MM-DD") : null,
-                });
-            }}
+            onFinish={handleFinish}
         >
             <Form.Item
                 label="Mã khuyến mãi"
@@ -82,14 +108,50 @@ const PromotionForm: React.FC<PromotionFormProps> = ({
                     addonAfter={valueAddon}
                 />
             </Form.Item>
-            <Form.Item label="Đặt làm mặc định" name="isDefault" valuePropName="checked">
-                <Switch />
+            <Form.Item
+                label={
+                    <span>
+                        Áp dụng cho đơn từ (VNĐ)&nbsp;
+                        <Tooltip title="Nếu để trống, khuyến mãi áp dụng cho mọi đơn hàng">
+                            <i style={{ color: "#1890ff" }}>(?)</i>
+                        </Tooltip>
+                    </span>
+                }
+                name="minOrder"
+                rules={[
+                    {
+                        type: "number",
+                        min: 0,
+                        message: "Giá trị phải lớn hơn hoặc bằng 0"
+                    }
+                ]}
+            >
+                <InputNumber
+                    min={0}
+                    className="w-full"
+                    placeholder="Để trống nếu áp dụng cho mọi đơn"
+                />
+            </Form.Item>
+            <Form.Item
+                label="Đặt làm mặc định"
+                name="isDefault"
+                valuePropName="checked"
+            >
+                <Switch disabled={isFutureStart} />
             </Form.Item>
             <Form.Item label="Ngày bắt đầu" name="startDate">
-                <DatePicker className="w-full" format="YYYY-MM-DD" />
+                <DatePicker
+                    className="w-full"
+                    format="YYYY-MM-DD"
+                    minDate={dayjs().startOf("day")}
+                />
             </Form.Item>
             <Form.Item label="Ngày kết thúc" name="endDate">
-                <DatePicker className="w-full" format="YYYY-MM-DD" />
+                <DatePicker
+                    className="w-full"
+                    format="YYYY-MM-DD"
+                    minDate={dayjs().startOf("day")}
+                />
             </Form.Item>
             <Form.Item>
                 <Button type="primary" htmlType="submit" block loading={loading}>
