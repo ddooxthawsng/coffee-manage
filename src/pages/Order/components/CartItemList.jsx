@@ -27,27 +27,26 @@ const CartItemList = ({ cart, changeQty, removeItem, onEditTopping }) => (
                             padding: "8px 0"
                         }}
                     >
-                        {/* Dòng 1: Tên món + size + nút xóa */}
+                        {/* Dòng 1: Nút xóa + Tên món + size */}
                         <div style={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "space-between",
                             gap: 8,
                             fontWeight: 500,
                             fontSize: 16,
                         }}>
-                            <span>
-                                <span style={{ fontWeight: 600 }}>{c.name}</span>
-                                <span style={{ color: "#888", marginLeft: 5 }}>({c.size})</span>
-                            </span>
                             <Button
                                 type="text"
                                 size="small"
                                 icon={<DeleteOutlined />}
                                 danger
                                 onClick={() => removeItem(c.key)}
-                                style={{ marginLeft: 8 }}
+                                style={{ minWidth: 24, height: 24, padding: 0 }}
                             />
+                            <span style={{ flex: 1 }}>
+                                <span style={{ fontWeight: 600 }}>{c.name}</span>
+                                <span style={{ color: "#888", marginLeft: 5 }}>({c.size})</span>
+                            </span>
                         </div>
 
                         {/* Dòng 2: Giá x Số lượng = Tổng, icon + - edit cùng dòng bên phải */}
@@ -75,13 +74,13 @@ const CartItemList = ({ cart, changeQty, removeItem, onEditTopping }) => (
                                     size="small"
                                     icon={<MinusOutlined />}
                                     onClick={() => changeQty(c.key, c.quantity - 1)}
-                                    style={{ borderRadius: 6, minWidth: 24, height: 24, padding: 0 }}
+                                    style={{ borderRadius: 6, minWidth: 28, height: 28, padding: 0 }}
                                 />
                                 <Button
                                     size="small"
                                     icon={<PlusOutlined />}
                                     onClick={() => changeQty(c.key, c.quantity + 1)}
-                                    style={{ borderRadius: 6, minWidth: 24, height: 24, padding: 0 }}
+                                    style={{ borderRadius: 6, minWidth: 28, height: 28, padding: 0 }}
                                 />
                                 {c.category !== "Topping" && (
                                     <Tooltip title="Thêm/Chỉnh topping">
@@ -89,7 +88,7 @@ const CartItemList = ({ cart, changeQty, removeItem, onEditTopping }) => (
                                             size="small"
                                             icon={<EditOutlined />}
                                             onClick={() => onEditTopping(c)}
-                                            style={{ borderRadius: 6, minWidth: 24, height: 24, padding: 0, marginLeft: 4 }}
+                                            style={{ borderRadius: 6, minWidth: 28, height: 28, padding: 0, marginLeft: 4 }}
                                         />
                                     </Tooltip>
                                 )}

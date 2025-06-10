@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Space, Tooltip } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {Table, Button, Modal, Space, Tooltip, Input, Select, Popconfirm} from "antd";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    CopyOutlined,
+    SearchOutlined,
+    ExclamationCircleOutlined
+} from "@ant-design/icons";
 import MenuForm from "./MenuForm";
 import { getMenus, createMenu, updateMenu, deleteMenu } from "../../services/menuService";
 import { getIngredientsByType } from "../../services/ingredientService";
+
+const { Option } = Select;
 
 const MenuList: React.FC = () => {
     const [menus, setMenus] = useState<any[]>([]);
@@ -11,6 +20,10 @@ const MenuList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [modal, setModal] = useState<{ open: boolean; item: any }>({ open: false, item: null });
     const [formLoading, setFormLoading] = useState(false);
+
+    // State cho search và filter
+    const [searchTerm, setSearchTerm] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
 
     // Lấy danh sách menu và thành phẩm (outputs)
     const fetchMenus = async () => {
@@ -62,6 +75,21 @@ const MenuList: React.FC = () => {
         setLoading(false);
     };
 
+    // Hàm nhân bản cải thiện
+    const handleClone = (record: any) => {
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substr(2, 9);
+
+        const cloned = {
+            ...record,
+            id: undefined, // Xóa ID để tạo mới
+            name: record.name + " (Bản sao)",
+            // Thêm identifier duy nhất để tránh key trùng
+            cloneId: `clone_${timestamp}_${randomSuffix}`
+        };
+        setModal({ open: true, item: cloned });
+    };
+
     // Hàm lấy giá cost nhỏ nhất và đơn vị của thành phẩm (output)
     const getOutputCostAndUnit = (outputId: string) => {
         const output = outputs.find((o) => o.id === outputId);
@@ -72,8 +100,28 @@ const MenuList: React.FC = () => {
         };
     };
 
+    // Lấy danh sách danh mục từ dữ liệu
+    const categoryList = Array.from(new Set(menus.map(m => m.category).filter(Boolean)));
+
+    // Lọc dữ liệu theo search và filter
+    const filteredMenus = menus
+        .filter(menu =>
+            (!searchTerm ||
+                menu.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (menu.category || "").toLowerCase().includes(searchTerm.toLowerCase())
+            ) &&
+            (!categoryFilter || menu.category === categoryFilter)
+        );
+
     const columns = [
         { title: "Tên món", dataIndex: "name" },
+        {
+            title: "Danh mục",
+            dataIndex: "category",
+            filters: categoryList.map(cat => ({ text: cat, value: cat })),
+            onFilter: (value: any, record: any) => record.category === value,
+            render: (cat: string) => <span style={{ fontWeight: 500 }}>{cat}</span>
+        },
         {
             title: "Size & Thành phẩm sử dụng",
             dataIndex: "sizes",
@@ -84,12 +132,9 @@ const MenuList: React.FC = () => {
                             <div key={s.size || idx}>
                                 <span style={{ fontWeight: 500 }}>{s.size}</span>
                                 {": "}
-
                                 {s.outputs && s.outputs.length > 0 ? (
                                     s.outputs.map((out: any, i: number) => {
-
                                         const { name, unit } = getOutputCostAndUnit(out.outputId);
-                                        {console.log("s.outputs",s,name,unit)}
                                         return (
                                             <span key={i}>
                                                 {name || "?"} ({out.quantity} {unit})
@@ -211,13 +256,31 @@ const MenuList: React.FC = () => {
                             onClick={() => setModal({ open: true, item: record })}
                         />
                     </Tooltip>
-                    <Tooltip title="Xóa">
+                    <Tooltip title="Nhân bản">
                         <Button
                             type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => handleDelete(record.id)}
+                            icon={<CopyOutlined />}
+                            onClick={() => handleClone(record)}
                         />
+                    </Tooltip>
+                    <Tooltip title="Xóa">
+                        <Popconfirm
+                            title="Xác nhận xóa"
+                            description="Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác."
+                            onConfirm={() => handleDelete(record.id)}
+                            onCancel={() => console.log('Đã hủy xóa')}
+                            okText="Xóa"
+                            cancelText="Hủy"
+                            okType="danger"
+                            icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
+                            placement="topRight"
+                        >
+                            <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                            />
+                        </Popconfirm>
                     </Tooltip>
                 </Space>
             ),
@@ -226,7 +289,28 @@ const MenuList: React.FC = () => {
 
     return (
         <div className="p-4 bg-white min-h-screen">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <Input
+                        placeholder="Tìm kiếm theo tên hoặc danh mục..."
+                        prefix={<SearchOutlined />}
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        allowClear
+                        style={{ width: 240 }}
+                    />
+                    <Select
+                        placeholder="Lọc theo danh mục"
+                        allowClear
+                        value={categoryFilter}
+                        onChange={setCategoryFilter}
+                        style={{ width: 180 }}
+                    >
+                        {categoryList.map(cat => (
+                            <Option key={cat} value={cat}>{cat}</Option>
+                        ))}
+                    </Select>
+                </div>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
@@ -236,7 +320,7 @@ const MenuList: React.FC = () => {
                 </Button>
             </div>
             <Table
-                dataSource={menus}
+                dataSource={filteredMenus}
                 rowKey="id"
                 loading={loading}
                 columns={columns}
@@ -244,7 +328,7 @@ const MenuList: React.FC = () => {
             />
             <Modal
                 open={modal.open}
-                title={modal.item ? "Cập nhật món" : "Thêm món mới"}
+                title={modal.item?.id ? "Cập nhật món" : "Thêm món mới"}
                 onCancel={() => setModal({ open: false, item: null })}
                 footer={null}
                 destroyOnClose
@@ -252,7 +336,7 @@ const MenuList: React.FC = () => {
             >
                 <MenuForm
                     initialValues={modal.item}
-                    onSubmit={modal.item ? handleEdit : handleCreate}
+                    onSubmit={modal.item?.id ? handleEdit : handleCreate}
                     loading={formLoading}
                 />
             </Modal>

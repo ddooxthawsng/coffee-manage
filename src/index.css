@@ -4,3 +4,35 @@
 #root{
     height: 100%;
 }
+/* Thêm vào CSS global */
+.ant-btn, .font-semibold, .font-bold {
+    font-weight: 700 !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Cho mobile */
+@media (max-width: 768px) {
+    .font-semibold {
+        font-weight: 800 !important;
+    }
+    .font-bold {
+        font-weight: 900 !important;
+    }
+}
+html {
+    -webkit-font-smoothing: unset;
+    -moz-osx-font-smoothing: unset;
+}
+
+/* Hoặc force antialiased */
+.bold-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+/* Media query cho mobile */
+@media (max-width: 768px) {
+    .bold-text {
+        font-weight: 900 !important; /* Tăng weight cho mobile */
+        text-shadow: 0.5px 0 0 currentColor; /* Fake bold effect */
+    }
+}

@@ -15,26 +15,45 @@ const RecipeForm = ({
 
     const [sizes, setSizes] = useState(
         Array.isArray(safeInitial.sizes) && safeInitial.sizes.length > 0
-            ? safeInitial.sizes
+            ? safeInitial.sizes.map(size => ({
+                ...size,
+                ingredients: size.ingredients.map(ing => ({
+                    ...ing,
+                    // Đảm bảo name là string cho Select mode="tags"
+                    name: Array.isArray(ing.name) ? (ing.name[0] || "") : (ing.name || "")
+                }))
+            }))
             : [{ size: "Medium (M)", ingredients: [{ name: "", amount: "", unit: "" }] }]
     );
+
     const [steps, setSteps] = useState(
         Array.isArray(safeInitial.steps) && safeInitial.steps.length > 0
             ? safeInitial.steps
             : [""]
     );
-    const [note, setNote] = useState(typeof safeInitial.note === "string" ? safeInitial.note : "");
+
+    const [note, setNote] = useState(
+        typeof safeInitial.note === "string" ? safeInitial.note : ""
+    );
+
     const [preservation, setPreservation] = useState(
         typeof safeInitial.preservation === "string" ? safeInitial.preservation : ""
     );
+
     const [requirement, setRequirement] = useState(
         typeof safeInitial.requirement === "string" ? safeInitial.requirement : ""
     );
 
     // Thêm/xóa size
-    const addSize = () =>
+    const addSize = () => {
         setSizes([...sizes, { size: "", ingredients: [{ name: "", amount: "", unit: "" }] }]);
-    const removeSize = (idx) => setSizes(sizes.filter((_, i) => i !== idx));
+    };
+
+    const removeSize = (idx) => {
+        if (sizes.length > 1) {
+            setSizes(sizes.filter((_, i) => i !== idx));
+        }
+    };
 
     // Thêm/xóa thành phần trong size
     const addIngredient = (sizeIdx) => {
@@ -42,20 +61,50 @@ const RecipeForm = ({
         newSizes[sizeIdx].ingredients.push({ name: "", amount: "", unit: "" });
         setSizes(newSizes);
     };
+
     const removeIngredient = (sizeIdx, ingIdx) => {
         const newSizes = [...sizes];
-        newSizes[sizeIdx].ingredients.splice(ingIdx, 1);
-        setSizes(newSizes);
+        if (newSizes[sizeIdx].ingredients.length > 1) {
+            newSizes[sizeIdx].ingredients.splice(ingIdx, 1);
+            setSizes(newSizes);
+        }
     };
+
     const updateIngredient = (sizeIdx, ingIdx, key, value) => {
         const newSizes = [...sizes];
-        newSizes[sizeIdx].ingredients[ingIdx][key] = value;
+
+        if (key === "name") {
+            // Xử lý Select mode="tags" - chỉ lấy giá trị đầu tiên
+            if (Array.isArray(value)) {
+                newSizes[sizeIdx].ingredients[ingIdx][key] = value[0] || "";
+            } else {
+                newSizes[sizeIdx].ingredients[ingIdx][key] = value || "";
+            }
+        } else {
+            newSizes[sizeIdx].ingredients[ingIdx][key] = value;
+        }
+
+        setSizes(newSizes);
+    };
+
+    // Cập nhật size
+    const updateSize = (sizeIdx, newSize) => {
+        const newSizes = [...sizes];
+        newSizes[sizeIdx].size = newSize;
         setSizes(newSizes);
     };
 
     // Thêm/xóa/cập nhật bước
-    const addStep = () => setSteps([...steps, ""]);
-    const removeStep = (idx) => setSteps(steps.filter((_, i) => i !== idx));
+    const addStep = () => {
+        setSteps([...steps, ""]);
+    };
+
+    const removeStep = (idx) => {
+        if (steps.length > 1) {
+            setSteps(steps.filter((_, i) => i !== idx));
+        }
+    };
+
     const updateStep = (idx, value) => {
         const newArr = [...steps];
         newArr[idx] = value;
@@ -74,7 +123,12 @@ const RecipeForm = ({
     };
 
     return (
-        <Form layout="vertical" onFinish={handleFinish} initialValues={safeInitial} style={{ maxWidth: 700, margin: "0 auto" }}>
+        <Form
+            layout="vertical"
+            onFinish={handleFinish}
+            initialValues={safeInitial}
+            style={{ maxWidth: 700, margin: "0 auto" }}
+        >
             {/* Nhóm + Loại đồ uống trên 1 dòng */}
             <Row gutter={16}>
                 <Col span={12}>
@@ -110,15 +164,18 @@ const RecipeForm = ({
                     </Form.Item>
                 </Col>
             </Row>
+
             <Form.Item
                 label="Tên công thức"
                 name="name"
                 rules={[{ required: true, message: "Nhập tên công thức" }]}
                 style={{ marginBottom: 14 }}
             >
-                <Input size="large" />
+                <Input size="large" placeholder="Nhập tên công thức..." />
             </Form.Item>
+
             <Divider orientation="left">Thành phần theo size</Divider>
+
             {sizes.map((sz, sizeIdx) => (
                 <Card
                     key={sizeIdx}
@@ -131,13 +188,11 @@ const RecipeForm = ({
                                 style={{ width: 160, fontSize: 16 }}
                                 size="large"
                                 placeholder="Chọn size"
-                                onChange={v => {
-                                    const arr = [...sizes];
-                                    arr[sizeIdx].size = v;
-                                    setSizes(arr);
-                                }}
+                                onChange={v => updateSize(sizeIdx, v)}
                             >
-                                {sizeOptions.map(s => <Select.Option key={s}>{s}</Select.Option>)}
+                                {sizeOptions.map(s => (
+                                    <Select.Option key={s} value={s}>{s}</Select.Option>
+                                ))}
                             </Select>
                             {sizes.length > 1 && (
                                 <Button
@@ -168,12 +223,14 @@ const RecipeForm = ({
                                 placeholder="Chọn hoặc nhập thành phần"
                                 style={{ width: 240, fontSize: 16 }}
                                 size="large"
-                                value={ing.name}
+                                value={ing.name ? [ing.name] : []} // Chuyển thành array cho mode="tags"
                                 onChange={value => updateIngredient(sizeIdx, ingIdx, "name", value)}
                                 filterOption={(input, option) =>
                                     (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
                                 }
                                 allowClear
+                                maxTagCount={1} // Chỉ hiển thị 1 tag
+                                maxTagTextLength={20}
                             >
                                 {ingredientList.map(ingOpt => (
                                     <Select.Option key={ingOpt.id || ingOpt.name} value={ingOpt.name}>
@@ -228,6 +285,7 @@ const RecipeForm = ({
                     </Button>
                 </Card>
             ))}
+
             <Button
                 type="dashed"
                 icon={<PlusOutlined />}
@@ -236,7 +294,9 @@ const RecipeForm = ({
             >
                 Thêm size
             </Button>
+
             <Divider orientation="left">Các bước thực hiện</Divider>
+
             {steps.map((s, idx) => (
                 <div
                     key={idx}
@@ -266,38 +326,46 @@ const RecipeForm = ({
                     )}
                 </div>
             ))}
+
             <Button
                 type="dashed"
                 icon={<PlusOutlined />}
                 onClick={addStep}
-                style={{ width: 180, height: 44, fontSize: 16 }}
+                style={{ width: 180, height: 44, fontSize: 16, marginBottom: 16 }}
             >
                 Thêm bước
             </Button>
+
             <Form.Item label="Ghi chú">
                 <Input.TextArea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     autoSize={{ minRows: 1, maxRows: 3 }}
                     style={{ width: "100%", fontSize: 16 }}
+                    placeholder="Nhập ghi chú..."
                 />
             </Form.Item>
+
             <Form.Item label="Cách bảo quản">
                 <Input.TextArea
                     value={preservation}
                     onChange={(e) => setPreservation(e.target.value)}
                     autoSize={{ minRows: 1, maxRows: 3 }}
                     style={{ width: "100%", fontSize: 16 }}
+                    placeholder="Nhập cách bảo quản..."
                 />
             </Form.Item>
+
             <Form.Item label="Yêu cầu">
                 <Input.TextArea
                     value={requirement}
                     onChange={(e) => setRequirement(e.target.value)}
                     autoSize={{ minRows: 1, maxRows: 3 }}
                     style={{ width: "100%", fontSize: 16 }}
+                    placeholder="Nhập yêu cầu..."
                 />
             </Form.Item>
+
             <Form.Item style={{ marginTop: 16 }}>
                 <Button type="primary" htmlType="submit" loading={loading} block size="large">
                     {safeInitial && safeInitial.name ? "Cập nhật" : "Tạo công thức"}

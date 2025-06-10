@@ -26,17 +26,19 @@ const CartBox = ({
                      removeItem,
                      total,
                      handleCheckout,
+                     handleCheckoutQR,
                      setShowDrawer,
                      setShowQR,
                      loading,
                      isMobile,
-                     onEditTopping
+                     onEditTopping,
+                     isLandscape
                  }) => {
-    const [collapsed, setCollapsed] = useState(isMobile);
+    const [collapsed, setCollapsed] = useState(isMobile && !isLandscape);
 
     useEffect(() => {
-        setCollapsed(isMobile);
-    }, [isMobile]);
+        setCollapsed(isMobile && !isLandscape);
+    }, [isMobile,isLandscape]);
 
     // Tính discount và finalTotal
     let discount = 0;
@@ -63,7 +65,7 @@ const CartBox = ({
     };
 
     const handleCheckoutQRWithPromo = () => {
-        setShowQR({
+        handleCheckoutQR({
             promotion: promotionInfo,
             discount: discount || 0,
             finalTotal,
@@ -85,7 +87,7 @@ const CartBox = ({
                 display: "flex",
                 flexDirection: "column",
                 boxSizing: "border-box",
-                height:"80%"
+                height:"100%"
             } :  {
                 background: "#fff",
                 borderRadius: 14,
@@ -98,6 +100,7 @@ const CartBox = ({
                 display: "flex",
                 flexDirection: "column",
                 boxSizing: "border-box",
+                height:"100%"
             }}
         >
             {/* Khuyến mãi: chỉ hiển thị khi đã chọn */}
@@ -164,7 +167,7 @@ const CartBox = ({
             {!collapsed && (
                 <div
                     style={{
-                        height: "calc(100vh - 150px)", // hoặc "100%", hoặc "calc(100vh - [chiều cao header/footer])"
+                        height: "100%",
                         minHeight: 0,
                         overflowY: "auto",
                         padding: "0 20px",

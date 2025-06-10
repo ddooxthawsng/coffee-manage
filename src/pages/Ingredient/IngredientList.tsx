@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Button, message, Modal, Table, Tabs, Space, Tooltip, Popconfirm } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, ReloadOutlined, InboxOutlined } from "@ant-design/icons";
+import { Button, message, Modal, Table, Tabs, Space, Tooltip, Popconfirm, Input } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, ReloadOutlined, InboxOutlined, CopyOutlined, SearchOutlined } from "@ant-design/icons";
 import IngredientForm from "./IngredientForm";
 import ProductForm from "./ProductForm";
 import {
     createIngredient,
     deleteIngredient,
-    getIngredientsByType, updateAllOutputCostMinByInputId,
+    getIngredientsByType,
+    updateAllOutputCostMinByInputId,
     updateIngredient,
 } from "../../services/ingredientService";
 
 const { TabPane } = Tabs;
+const { Search } = Input;
 
 // Định nghĩa đơn vị và hệ số quy đổi
 const UNIT_GROUPS = [
@@ -27,6 +29,7 @@ const UNIT_GROUPS = [
 function findUnitGroup(unit: string) {
     return UNIT_GROUPS.find(g => g.units.some(u => u.value === unit));
 }
+
 function convertToBase(value: number, fromUnit: string, baseUnit: string) {
     const group = findUnitGroup(fromUnit);
     if (!group) return value;
@@ -47,12 +50,17 @@ const IngredientList: React.FC = () => {
     });
     const [formLoading, setFormLoading] = useState(false);
 
+    // State cho search
+    const [searchInputs, setSearchInputs] = useState("");
+    const [searchOutputs, setSearchOutputs] = useState("");
+
     // Load dữ liệu cho từng loại
     const fetchInputs = async () => {
         setLoading(true);
         setInputs(await getIngredientsByType("input"));
         setLoading(false);
     };
+
     const fetchOutputs = async () => {
         setLoading(true);
         setOutputs(await getIngredientsByType("output"));
@@ -63,6 +71,23 @@ const IngredientList: React.FC = () => {
         fetchInputs();
         fetchOutputs();
     }, []);
+
+    // Hàm lọc dữ liệu theo search
+    const getFilteredInputs = () => {
+        if (!searchInputs.trim()) return inputs;
+        return inputs.filter(item =>
+            item.name.toLowerCase().includes(searchInputs.toLowerCase()) ||
+            item.unit.toLowerCase().includes(searchInputs.toLowerCase())
+        );
+    };
+
+    const getFilteredOutputs = () => {
+        if (!searchOutputs.trim()) return outputs;
+        return outputs.filter(item =>
+            item.name.toLowerCase().includes(searchOutputs.toLowerCase()) ||
+            item.unit.toLowerCase().includes(searchOutputs.toLowerCase())
+        );
+    };
 
     const handleCreate = async (values: any) => {
         setFormLoading(true);
@@ -110,21 +135,64 @@ const IngredientList: React.FC = () => {
         setLoading(false);
     };
 
-    // Cột cho nguyên liệu thô (KHÔNG còn tồn kho, ngưỡng cảnh báo)
+    // Hàm nhân bản
+    const handleClone = (record: any, type: "input" | "output") => {
+        const clonedData = {
+            ...record,
+            name: `${record.name} (Bản sao)`,
+            id: undefined // Xóa ID để tạo mới
+        };
+        setModal({ open: true, item: clonedData, type });
+    };
+
+    // Cột cho nguyên liệu thô với search và clone
     const inputColumns = [
-        { title: "Tên", dataIndex: "name" },
-        { title: "Đơn vị", dataIndex: "unit" },
-        { title: "Giá cost (VNĐ)", dataIndex: "price", render: (v: number) => v?.toLocaleString() },
+        {
+            title: "Tên",
+            dataIndex: "name",
+            sorter: (a: any, b: any) => a.name.localeCompare(b.name, 'vi'),
+        },
+        {
+            title: "Đơn vị",
+            dataIndex: "unit",
+            filters: [...new Set(inputs.map(item => item.unit))].map(unit => ({ text: unit, value: unit })),
+            onFilter: (value: any, record: any) => record.unit === value,
+        },
+        {
+            title: "Giá cost (VNĐ)",
+            dataIndex: "price",
+            render: (v: number) => v?.toLocaleString(),
+            sorter: (a: any, b: any) => (a.price || 0) - (b.price || 0),
+        },
+        {
+            title: "Định lượng",
+            render: (_: any, record: any) => (
+                <span className="text-sm text-gray-600">
+                    {record.quantity} {record.quantityUnit || record.unit}
+                </span>
+            ),
+        },
         {
             title: "Thao tác",
             key: "actions",
+            width: 150,
             render: (_: any, record: any) => (
-                <Space size="middle">
+                <Space size="small">
                     <Tooltip title="Sửa">
                         <Button
                             type="text"
+                            size="small"
                             icon={<EditOutlined />}
                             onClick={() => setModal({ open: true, item: record, type: "input" })}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Nhân bản">
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<CopyOutlined />}
+                            onClick={() => handleClone(record, "input")}
+                            className="text-blue-600 hover:text-blue-800"
                         />
                     </Tooltip>
                     <Tooltip title="Xóa">
@@ -137,6 +205,7 @@ const IngredientList: React.FC = () => {
                         >
                             <Button
                                 type="text"
+                                size="small"
                                 danger
                                 icon={<DeleteOutlined />}
                             />
@@ -147,10 +216,19 @@ const IngredientList: React.FC = () => {
         },
     ];
 
-    // Cột cho thành phẩm (KHÔNG có tồn kho)
+    // Cột cho thành phẩm với search và clone
     const outputColumns = [
-        { title: "Tên", dataIndex: "name" },
-        { title: "Đơn vị", dataIndex: "unit" },
+        {
+            title: "Tên",
+            dataIndex: "name",
+            sorter: (a: any, b: any) => a.name.localeCompare(b.name, 'vi'),
+        },
+        {
+            title: "Đơn vị",
+            dataIndex: "unit",
+            filters: [...new Set(outputs.map(item => item.unit))].map(unit => ({ text: unit, value: unit })),
+            onFilter: (value: any, record: any) => record.unit === value,
+        },
         {
             title: "Công thức",
             dataIndex: "recipe",
@@ -172,9 +250,7 @@ const IngredientList: React.FC = () => {
                 record.recipe.forEach((item: any) => {
                     const ing = inputs.find((i) => i.id === item.ingredientId);
                     if (ing) {
-                        // Tính giá trên 1 đơn vị gốc của nguyên liệu thô
                         const pricePerUnit = ing.price / convertToBase(ing.quantity || 1, ing.quantityUnit || ing.unit, ing.unit);
-                        // Quy đổi số lượng phối trộn về đúng đơn vị gốc của nguyên liệu thô
                         const qtyBase = convertToBase(item.quantity || 0, item.unit || ing.unit, ing.unit);
                         total += qtyBase * pricePerUnit;
                     }
@@ -203,31 +279,41 @@ const IngredientList: React.FC = () => {
                 if (perUnitCostMin && perUnitCostMax && perUnitCostMin !== perUnitCostMax) {
                     return (
                         <span className="font-semibold text-blue-600">
-                    {perUnitCostMin.toLocaleString()} - {perUnitCostMax.toLocaleString()} đ/{outputUnit}
-                </span>
+                            {perUnitCostMin.toLocaleString()} - {perUnitCostMax.toLocaleString()} đ/{outputUnit}
+                        </span>
                     );
                 }
                 if (perUnitCostMin) {
                     return (
                         <span className="font-semibold text-blue-600">
-                    {perUnitCostMin.toLocaleString()} đ/{outputUnit}
-                </span>
+                            {perUnitCostMin.toLocaleString()} đ/{outputUnit}
+                        </span>
                     );
                 }
                 return <span className="text-gray-400">-</span>;
             }
         },
-
         {
             title: "Thao tác",
             key: "actions",
+            width: 150,
             render: (_: any, record: any) => (
-                <Space size="middle">
+                <Space size="small">
                     <Tooltip title="Sửa">
                         <Button
                             type="text"
+                            size="small"
                             icon={<EditOutlined />}
                             onClick={() => setModal({ open: true, item: record, type: "output" })}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Nhân bản">
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<CopyOutlined />}
+                            onClick={() => handleClone(record, "output")}
+                            className="text-blue-600 hover:text-blue-800"
                         />
                     </Tooltip>
                     <Tooltip title="Xóa">
@@ -240,6 +326,7 @@ const IngredientList: React.FC = () => {
                         >
                             <Button
                                 type="text"
+                                size="small"
                                 danger
                                 icon={<DeleteOutlined />}
                             />
@@ -267,9 +354,18 @@ const IngredientList: React.FC = () => {
                     />
                 </Tooltip>
             </div>
+
             <Tabs defaultActiveKey="input">
                 <TabPane tab="Nguyên liệu thô" key="input">
-                    <div className="flex justify-end mb-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                        <Search
+                            placeholder="Tìm kiếm theo tên nguyên liệu, đơn vị..."
+                            allowClear
+                            value={searchInputs}
+                            onChange={(e) => setSearchInputs(e.target.value)}
+                            style={{ maxWidth: 400 }}
+                            prefix={<SearchOutlined />}
+                        />
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
@@ -278,16 +374,37 @@ const IngredientList: React.FC = () => {
                             Thêm nguyên liệu thô
                         </Button>
                     </div>
+
+                    {searchInputs && (
+                        <div className="mb-3 text-sm text-gray-600">
+                            Tìm thấy <span className="font-medium text-blue-600">{getFilteredInputs().length}</span> kết quả
+                        </div>
+                    )}
+
                     <Table
-                        dataSource={inputs}
+                        dataSource={getFilteredInputs()}
                         rowKey="id"
                         loading={loading}
                         columns={inputColumns}
                         scroll={{ x: true }}
+                        pagination={{
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
+                        }}
                     />
                 </TabPane>
+
                 <TabPane tab="Thành phẩm" key="output">
-                    <div className="flex justify-end mb-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                        <Search
+                            placeholder="Tìm kiếm theo tên thành phẩm, đơn vị..."
+                            allowClear
+                            value={searchOutputs}
+                            onChange={(e) => setSearchOutputs(e.target.value)}
+                            style={{ maxWidth: 400 }}
+                            prefix={<SearchOutlined />}
+                        />
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
@@ -296,37 +413,51 @@ const IngredientList: React.FC = () => {
                             Thêm thành phẩm
                         </Button>
                     </div>
+
+                    {searchOutputs && (
+                        <div className="mb-3 text-sm text-gray-600">
+                            Tìm thấy <span className="font-medium text-blue-600">{getFilteredOutputs().length}</span> kết quả
+                        </div>
+                    )}
+
                     <Table
-                        dataSource={outputs}
+                        dataSource={getFilteredOutputs()}
                         rowKey="id"
                         loading={loading}
                         columns={outputColumns}
                         scroll={{ x: true }}
+                        pagination={{
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
+                        }}
                     />
                 </TabPane>
             </Tabs>
+
             <Modal
                 open={modal.open}
                 title={
-                    modal.item
+                    modal.item?.id
                         ? (modal.type === "input" ? "Cập nhật nguyên liệu thô" : "Cập nhật thành phẩm")
                         : (modal.type === "input" ? "Thêm nguyên liệu thô" : "Thêm thành phẩm")
                 }
                 onCancel={() => setModal({ open: false, item: null, type: modal.type })}
                 footer={null}
                 destroyOnClose
+                width={600}
             >
                 {modal.type === "input" ? (
                     <IngredientForm
                         initialValues={modal.item}
-                        onSubmit={modal.item ? handleEdit : handleCreate}
+                        onSubmit={modal.item?.id ? handleEdit : handleCreate}
                         loading={formLoading}
                     />
                 ) : (
                     <ProductForm
                         rawIngredients={inputs}
                         initialValues={modal.item}
-                        onSubmit={modal.item ? handleEdit : handleCreate}
+                        onSubmit={modal.item?.id ? handleEdit : handleCreate}
                         loading={formLoading}
                     />
                 )}

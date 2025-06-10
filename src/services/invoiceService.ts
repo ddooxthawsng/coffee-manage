@@ -10,6 +10,7 @@ import {
     Timestamp,
     updateDoc,
     where,
+    limit
 } from "firebase/firestore";
 
 // Thêm hóa đơn mới
@@ -36,9 +37,12 @@ export const getInvoices = async (filter = {}) => {
             wheres.push(where("createdAt", ">=", fromTimestamp));
             wheres.push(where("createdAt", "<=", toTimestamp));
         }
-
-        // Luôn order by ngày mới nhất
-        let queryRef = query(q, ...wheres, orderBy("createdAt", "desc"));
+        let queryRef;
+        if (filter.limit ) {
+            queryRef = query(q, ...wheres, orderBy("createdAt", "desc"), limit(filter.limit));
+        } else {
+            queryRef = query(q, ...wheres, orderBy("createdAt", "desc"));
+        }
 
         const querySnapshot = await getDocs(queryRef);
         console.log("querySnapshot.docs", querySnapshot.docs)
@@ -47,6 +51,8 @@ export const getInvoices = async (filter = {}) => {
             ...doc.data(),
         }));
     }catch (e){
+        console.log("EEEE",e)
+        return [];
     }
 };
 

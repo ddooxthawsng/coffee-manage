@@ -15,8 +15,8 @@ const RecentInvoiceModal = ({ open, onClose, invoices }) => (
             rowKey="id"
             size="small"
             columns={[
-                { title: "Mã hóa đơn", dataIndex: "id", width: 120 },
-                { title: "Tổng tiền", dataIndex: "total", render: v => v?.toLocaleString() + " ₫", width: 120 },
+                // { title: "Mã hóa đơn", dataIndex: "id", width: 120 },
+                { title: "Tổng tiền",    dataIndex: "total", render: v => v?.toLocaleString() + " ₫", width: 120 },
                 { title: "Ngày", dataIndex: "createdAt", render: v => v ? dayjs(v.toDate?.() || v).format("DD/MM/YYYY HH:mm") : "", width: 160 },
                 { title: "Giảm giá", dataIndex: "discount", render: v => v ? "-" + v.toLocaleString() + " ₫" : "0 ₫", width: 100 },
                 { title: "Thanh toán", dataIndex: "finalTotal", render: v => v?.toLocaleString() + " ₫", width: 120 },
