@@ -115,28 +115,28 @@ const MenuGrid: React.FC<Props> = ({ menu, addToCart }) => {
             <div className="mb-4 p-3 bg-white rounded-lg shadow-sm border border-gray-100">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-3">
                     {/* Search bar - Flexible width */}
-                    <div className="flex-1 min-w-0">
-                        <Input
-                            placeholder="Tìm kiếm (hỗ trợ không dấu): ca phe, cafe, cà phê..."
-                            prefix={<SearchOutlined className="text-gray-400" />}
-                            suffix={
-                                searchTerm ? (
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<ClearOutlined />}
-                                        onClick={handleClearSearch}
-                                        className="!p-0 !border-0 !shadow-none"
-                                    />
-                                ) : null
-                            }
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            size="middle"
-                            className="rounded-lg"
-                            allowClear
-                        />
-                    </div>
+                    {/*<div className="flex-1 min-w-0">*/}
+                    {/*    <Input*/}
+                    {/*        placeholder="Tìm kiếm (hỗ trợ không dấu): ca phe, cafe, cà phê..."*/}
+                    {/*        prefix={<SearchOutlined className="text-gray-400" />}*/}
+                    {/*        suffix={*/}
+                    {/*            searchTerm ? (*/}
+                    {/*                <Button*/}
+                    {/*                    type="text"*/}
+                    {/*                    size="small"*/}
+                    {/*                    icon={<ClearOutlined />}*/}
+                    {/*                    onClick={handleClearSearch}*/}
+                    {/*                    className="!p-0 !border-0 !shadow-none"*/}
+                    {/*                />*/}
+                    {/*            ) : null*/}
+                    {/*        }*/}
+                    {/*        value={searchTerm}*/}
+                    {/*        onChange={(e) => setSearchTerm(e.target.value)}*/}
+                    {/*        size="middle"*/}
+                    {/*        className="rounded-lg"*/}
+                    {/*        allowClear*/}
+                    {/*    />*/}
+                    {/*</div>*/}
 
                     {/* Controls - Fixed width */}
                     <div className="flex items-center gap-2 flex-shrink-0">

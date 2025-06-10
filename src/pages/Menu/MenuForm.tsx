@@ -59,12 +59,14 @@ const MenuForm: React.FC<MenuFormProps> = ({
                 rules={[{ required: true, message: "Chọn danh mục" }]}
             >
                 <Select>
-                    <Option value="Cà phê">Cà phê</Option>
-                    <Option value="Trà">Trà</Option>
+                    <Option value="Cà phê">Coffee</Option>
+                    <Option value="Trà">Tea</Option>
                     <Option value="Matcha">Matcha</Option>
-                    <Option value="Bánh mỳ">Bánh mỳ</Option>
+                    <Option value="Snack">Snack</Option>
                     <Option value="Topping">Topping</Option>
-                    <Option value="Khác">Khác</Option>
+                    <Option value="Cacao">Cacao</Option>
+                    <Option value="Yogourt">Yogourt</Option>
+                    <Option value="Khác">Other</Option>
                 </Select>
             </Form.Item>
             <Form.List name="sizes">
@@ -120,17 +122,18 @@ const MenuForm: React.FC<MenuFormProps> = ({
                                                 const unit = getUnitByOutputId(currentOutputId);
 
                                                 return (
-                                                    <Space key={of.key} align="baseline" className="flex flex-wrap mb-1">
+                                                    <div key={of.key} className="flex flex-wrap items-end gap-2 mb-2 w-full">
                                                         <Form.Item
                                                             {...of}
                                                             name={[of.name, "outputId"]}
                                                             rules={[{ required: true, message: "Chọn thành phẩm" }]}
+                                                            style={{ flex: 1, minWidth: '200px', marginBottom: 0 }}
                                                         >
                                                             <Select
                                                                 placeholder="Chọn thành phẩm"
-                                                                className="w-44"
                                                                 showSearch
                                                                 optionFilterProp="children"
+                                                                style={{ width: '100%' }}
                                                             >
                                                                 {outputs.map((out) => (
                                                                     <Option key={out.id} value={out.id}>
@@ -143,11 +146,12 @@ const MenuForm: React.FC<MenuFormProps> = ({
                                                             {...of}
                                                             name={[of.name, "quantity"]}
                                                             rules={[{ required: true, message: "Nhập định lượng" }]}
+                                                            style={{ width: '120px', marginBottom: 0 }}
                                                         >
                                                             <InputNumber
                                                                 min={0}
                                                                 placeholder="Định lượng"
-                                                                className="w-28"
+                                                                style={{ width: '100%' }}
                                                                 addonAfter={unit}
                                                             />
                                                         </Form.Item>
@@ -158,10 +162,11 @@ const MenuForm: React.FC<MenuFormProps> = ({
                                                                     danger
                                                                     icon={<DeleteOutlined />}
                                                                     onClick={() => removeOutput(of.name)}
+                                                                    style={{ marginBottom: 0 }}
                                                                 />
                                                             </Tooltip>
                                                         )}
-                                                    </Space>
+                                                    </div>
                                                 );
                                             })}
                                             <Button
@@ -176,6 +181,7 @@ const MenuForm: React.FC<MenuFormProps> = ({
                                         </>
                                     )}
                                 </Form.List>
+
                             </div>
                         ))}
                         <Button
