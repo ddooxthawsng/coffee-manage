@@ -473,7 +473,7 @@ const OrderPOS = () => {
     };
 
     return (
-        <div className="flex flex-row h-full w-full bg-gray-50 box-border no-zoom">
+        <div className="flex flex-row h-full w-full bg-gray-50 box-border no-zoom no-pull-refresh">
             <main className="flex-1 min-w-0 h-full flex overflow-hidden bg-gray-50 box-border"
                   style={{flexDirection: isLandscape ? "row" : "column"}}>
                 {isLandscape ? (

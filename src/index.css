@@ -44,3 +44,16 @@ html {
     -webkit-user-select: none;
     -webkit-touch-callout: none;
 }
+
+
+/* Chặn pull-to-refresh trên toàn trang */
+body {
+    overscroll-behavior: contain;
+    overscroll-behavior-y: contain;
+}
+
+/* Hoặc chặn trên container cụ thể */
+.no-pull-refresh {
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+}
