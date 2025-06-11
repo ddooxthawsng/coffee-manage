@@ -188,23 +188,40 @@ const PendingOrderModal = ({ open, onClose, orders, onFinishOrder }) => {
                 </div>
             }
             footer={null}
+            // Thay đổi để modal full màn hình
             width="100vw"
+            height="100vh"
             style={{
                 maxWidth: "100vw",
+                maxHeight: "100vh",
                 margin: 0,
-                top: 0
+                padding: 0,
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0
             }}
             styles={{
                 body: {
-                    maxHeight: "85vh",
                     overflowY: "auto",
                     padding: isSmallScreen ? "4px" : "12px",
                     background: "#f5f5f5"
+                },
+                content: {
+                    height: "100vh",
+                    borderRadius: 0
+                },
+                header: {
+                    borderRadius: 0,
+                    marginBottom: 0
                 }
             }}
-            className="!p-0"
+            className="!p-0 !m-0"
+            maskStyle={{
+                backgroundColor: 'rgba(0, 0, 0, 0.8)'
+            }}
         >
-            <div className="flex flex-col gap-1 sm:gap-3">
+            <div className="flex flex-col gap-1 sm:gap-3 h-full">
                 {[...orders]
                     .filter(order => order.status === "processing")
                     .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0))
