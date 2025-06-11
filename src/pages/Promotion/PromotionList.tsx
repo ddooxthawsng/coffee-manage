@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {Button, message, Modal, Table, Space, Tooltip, Popconfirm} from "antd";
-import {CheckCircleTwoTone, DeleteOutlined, EditOutlined, PlusOutlined, ExclamationCircleOutlined, TagOutlined, ReloadOutlined} from "@ant-design/icons";
+import {Button, message, Modal, Table, Space, Tooltip, Popconfirm, Tag} from "antd";
+import {CheckCircleTwoTone, DeleteOutlined, EditOutlined, PlusOutlined, ExclamationCircleOutlined, TagOutlined, ReloadOutlined, GiftOutlined, PercentageOutlined} from "@ant-design/icons";
 import {createPromotion, deletePromotion, getPromotions, updatePromotion,} from "../../services/promotionService";
 import PromotionForm from "./PromotionForm";
-
+import dayjs from "dayjs";
 const PromotionList: React.FC = () => {
     const [promotions, setPromotions] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -86,8 +86,8 @@ const PromotionList: React.FC = () => {
                 </h2>
                 <Space>
                     <Tooltip title="Làm mới dữ liệu">
-                        <Button 
-                            icon={<ReloadOutlined />} 
+                        <Button
+                            icon={<ReloadOutlined />}
                             onClick={fetchPromotions}
                             loading={loading}
                         />
@@ -110,56 +110,148 @@ const PromotionList: React.FC = () => {
                     {
                         title: "Mã khuyến mãi",
                         dataIndex: "code",
+                        width: 120,
+                        render: (code) => (
+                            <strong style={{ color: '#1890ff' }}>{code}</strong>
+                        ),
                     },
                     {
-                        title: "Loại giảm giá",
-                        dataIndex: "type",
-                        render: (type) => type === "percent" ? "Phần trăm" : "Số tiền",
+                        title: "Loại khuyến mãi",
+                        dataIndex: "promotionType",
+                        width: 140,
+                        render: (type) => {
+                            if (type === "buyXGetY") {
+                                return (
+                                    <Tag icon={<GiftOutlined />} color="green">
+                                        Mua X tặng Y
+                                    </Tag>
+                                );
+                            }
+                            return (
+                                <Tag icon={<PercentageOutlined />} color="blue">
+                                    Giảm giá
+                                </Tag>
+                            );
+                        },
                     },
                     {
-                        title: "Giá trị giảm",
-                        dataIndex: "value",
-                        render: (value, record) =>
-                            record.type === "percent"
-                                ? `${value}%`
-                                : `${value.toLocaleString()}đ`,
+                        title: "Chi tiết khuyến mãi",
+                        key: "details",
+                        width: 220,
+                        render: (_, record) => {
+                            if (record.promotionType === "buyXGetY") {
+                                return (
+                                    <div>
+                                        <div className="font-medium">
+                                            Mua {record.buyQuantity} tặng {record.freeQuantity}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {record.isAccumulative ? 'Có lũy kế' : 'Không lũy kế'}
+                                            {record.maxDiscount > 0 && (
+                                                <div>Tối đa: {record.maxDiscount?.toLocaleString()}đ</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            }
+
+                            const discountText = record.type === "percent"
+                                ? `${record.value}%`
+                                : `${record.value?.toLocaleString()}đ`;
+
+                            return (
+                                <div>
+                                    <div className="font-medium">
+                                        Giảm {discountText}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        {record.minOrder > 0 && (
+                                            <div>Đơn từ {record.minOrder?.toLocaleString()}đ</div>
+                                        )}
+                                        {record.maxDiscount > 0 && (
+                                            <div>Tối đa: {record.maxDiscount?.toLocaleString()}đ</div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        },
                     },
                     {
-                        title: "Ngày bắt đầu",
-                        dataIndex: "startDate",
-                        render: (date) => date ? date : "-",
+                        title: "Thời gian áp dụng",
+                        key: "dateRange",
+                        width: 160,
+                        render: (_, record) => {
+                            const startDate = record.startDate;
+                            const endDate = record.endDate;
+
+                            if (!startDate && !endDate) {
+                                return <Tag color="purple">Không giới hạn</Tag>;
+                            }
+
+                            return (
+                                <div className="text-sm">
+                                    {startDate && (
+                                        <div>Từ: {startDate}</div>
+                                    )}
+                                    {endDate && (
+                                        <div>Đến: {endDate}</div>
+                                    )}
+                                </div>
+                            );
+                        },
                     },
                     {
-                        title: "Ngày kết thúc",
-                        dataIndex: "endDate",
-                        render: (date) => date ? date : "-",
+                        title: "Trạng thái",
+                        key: "status",
+                        width: 100,
+                        render: (_, record) => {
+                            const now = dayjs();
+                            const startDate = record.startDate ? dayjs(record.startDate) : null;
+                            const endDate = record.endDate ? dayjs(record.endDate) : null;
+
+                            if (startDate && now.isBefore(startDate.startOf('day'))) {
+                                return <Tag color="orange">Sắp diễn ra</Tag>;
+                            }
+
+                            if (endDate && now.isAfter(endDate.endOf('day'))) {
+                                return <Tag color="red">Đã hết hạn</Tag>;
+                            }
+
+                            return <Tag color="green">Đang hoạt động</Tag>;
+                        },
                     },
                     {
                         title: "Mặc định",
                         key: "isDefault",
+                        width: 80,
+                        align: "center",
                         render: (_: any, record: any) =>
                             <CheckCircleTwoTone
                                 twoToneColor={record.isDefault ? "#52c41a" : "#d9d9d9"}
                                 title={record.isDefault ? "Mặc định" : "Đặt làm mặc định"}
-                                style={{fontSize: 22, verticalAlign: "middle", cursor: "pointer", marginRight: 8}}
+                                style={{fontSize: 22, verticalAlign: "middle", cursor: "pointer"}}
                                 onClick={() => !record.isDefault && handleSetDefault(record.id)}
                             />,
                     },
                     {
                         title: "Thao tác",
                         key: "actions",
+                        width: 100,
+                        fixed: "right",
                         render: (_: any, record: any) => (
-                            <Space size="middle">
+                            <Space size="small">
                                 <Tooltip title="Sửa">
                                     <Button
                                         icon={<EditOutlined/>}
                                         type="text"
+                                        size="small"
                                         onClick={() => setModal({open: true, item: record})}
                                     />
                                 </Tooltip>
                                 <Tooltip title="Xóa">
                                     <Popconfirm
-                                        title="Bạn có chắc muốn xóa khuyến mãi này?"
+                                        title="Xóa khuyến mãi"
+                                        description="Bạn có chắc muốn xóa khuyến mãi này?"
                                         onConfirm={() => handleDelete(record.id)}
                                         okText="Có"
                                         cancelText="Không"
@@ -168,6 +260,7 @@ const PromotionList: React.FC = () => {
                                         <Button
                                             icon={<DeleteOutlined/>}
                                             type="text"
+                                            size="small"
                                             danger
                                         />
                                     </Popconfirm>
@@ -176,13 +269,27 @@ const PromotionList: React.FC = () => {
                         ),
                     },
                 ]}
+                pagination={{
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} của ${total} khuyến mãi`,
+                    pageSizeOptions: ['10', '20', '50'],
+                    defaultPageSize: 10,
+                }}
             />
             <Modal
                 open={modal.open}
-                title={modal.item ? "Cập nhật khuyến mãi" : "Thêm khuyến mãi mới"}
+                title={
+                    <div className="flex items-center">
+                        <TagOutlined className="mr-2" />
+                        {modal.item ? "Cập nhật khuyến mãi" : "Thêm khuyến mãi mới"}
+                    </div>
+                }
                 onCancel={() => setModal({open: false, item: null})}
                 footer={null}
                 destroyOnClose
+                width={600}
             >
                 <PromotionForm
                     initialValues={modal.item}

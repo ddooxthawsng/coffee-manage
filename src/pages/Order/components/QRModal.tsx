@@ -8,17 +8,11 @@ const QRModal = ({
                      selectedQr,
                      setSelectedQr,
                      qrList,
-                     finalTotal,
-                     handleCheckoutQR,
                      loading,
                      cart,
-                     promotion,
-                     discount,
-                     setCart,
-                     // Thêm các props cần thiết cho luồng mới
+                     // Props cho luồng thanh toán QR
                      checkoutPayload,
                      setCheckoutPayload,
-                     invoiceId,
                      handleConfirmPaid
                  }) => {
     // Auto-select default QR code when modal opens
@@ -28,73 +22,26 @@ const QRModal = ({
             setSelectedQr(defaultQr || qrList[0]);
         }
     }, [showQR, qrList, selectedQr, setSelectedQr]);
+
     // Kiểm tra xem có đang trong trạng thái chờ thanh toán không
-    const isWaitingForPayment = checkoutPayload && checkoutPayload.tableNumber && !invoiceId;
-    // Trong QRModal component, thêm vào hàm đóng modal
+    const isWaitingForPayment = checkoutPayload && checkoutPayload.tableNumber;
+    const finalTotal = checkoutPayload?.finalTotal || 0;
+
+    // Đóng modal
     const handleCloseQR = () => {
         setShowQR(false);
         // Reset checkout payload nếu chưa hoàn thành
-        if (checkoutPayload && !invoiceId) {
+        if (checkoutPayload) {
             setCheckoutPayload(null);
         }
     };
 
-    // Xác nhận thanh toán (chỉ ghi nhận hóa đơn khi xác nhận đã thanh toán)
+    // Xác nhận thanh toán
     const handlePaymentConfirmation = async () => {
         try {
             await handleConfirmPaid();
-            notification.success({
-                message: 'Thanh toán thành công',
-                description: 'Đơn hàng đã được thanh toán và xử lý thành công!',
-                placement: 'top',
-                duration: 1,
-                style: {
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-                }
-            });
-            setShowQR(false);
-            setCart([]);
         } catch (error) {
             console.error('Payment confirmation error:', error);
-            notification.error({
-                message: 'Lỗi thanh toán',
-                description: 'Có lỗi xảy ra khi xác nhận thanh toán. Vui lòng thử lại.',
-                placement: 'top',
-                duration: 2
-            });
-        }
-    };
-
-
-    // Xác định màu button
-    const getButtonStyle = () => {
-        if (isWaitingForPayment) {
-            return {
-                background: "#1890ff",
-                borderColor: "#1890ff",
-                height: "auto",
-                padding: "14px 24px",
-                fontSize: 18,
-                fontWeight: "bold",
-                borderRadius: 12,
-                boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)",
-                width: "100%",
-                maxWidth: 280
-            };
-        } else {
-            return {
-                background: "#52c41a",
-                borderColor: "#52c41a",
-                height: "auto",
-                padding: "14px 24px",
-                fontSize: 18,
-                fontWeight: "bold",
-                borderRadius: 12,
-                boxShadow: "0 4px 12px rgba(82, 196, 26, 0.3)",
-                width: "100%",
-                maxWidth: 280
-            };
         }
     };
 
@@ -115,6 +62,7 @@ const QRModal = ({
                 maxHeight: "calc(100vh - 40px)",
                 overflowY: "auto",
             }}
+            title={isWaitingForPayment ? `Thanh toán QR - Bàn ${checkoutPayload.tableNumber}` : "Thanh toán QR"}
         >
             <div className="w-full">
                 <div className="mb-3">
@@ -133,12 +81,23 @@ const QRModal = ({
                     </Select>
                 </div>
 
-                {/* Hiển thị thông tin bàn nếu có */}
-                {isWaitingForPayment && checkoutPayload.tableNumber && (
-                    <div className="mb-3 p-2 bg-blue-50 rounded-lg">
-                        <span className="font-semibold text-blue-700">
-                            Bàn số: {checkoutPayload.tableNumber}
-                        </span>
+                {/* Hiển thị thông tin đơn hàng */}
+                {isWaitingForPayment && (
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="font-semibold text-blue-700 mb-2">
+                            Thông tin đơn hàng:
+                        </div>
+                        <div className="text-sm space-y-1">
+                            <div>Bàn số: <span className="font-semibold">{checkoutPayload.tableNumber}</span></div>
+                            <div>Loại: <span className="font-semibold">{checkoutPayload.orderTypeText}</span></div>
+                            <div>Tổng tiền: <span className="font-semibold text-blue-600">{finalTotal.toLocaleString()}đ</span></div>
+                            {checkoutPayload.promotion && (
+                                <div>Khuyến mãi: <span className="font-semibold text-green-600">{checkoutPayload.promotion.code}</span></div>
+                            )}
+                            {checkoutPayload.discount > 0 && (
+                                <div>Giảm giá: <span className="font-semibold text-orange-600">-{checkoutPayload.discount.toLocaleString()}đ</span></div>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -167,21 +126,31 @@ const QRModal = ({
                         </div>
 
                         <div className="flex flex-col md:w-1/2 justify-between items-center md:items-start text-center md:text-left">
-                            <p className="text-gray-600 mt-2">
+                            <p className="text-gray-600 mt-2 mb-4">
                                 {isWaitingForPayment
-                                    ? "Nhấn 'Tạo hóa đơn QR' để tạo hóa đơn, sau đó quét mã QR để thanh toán."
+                                    ? "Khách hàng quét mã QR này để thanh toán. Sau khi khách thanh toán xong, nhấn nút xác nhận bên dưới."
                                     : "Quét mã này bằng app ngân hàng để thanh toán đơn hàng."
                                 }
                             </p>
 
                             <Button
                                 type="primary"
-                                className="mt-4"
                                 size="large"
-                                style={getButtonStyle()}
+                                style={{
+                                    background: "#52c41a",
+                                    borderColor: "#52c41a",
+                                    height: "auto",
+                                    padding: "14px 24px",
+                                    fontSize: 18,
+                                    fontWeight: "bold",
+                                    borderRadius: 12,
+                                    boxShadow: "0 4px 12px rgba(82, 196, 26, 0.3)",
+                                    width: "100%",
+                                    maxWidth: 280
+                                }}
                                 onClick={handlePaymentConfirmation}
                                 loading={loading}
-                                disabled={!selectedQr || cart?.length === 0}
+                                disabled={!selectedQr || !isWaitingForPayment}
                             >
                                 Xác nhận đã thanh toán
                             </Button>

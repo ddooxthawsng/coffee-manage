@@ -14,7 +14,7 @@ import {getDefaultPromotion, getPromotions} from "../../services/promotionServic
 import {Button, Modal, notification, Tabs} from "antd";
 import {EyeOutlined, ReloadOutlined, TransactionOutlined} from "@ant-design/icons";
 import {useIsLandscape, usePendingOrders, useWindowWidth} from "./hooks.js"
-
+import { calculateDiscount } from "./utils/promotionUtils";
 const customTabStyle = {
     marginBottom: 4,
     background: "#f6f7fa",
@@ -247,7 +247,11 @@ const OrderPOS = () => {
     };
 
     // Tổng tiền trước giảm giá
-    const total = cart.reduce((sum, c) => sum + (c.price + (c.toppingTotal || 0)) * c.quantity, 0);
+    const total = cart.reduce((sum, item) => {
+        const itemTotal = (item.price + (item.toppingTotal || 0)) * item.quantity;
+        return sum + itemTotal;
+    }, 0);
+
 
     // Lọc menu theo tab
     let filteredMenu = [];
@@ -312,86 +316,88 @@ const OrderPOS = () => {
         }
     };
 
-    const doCheckoutCash = async ({promotion, discount, finalTotal}, tableNumber, orderData) => {
+    const { discount, promotionInfo, finalTotal } = calculateDiscount(selectedPromotion, cart, total);
+
+    const doCheckoutCash = async (payload, tableNumber, orderData) => {
         if (cart?.length === 0) return;
 
         const orderTypeText = orderData.orderType === "dine-in" ? "ngồi quán" : "mang về";
+        const { promotion, discount, finalTotal } = payload;
 
         Modal.confirm({
-            centered:true,
+            centered: true,
             title: "Xác nhận thanh toán",
             content: `Bạn có chắc chắn muốn thanh toán đơn hàng ${orderTypeText} bằng tiền mặt cho bàn số ${tableNumber}?`,
             okText: "Xác nhận",
             cancelText: "Hủy",
             onOk: async () => {
                 setLoading(true);
-                await createInvoice({
-                    items: cart.map(item => ({
-                        ...item,
-                        itemTotal: (item.price + (item.toppingTotal || 0)) * item.quantity,
-                    })),
-                    total: finalTotal + (discount || 0),
-                    discount,
-                    finalTotal,
-                    promotionId: promotion?.id || null,
-                    promotionCode: promotion?.code || null,
-                    promotionName: promotion?.name || null,
-                    promotionType: promotion?.type || null,
-                    promotionValue: promotion?.value || null,
-                    status: "processing",
-                    createdAt: new Date(),
-                    paymentMethod: "cash",
-                    createdUser: localStorage.getItem("email") || null,
-                    tableNumber,
-                    orderType: orderData.orderType,
-                });
-                notification.success({
-                    message: 'Thành công',
-                    description: `Đơn hàng ${orderTypeText} đã được tạo thành công!`,
-                    placement: 'top',
-                    duration: 2,
-                });
+                try {
+                    const invoiceData = {
+                        items: cart.map(item => ({
+                            ...item,
+                            itemTotal: (item.price + (item.toppingTotal || 0)) * item.quantity,
+                            customerNote: item.customerNote || null, // Thêm ghi chú khách hàng
+                        })),
+                        total: finalTotal + (discount || 0),
+                        discount,
+                        finalTotal,
+                        promotionId: promotion?.id || null,
+                        promotionCode: promotion?.code || null,
+                        promotionType: promotion?.promotionType || null,
+                        promotionBuyQuantity: promotion?.buyQuantity || null,
+                        promotionFreeQuantity: promotion?.freeQuantity || null,
+                        status: "processing",
+                        createdAt: new Date(),
+                        paymentMethod: "cash",
+                        createdUser: localStorage.getItem("email") || null,
+                        tableNumber,
+                        orderType: orderData.orderType,
+                    };
+
+                    await createInvoice(invoiceData);
+
+                    notification.success({
+                        message: 'Thành công',
+                        description: `Đơn hàng ${orderTypeText} đã được tạo thành công!`,
+                        placement: 'top',
+                        duration: 2,
+                    });
+
+                    setCart([]);
+                    setSelectedPromotion(null);
+                } catch (error) {
+                    notification.error({
+                        message: 'Lỗi',
+                        description: 'Có lỗi xảy ra khi tạo đơn hàng!',
+                        placement: 'top',
+                        duration: 3,
+                    });
+                }
                 setLoading(false);
-                setCart([]);
             },
         });
     };
 
-    const doCheckoutQR = async ({promotion, discount, finalTotal}, tableNumber, orderData) => {
+    // Cập nhật hàm doCheckoutQR
+    const doCheckoutQR = async (payload, tableNumber, orderData) => {
         if (cart?.length === 0) return;
 
-        // Nếu chưa có selectedQr, báo lỗi
-        if (!selectedQr) {
-            notification.error({message: "Vui lòng chọn mã QR!"});
-            return;
-        }
+        const orderTypeText = orderData.orderType === "dine-in" ? "ngồi quán" : "mang về";
+        const { promotion, discount, finalTotal } = payload;
 
-        setLoading(true);
-        const invoice = await createInvoice({
-            items: cart.map(item => ({
-                ...item,
-                itemTotal: (item.price + (item.toppingTotal || 0)) * item.quantity,
-            })),
-            total: finalTotal + (discount || 0),
-            discount,
-            finalTotal,
-            promotionId: promotion?.id || null,
-            promotionCode: promotion?.code || null,
-            promotionName: promotion?.name || null,
-            promotionType: promotion?.type || null,
-            promotionValue: promotion?.value || null,
-            status: "processing",
-            createdAt: new Date(),
-            paymentMethod: "qr",
-            qrId: selectedQr.id,
-            createdUser: localStorage.getItem("email") || null,
+        // Lưu thông tin checkout để sử dụng trong QR Modal
+        setCheckoutPayload({
+            ...payload,
             tableNumber,
-            orderType: orderData.orderType,
+            orderData,
+            orderTypeText
         });
-        setInvoiceId(invoice.id);
+
+        // Mở QR Modal
         setShowQR(true);
-        setLoading(false);
     };
+
 
     const handleCheckout = (payload) => {
         openTableModal("cash", payload);
@@ -402,29 +408,57 @@ const OrderPOS = () => {
     };
 
     const handleConfirmPaid = async () => {
-        // Nếu có thông tin checkout đang chờ (tức là vừa chọn QR xong)
-        if (checkoutPayload && checkoutPayload.tableNumber && checkoutPayload.orderData) {
-            await doCheckoutQR(
-                {
-                    promotion: checkoutPayload.promotion,
-                    discount: checkoutPayload.discount,
-                    finalTotal: checkoutPayload.finalTotal
-                },
-                checkoutPayload.tableNumber,
-                checkoutPayload.orderData
-            );
-            setCheckoutPayload(null);
-            return;
-        }
+        if (!checkoutPayload) return;
 
-        // Logic cũ cho trường hợp đã có invoice
-        if (invoiceId) {
-            await updateInvoiceStatus(invoiceId, "processing");
+        const { promotion, discount, finalTotal, tableNumber, orderData, orderTypeText } = checkoutPayload;
+
+        setLoading(true);
+        try {
+            const invoiceData = {
+                items: cart.map(item => ({
+                    ...item,
+                    itemTotal: (item.price + (item.toppingTotal || 0)) * item.quantity,
+                    customerNote: item.customerNote || null, // Thêm ghi chú khách hàng
+                })),
+                total: finalTotal + (discount || 0),
+                discount,
+                finalTotal,
+                promotionId: promotion?.id || null,
+                promotionCode: promotion?.code || null,
+                promotionType: promotion?.promotionType || null,
+                promotionBuyQuantity: promotion?.buyQuantity || null,
+                promotionFreeQuantity: promotion?.freeQuantity || null,
+                status: "processing",
+                createdAt: new Date(),
+                paymentMethod: "qr",
+                createdUser: localStorage.getItem("email") || null,
+                tableNumber,
+                orderType: orderData.orderType,
+            };
+
+            await createInvoice(invoiceData);
+
+            notification.success({
+                message: 'Thành công',
+                description: `Đơn hàng ${orderTypeText} đã được thanh toán thành công!`,
+                placement: 'top',
+                duration: 2,
+            });
+
+            setCart([]);
+            setSelectedPromotion(null);
+            setCheckoutPayload(null);
+            setShowQR(false);
+        } catch (error) {
+            notification.error({
+                message: 'Lỗi',
+                description: 'Có lỗi xảy ra khi xác nhận thanh toán!',
+                placement: 'top',
+                duration: 3,
+            });
+            throw error;
         }
-        setShowQR(false);
-        setCart([]);
-        setInvoiceId(null);
-        setSelectedQr(undefined);
+        setLoading(false);
     };
 
     const handleFinishOrder = async (invoiceId) => {

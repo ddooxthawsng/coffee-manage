@@ -1,21 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {Badge, Button, Select, Tooltip} from "antd";
+import {Badge, Button, Select, Tooltip, Alert} from "antd";
 import {CloseCircleOutlined, DollarOutlined, MobileOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import CartItemList from "./CartItemList";
-
-function isPromotionValidByDate(promo) {
-    if (!promo) return false;
-    const now = dayjs();
-    if (promo.startDate && now.isBefore(dayjs(promo.startDate))) return false;
-    if (promo.endDate && now.isAfter(dayjs(promo.endDate).endOf("day")))
-        return false;
-    return true;
-}
-
-function isPromotionUsable(promo, total) {
-    return promo && isPromotionValidByDate(promo) && (!promo.minOrder || total >= promo.minOrder);
-}
+import { calculateDiscount, isPromotionValidByDate, getPromotionDisplayText } from "../utils/promotionUtils";
 
 const CartBox = ({
                      cart,
@@ -36,21 +24,17 @@ const CartBox = ({
                  }) => {
     const [collapsed, setCollapsed] = useState(isMobile && !isLandscape);
 
+    const formatCurrency = (value) => {
+        if (value === null || value === undefined || isNaN(value)) return '0';
+        return Number(value).toLocaleString();
+    };
+
     useEffect(() => {
         setCollapsed(isMobile && !isLandscape);
-    }, [isMobile,isLandscape]);
+    }, [isMobile, isLandscape]);
 
-    // Tính discount và finalTotal
-    let discount = 0;
-    let promotionInfo = null;
-    if (isPromotionUsable(selectedPromotion, total)) {
-        discount =
-            selectedPromotion.type === "percent"
-                ? Math.round((total * selectedPromotion.value) / 100)
-                : selectedPromotion.value;
-        promotionInfo = selectedPromotion;
-    }
-    const finalTotal = Math.max(0, total - discount);
+    // Sử dụng logic tính toán từ promotionUtils
+    const { discount, promotionInfo, finalTotal, discountDetails } = calculateDiscount(selectedPromotion, cart, total);
 
     const validPromotions = Array.isArray(promotions)
         ? promotions.filter(p => isPromotionValidByDate(p))
@@ -103,8 +87,7 @@ const CartBox = ({
                 height:"100%"
             }}
         >
-            {/* Khuyến mãi: chỉ hiển thị khi đã chọn */}
-            {/*{selectedPromotion && (*/}
+            {/* Khuyến mãi */}
             <div style={{
                 padding: "14px 20px 4px 20px",
                 display: "flex",
@@ -130,36 +113,98 @@ const CartBox = ({
                 >
                     {validPromotions.map(p => (
                         <Select.Option key={p.id} value={p.id}>
-                            {p.name} {p.type === "percent" ? `(-${p.value}%)` : `(-${p.value.toLocaleString()}đ)`}
-                            {p.minOrder ? ` (Từ ${p.minOrder.toLocaleString()}đ)` : ""}
+                            {getPromotionDisplayText(p)}
+                            {p.minOrder ? ` (Từ ${formatCurrency(p.minOrder)}đ)` : ""}
+                            {p.startDate ? ` [${dayjs(p.startDate).format("DD/MM")}` : ""}
+                            {p.endDate ? ` - ${dayjs(p.endDate).format("DD/MM")}]` : (p.startDate ? "]" : "")}
                         </Select.Option>
                     ))}
                 </Select>
             </div>
-            {/*)}*/}
 
-            {/* Dòng tổng tiền + icon giỏ hàng */}
-            <div style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "2px 20px 2px 20px",
-                fontSize: 15
-            }}>
-                <div>
-                    Tạm tính: {(total - (discount ?? 0))?.toLocaleString()} đ (Giảm: -{discount?.toLocaleString()} đ)
+            {/* Hiển thị thông báo khuyến mãi */}
+            {selectedPromotion && discountDetails && (
+                <div style={{ padding: "0 20px 8px 20px" }}>
+                    {discountDetails.type === 'buyXGetY' && discount === 0 ? (
+                        <Alert
+                            message={`Cần ${discountDetails.requiredQuantity} món để được tặng ${selectedPromotion.freeQuantity} món (hiện có ${discountDetails.currentQuantity} món)`}
+                            type="warning"
+                            size="small"
+                            showIcon
+                        />
+                    ) : discountDetails.type === 'buyXGetY' && discount > 0 ? (
+                        <Alert
+                            message={`${discountDetails.description} - Tặng ${discountDetails.freeItemsCount} món rẻ nhất`}
+                            type="success"
+                            size="small"
+                            showIcon
+                        />
+                    ) : null}
                 </div>
-                <div style={{display: "flex", alignItems: "center", gap: 4}}>
-                    <Tooltip title={collapsed ? "Xem chi tiết giỏ hàng" : "Thu gọn giỏ hàng"}>
-                        <Badge count={cart.length} size="small" style={{background: "#1890ff"}}>
-                            <Button
-                                type="text"
-                                icon={<ShoppingCartOutlined/>}
-                                onClick={() => setCollapsed(!collapsed)}
-                                style={{fontSize: 20, color: "#1890ff", padding: 0}}
-                            />
-                        </Badge>
-                    </Tooltip>
+            )}
+
+            {/* Hiển thị cảnh báo nếu chưa đủ điều kiện minOrder */}
+            {selectedPromotion && selectedPromotion.minOrder > 0 && total < selectedPromotion.minOrder && (
+                <div style={{
+                    padding: "0 20px 8px 20px",
+                    color: "#faad14",
+                    fontSize: 13,
+                    fontWeight: 500
+                }}>
+                    Khuyến mãi này áp dụng cho đơn từ {formatCurrency(selectedPromotion.minOrder)}đ
+                </div>
+            )}
+
+            {/* Dòng tổng tiền - HIỂN THỊ ĐÚNG */}
+            <div style={{
+                padding: "2px 20px 2px 20px",
+                fontSize: 14
+            }}>
+                {/* Tạm tính */}
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 2
+                }}>
+                    <span>Tạm tính:</span>
+                    <span style={{ fontWeight: 500 }}>{formatCurrency(total)}đ</span>
+                </div>
+
+                {/* Giảm giá */}
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 2
+                }}>
+                    <span>Giảm giá:</span>
+                    <span style={{ color: "#faad14" }}>-{formatCurrency(discount)}đ</span>
+                </div>
+
+                {/* Thanh toán */}
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    fontWeight: 600,
+                    fontSize: 16,
+                    color: "#1890ff",
+                    borderTop: "1px solid #f0f0f0",
+                    paddingTop: 4
+                }}>
+                    <span>Thanh toán:</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <span>{formatCurrency(finalTotal)}đ</span>
+                        <Tooltip title={collapsed ? "Xem chi tiết giỏ hàng" : "Thu gọn giỏ hàng"}>
+                            <Badge count={cart.length} size="small" style={{background: "#1890ff"}}>
+                                <Button
+                                    type="text"
+                                    icon={<ShoppingCartOutlined/>}
+                                    onClick={() => setCollapsed(!collapsed)}
+                                    style={{fontSize: 18, color: "#1890ff", padding: 0}}
+                                />
+                            </Badge>
+                        </Tooltip>
+                    </div>
                 </div>
             </div>
 
@@ -171,7 +216,7 @@ const CartBox = ({
                         minHeight: 0,
                         overflowY: "auto",
                         padding: "0 20px",
-                        background: "#fff" // hoặc màu phù hợp
+                        background: "#fff"
                     }}
                 >
                     <CartItemList
@@ -183,7 +228,7 @@ const CartBox = ({
                 </div>
             )}
 
-            {/* 2 nút thanh toán trên 1 dòng, icon + text nhỏ */}
+            {/* 2 nút thanh toán */}
             <div style={{
                 borderTop: "1px solid #f0f0f0",
                 background: "#fff",

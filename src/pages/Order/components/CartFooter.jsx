@@ -1,18 +1,7 @@
 import React from "react";
-import { Button, Select } from "antd";
+import { Button, Select, Alert } from "antd";
 import dayjs from "dayjs";
-
-function isPromotionValidByDate(promo) {
-    if (!promo) return false;
-    const now = dayjs();
-    if (promo.startDate && now.isBefore(dayjs(promo.startDate))) return false;
-    if (promo.endDate && now.isAfter(dayjs(promo.endDate))) return false;
-    return true;
-}
-
-function isPromotionUsable(promo, total) {
-    return promo && isPromotionValidByDate(promo) && (!promo.minOrder || total >= promo.minOrder);
-}
+import { calculateDiscount, isPromotionValidByDate, getPromotionDisplayText } from "../utils/promotionUtils";
 
 const CartFooter = ({
                         promotions,
@@ -20,7 +9,7 @@ const CartFooter = ({
                         setSelectedPromotion,
                         total,
                         handleCheckout,
-                        setShowQR,
+                        handleCheckoutQR,
                         loading,
                         cart
                     }) => {
@@ -28,29 +17,14 @@ const CartFooter = ({
         ? promotions.filter(p => isPromotionValidByDate(p))
         : [];
 
-    let discount = 0;
-    let promotionInfo = null;
-    if (isPromotionUsable(selectedPromotion, total)) {
-        discount =
-            selectedPromotion.type === "percent"
-                ? Math.round((total * selectedPromotion.value) / 100)
-                : selectedPromotion.value;
-        promotionInfo = selectedPromotion;
-    }
-    const finalTotal = Math.max(0, total - discount);
-
+    const { discount, promotionInfo, finalTotal, discountDetails } = calculateDiscount(selectedPromotion, cart, total);
     const isCheckoutDisabled = cart?.length === 0 || loading;
 
-    const handleCheckoutWithPromo = () => {
-        handleCheckout({
-            promotion: promotionInfo,
-            discount,
-            finalTotal,
-        });
-    };
-
-    const handleCheckoutQRWithPromo = () => {
-        setShowQR(true); // chỉ mở modal QR
+    // Tạo payload cho checkout
+    const checkoutPayload = {
+        promotion: promotionInfo,
+        discount,
+        finalTotal,
     };
 
     return (
@@ -74,7 +48,7 @@ const CartFooter = ({
                 >
                     {validPromotions.map(p => (
                         <Select.Option key={p.id} value={p.id}>
-                            {p.name} {p.type === "percent" ? `(-${p.value}%)` : `(-${p.value.toLocaleString()}đ)`}
+                            {getPromotionDisplayText(p)}
                             {p.minOrder ? ` (Từ ${p.minOrder.toLocaleString()}đ)` : ""}
                             {p.startDate ? ` [${dayjs(p.startDate).format("DD/MM")}` : ""}
                             {p.endDate ? ` - ${dayjs(p.endDate).format("DD/MM")}]` : (p.startDate ? "]" : "")}
@@ -82,11 +56,41 @@ const CartFooter = ({
                     ))}
                 </Select>
             </div>
+
+            {/* Hiển thị thông báo khuyến mãi */}
+            {selectedPromotion && discountDetails && (
+                <div style={{ marginBottom: 8 }}>
+                    {discountDetails.type === 'buyXGetY' && discount === 0 ? (
+                        <Alert
+                            message={`Cần ${discountDetails.requiredQuantity} món để được tặng ${selectedPromotion.freeQuantity} món (hiện có ${discountDetails.currentQuantity} món)`}
+                            type="warning"
+                            size="small"
+                            showIcon
+                        />
+                    ) : discountDetails.type === 'buyXGetY' && discount > 0 ? (
+                        <Alert
+                            message={`${discountDetails.description} - Tặng ${discountDetails.freeItemsCount} món rẻ nhất`}
+                            type="success"
+                            size="small"
+                            showIcon
+                        />
+                    ) : discountDetails.type === 'regular' && discountDetails.isLimited && discount > 0 ? (
+                        <Alert
+                            message={discountDetails.description}
+                            type="success"
+                            size="small"
+                            showIcon
+                        />
+                    ) : null}
+                </div>
+            )}
+
             {selectedPromotion && selectedPromotion.minOrder && total < selectedPromotion.minOrder && (
                 <div style={{ color: "#faad14", marginBottom: 8, fontWeight: 500 }}>
                     Khuyến mãi này áp dụng cho đơn từ {selectedPromotion.minOrder.toLocaleString()}đ. Hiện không được áp dụng.
                 </div>
             )}
+
             <div style={{
                 marginBottom: 4,
                 display: "flex",
@@ -125,7 +129,7 @@ const CartFooter = ({
                 block
                 size="large"
                 style={{ marginBottom: 10, fontWeight: 600, borderRadius: 8 }}
-                onClick={handleCheckoutWithPromo}
+                onClick={() => handleCheckout(checkoutPayload)}
                 disabled={isCheckoutDisabled}
                 loading={loading}
             >
@@ -135,7 +139,7 @@ const CartFooter = ({
                 block
                 size="large"
                 style={{ fontWeight: 600, borderRadius: 8 }}
-                onClick={handleCheckoutQRWithPromo}
+                onClick={() => handleCheckoutQR(checkoutPayload)}
                 disabled={isCheckoutDisabled}
             >
                 Thanh toán QR

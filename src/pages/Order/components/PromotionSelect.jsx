@@ -1,14 +1,7 @@
 import React from "react";
 import { Select, message } from "antd";
 import dayjs from "dayjs";
-
-function isPromotionValidByDate(promo) {
-    if (!promo) return false;
-    const now = dayjs();
-    if (promo.startDate && now.isBefore(dayjs(promo.startDate))) return false;
-    if (promo.endDate && now.isAfter(dayjs(promo.endDate))) return false;
-    return true;
-}
+import { isPromotionValidByDate, getPromotionDisplayText } from "../utils/promotionUtils";
 
 const PromotionSelect = ({
                              promotions,
@@ -48,7 +41,7 @@ const PromotionSelect = ({
         >
             {validPromotions.map(p => (
                 <Select.Option key={p.id} value={p.id}>
-                    {p.name} {p.type === "percent" ? `(-${p.value}%)` : `(-${p.value.toLocaleString()}đ)`}
+                    {getPromotionDisplayText(p)}
                     {p.minOrder ? ` (Từ ${p.minOrder.toLocaleString()}đ)` : ""}
                     {p.startDate ? ` [${dayjs(p.startDate).format("DD/MM")}` : ""}
                     {p.endDate ? ` - ${dayjs(p.endDate).format("DD/MM")}]` : (p.startDate ? "]" : "")}
