@@ -70,12 +70,13 @@ const PromotionForm: React.FC<PromotionFormProps> = ({
             isDefault,
             startDate: values.startDate ? values.startDate.format("YYYY-MM-DD") : null,
             endDate: values.endDate ? values.endDate.format("YYYY-MM-DD") : null,
+            // Xử lý maxDiscount - SỬA ĐÂY
+            maxDiscount: values.maxDiscount && values.maxDiscount > 0 ? Number(values.maxDiscount) : null,
+            // Xử lý buyQuantity và freeQuantity
+            buyQuantity: values.promotionType === "buyXGetY" ? Number(values.buyQuantity) : null,
+            freeQuantity: values.promotionType === "buyXGetY" ? Number(values.freeQuantity) : null,
+            isAccumulative: values.promotionType === "buyXGetY" ? (values.isAccumulative ?? true) : null,
         };
-
-        // Xử lý dữ liệu theo loại khuyến mãi
-        if (values.promotionType === "discount") {
-            submitData.minOrder = values.minOrder || 0;
-        }
 
         onSubmit(submitData);
     };
@@ -95,7 +96,7 @@ const PromotionForm: React.FC<PromotionFormProps> = ({
                 maxDiscount: initialValues?.maxDiscount || undefined,
                 buyQuantity: initialValues?.buyQuantity || undefined,
                 freeQuantity: initialValues?.freeQuantity || undefined,
-                isAccumulative: initialValues?.isAccumulative || true, // Mặc định bật lũy kế
+                isAccumulative: initialValues?.isAccumulative !== undefined ? initialValues.isAccumulative : true,
             }}
             onFinish={handleFinish}
         >

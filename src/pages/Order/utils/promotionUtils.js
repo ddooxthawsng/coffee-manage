@@ -37,8 +37,8 @@ function calculateRegularDiscount(promo, total) {
             ? Math.round((total * Number(promo.value || 0)) / 100)
             : Number(promo.value || 0);
 
-        // Áp dụng giới hạn giảm tối đa
-        if (promo.maxDiscount && promo.maxDiscount > 0) {
+        // Áp dụng giới hạn giảm tối đa - SỬA ĐÂY
+        if (promo.maxDiscount && Number(promo.maxDiscount) > 0) {
             discount = Math.min(discount, Number(promo.maxDiscount));
         }
 
@@ -51,9 +51,9 @@ function calculateRegularDiscount(promo, total) {
             discountDetails: {
                 type: 'regular',
                 description: promo.type === "percent"
-                    ? `Giảm ${promo.value}%${promo.maxDiscount ? ` (tối đa ${Number(promo.maxDiscount).toLocaleString()}đ)` : ''}`
+                    ? `Giảm ${promo.value}%${promo.maxDiscount && Number(promo.maxDiscount) > 0 ? ` (tối đa ${Number(promo.maxDiscount).toLocaleString()}đ)` : ''}`
                     : `Giảm ${Number(promo.value).toLocaleString()}đ`,
-                isLimited: !!(promo.maxDiscount && promo.maxDiscount > 0 && promo.type === "percent")
+                isLimited: !!(promo.maxDiscount && Number(promo.maxDiscount) > 0 && promo.type === "percent")
             }
         };
     }
@@ -81,7 +81,10 @@ function calculateBuyXGetYDiscount(promo, cart, total) {
         item.quantity > 0
     );
 
+    console.log("Eligible items:", eligibleItems);
+
     if (eligibleItems.length === 0) {
+        console.log("No eligible items found");
         return {
             discount: 0,
             promotionInfo: null,
@@ -96,10 +99,12 @@ function calculateBuyXGetYDiscount(promo, cart, total) {
         };
     }
 
-    // Tạo danh sách tất cả món với giá đơn vị
+    // Tạo danh sách tất cả món với giá đơn vị (bao gồm topping)
     const allItemsWithPrice = [];
     eligibleItems.forEach(item => {
         const unitPrice = item.price + (item.toppingTotal || 0);
+        console.log(`Item: ${item.name}, unitPrice: ${unitPrice}, quantity: ${item.quantity}`);
+
         for (let i = 0; i < item.quantity; i++) {
             allItemsWithPrice.push({
                 ...item,
@@ -110,7 +115,13 @@ function calculateBuyXGetYDiscount(promo, cart, total) {
         }
     });
 
+    console.log("All items with price:", allItemsWithPrice);
+
+    // Tính tổng số lượng món đủ điều kiện
     const totalEligibleQuantity = allItemsWithPrice.length;
+    console.log("Total eligible quantity:", totalEligibleQuantity);
+
+    // Số món cần thiết cho 1 lần áp dụng = buyQuantity + freeQuantity
     const itemsPerSet = buyQuantity + freeQuantity;
 
     let applicableSets;
@@ -125,6 +136,7 @@ function calculateBuyXGetYDiscount(promo, cart, total) {
     console.log(`Items per set: ${itemsPerSet}, Applicable sets: ${applicableSets}, Accumulative: ${isAccumulative}`);
 
     if (applicableSets === 0) {
+        console.log("Not enough items for promotion");
         return {
             discount: 0,
             promotionInfo: promo,
@@ -141,18 +153,29 @@ function calculateBuyXGetYDiscount(promo, cart, total) {
 
     // Tổng số món được tặng
     const totalFreeItems = applicableSets * freeQuantity;
+    console.log("Total free items:", totalFreeItems);
 
     // Sắp xếp theo giá từ thấp đến cao để tặng những món rẻ nhất
     allItemsWithPrice.sort((a, b) => a.unitPrice - b.unitPrice);
+    console.log("Sorted items (cheapest first):", allItemsWithPrice.map(item => ({
+        name: item.name,
+        unitPrice: item.unitPrice
+    })));
 
     // Lấy những món rẻ nhất để tặng
     const freeItems = allItemsWithPrice.slice(0, totalFreeItems);
     let discount = freeItems.reduce((sum, item) => sum + item.unitPrice, 0);
 
     // Áp dụng giới hạn giảm tối đa
-    if (promo.maxDiscount && promo.maxDiscount > 0) {
+    if (promo.maxDiscount && Number(promo.maxDiscount) > 0) {
         discount = Math.min(discount, Number(promo.maxDiscount));
     }
+
+    console.log("Free items:", freeItems.map(item => ({
+        name: item.name,
+        unitPrice: item.unitPrice
+    })));
+    console.log("Total discount:", discount, "Max discount:", promo.maxDiscount);
 
     return {
         discount,
@@ -161,16 +184,17 @@ function calculateBuyXGetYDiscount(promo, cart, total) {
         freeItems,
         discountDetails: {
             type: 'buyXGetY',
-            description: `Mua ${buyQuantity} tặng ${freeQuantity}${!isAccumulative ? ' (không lũy kế)' : ` (áp dụng ${applicableSets} lần)`}${promo.maxDiscount ? ` - Giảm tối đa ${Number(promo.maxDiscount).toLocaleString()}đ` : ''}`,
+            description: `Mua ${buyQuantity} tặng ${freeQuantity}${!isAccumulative ? ' (không lũy kế)' : ` (áp dụng ${applicableSets} lần)`}${promo.maxDiscount && Number(promo.maxDiscount) > 0 ? ` - Giảm tối đa ${Number(promo.maxDiscount).toLocaleString()}đ` : ''}`,
             freeItemsCount: totalFreeItems,
             applicableSets,
             currentQuantity: totalEligibleQuantity,
             requiredQuantity: itemsPerSet,
             isAccumulative,
-            isLimited: !!(promo.maxDiscount && promo.maxDiscount > 0)
+            isLimited: !!(promo.maxDiscount && Number(promo.maxDiscount) > 0)
         }
     };
 }
+
 
 export function getPromotionDisplayText(promo) {
     if (!promo) return "";
