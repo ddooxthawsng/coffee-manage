@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Tag, message, Divider, Card, Tabs, Input, Select, Space, Popconfirm } from "antd";
-import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import React, {useEffect, useState} from "react";
+import {Button, Card, Divider, Input, message, Modal, Select, Space, Table, Tabs, Tag} from "antd";
+import {DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import CostForm from "./CostForm";
 import CostStats from "./CostStats";
-import {
-    getCosts,
-    createCost,
-    updateCost,
-    deleteCost,
-} from "../../services/costService";
+import {createCost, deleteCost, getCosts, updateCost,} from "../../services/costService";
+import {useAuthLogin} from "../../hooks/context/AuthContext.tsx";
 
 const { TabPane } = Tabs;
-const { Search } = Input;
+const {Search} = Input;
 
 const CostList: React.FC = () => {
     const [costs, setCosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [modal, setModal] = useState<any>({ open: false, item: null });
+    const [modal, setModal] = useState<any>({open: false, item: null});
     const [formLoading, setFormLoading] = useState(false);
 
     // State cho search và filter
@@ -55,7 +51,7 @@ const CostList: React.FC = () => {
         try {
             await createCost(values);
             message.success("Thêm chi phí thành công!");
-            setModal({ open: false, item: null });
+            setModal({open: false, item: null});
             fetchCosts();
         } catch {
             message.error("Lỗi khi thêm chi phí!");
@@ -68,7 +64,7 @@ const CostList: React.FC = () => {
         try {
             await updateCost(modal.item.id, values);
             message.success("Cập nhật thành công!");
-            setModal({ open: false, item: null });
+            setModal({open: false, item: null});
             fetchCosts();
         } catch {
             message.error("Lỗi khi cập nhật!");
@@ -87,19 +83,19 @@ const CostList: React.FC = () => {
         }
         setLoading(false);
     };
-
+    const {role} = useAuthLogin();
     // Hàm hiển thị modal xác nhận xóa với thông tin chi tiết
     const showDeleteConfirm = (record: any) => {
         Modal.confirm({
-            centered:true,
+            centered: true,
             title: (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ExclamationCircleOutlined style={{ color: 'red', fontSize: 20 }} />
+                <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                    <ExclamationCircleOutlined style={{color: 'red', fontSize: 20}}/>
                     <span>Xác nhận xóa chi phí</span>
                 </div>
             ),
             content: (
-                <div style={{ marginTop: 16 }}>
+                <div style={{marginTop: 16}}>
                     <div style={{
                         background: '#fff2f0',
                         border: '1px solid #ffccc7',
@@ -107,17 +103,17 @@ const CostList: React.FC = () => {
                         padding: 12,
                         marginBottom: 12
                     }}>
-                        <p style={{ margin: 0, fontWeight: 500 }}>
-                            Tên chi phí: <span style={{ color: '#cf1322' }}>"{record.name}"</span>
+                        <p style={{margin: 0, fontWeight: 500}}>
+                            Tên chi phí: <span style={{color: '#cf1322'}}>"{record.name}"</span>
                         </p>
-                        <p style={{ margin: '4px 0 0 0', fontSize: 13, color: '#666' }}>
+                        <p style={{margin: '4px 0 0 0', fontSize: 13, color: '#666'}}>
                             Nhóm: {record.group} | Số tiền: {record.amount?.toLocaleString('vi-VN')} ₫
                         </p>
-                        <p style={{ margin: '4px 0 0 0', fontSize: 13, color: '#666' }}>
+                        <p style={{margin: '4px 0 0 0', fontSize: 13, color: '#666'}}>
                             Ngày: {record.date}
                         </p>
                     </div>
-                    <p style={{ color: '#ff4d4f', margin: 0, fontSize: 14 }}>
+                    <p style={{color: '#ff4d4f', margin: 0, fontSize: 14}}>
                         ⚠️ <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
                     </p>
                 </div>
@@ -140,12 +136,12 @@ const CostList: React.FC = () => {
             title: "Tên chi phí",
             dataIndex: "name",
             sorter: (a: any, b: any) => a.name.localeCompare(b.name, 'vi'),
-            render: (text: string) => <span style={{ fontWeight: 500 }}>{text}</span>
+            render: (text: string) => <span style={{fontWeight: 500}}>{text}</span>
         },
         {
             title: "Nhóm",
             dataIndex: "group",
-            filters: groupOptions.map(group => ({ text: group.label, value: group.value })),
+            filters: groupOptions.map(group => ({text: group.label, value: group.value})),
             onFilter: (value: any, record: any) => record.group === value,
             render: (group: string) => {
                 const colorMap: Record<string, string> = {
@@ -162,9 +158,9 @@ const CostList: React.FC = () => {
             dataIndex: "amount",
             sorter: (a: any, b: any) => (a.amount || 0) - (b.amount || 0),
             render: (amount: number) => (
-                <span style={{ fontWeight: 600, color: '#d4380d' }}>
-                    {amount?.toLocaleString("vi-VN")} ₫
-                </span>
+                <span style={{fontWeight: 600, color: '#d4380d'}}>
+                        {amount?.toLocaleString("vi-VN")} ₫
+                    </span>
             ),
         },
         {
@@ -175,7 +171,7 @@ const CostList: React.FC = () => {
         {
             title: "Ghi chú",
             dataIndex: "note",
-            render: (note: string) => note || <span style={{ color: '#ccc' }}>-</span>
+            render: (note: string) => note || <span style={{color: '#ccc'}}>-</span>
         },
         {
             title: "Thao tác",
@@ -183,19 +179,19 @@ const CostList: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space size="small">
-                    <Button
+                    {role ? <><Button
                         type="text"
-                        icon={<EditOutlined />}
-                        onClick={() => setModal({ open: true, item: record })}
+                        icon={<EditOutlined/>}
+                        onClick={() => setModal({open: true, item: record})}
                         title="Sửa"
                     />
-                    <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => showDeleteConfirm(record)}
-                        title="Xóa"
-                    />
+                        <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined/>}
+                            onClick={() => showDeleteConfirm(record)}
+                            title="Xóa"
+                        /></> : <></>}
                 </Space>
             ),
         },
@@ -213,25 +209,25 @@ const CostList: React.FC = () => {
                                 allowClear
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ width: 300 }}
-                                prefix={<SearchOutlined />}
+                                style={{width: 300}}
+                                prefix={<SearchOutlined/>}
                             />
                             <Select
                                 placeholder="Lọc theo nhóm"
                                 allowClear
                                 value={groupFilter}
                                 onChange={setGroupFilter}
-                                style={{ width: 160 }}
+                                style={{width: 160}}
                                 options={groupOptions}
                             />
                         </div>
-                        <Button
+                        {role ? <Button
                             type="primary"
-                            icon={<PlusOutlined />}
-                            onClick={() => setModal({ open: true, item: null })}
+                            icon={<PlusOutlined/>}
+                            onClick={() => setModal({open: true, item: null})}
                         >
                             Thêm chi phí
-                        </Button>
+                        </Button> : <></>}
                     </div>
 
                     {/* Hiển thị kết quả tìm kiếm */}
@@ -243,13 +239,13 @@ const CostList: React.FC = () => {
                         </div>
                     )}
 
-                    <Divider />
+                    <Divider/>
 
                     <Table
                         dataSource={filteredCosts}
                         rowKey="id"
                         loading={loading}
-                        scroll={{ x: true }}
+                        scroll={{x: true}}
                         columns={columns}
                         pagination={{
                             showSizeChanger: true,
@@ -261,7 +257,7 @@ const CostList: React.FC = () => {
                     <Modal
                         open={modal.open}
                         title={modal.item ? "Cập nhật chi phí" : "Thêm chi phí"}
-                        onCancel={() => setModal({ open: false, item: null })}
+                        onCancel={() => setModal({open: false, item: null})}
                         footer={null}
                         destroyOnClose
                         width={500}
@@ -276,7 +272,7 @@ const CostList: React.FC = () => {
 
                 <TabPane tab="Thống kê chi phí" key="2">
                     <Card>
-                        <CostStats costs={costs} />
+                        <CostStats costs={costs}/>
                     </Card>
                 </TabPane>
             </Tabs>

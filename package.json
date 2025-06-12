@@ -27,12 +27,14 @@
     "react-router-dom": "^7.5.3",
     "recharts": "^2.15.3",
     "vietqr": "^1.1.9",
+    "xlsx": "^0.18.5",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
+    "@types/xlsx": "^0.0.35",
     "@vitejs/plugin-react": "^4.5.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.27.0",

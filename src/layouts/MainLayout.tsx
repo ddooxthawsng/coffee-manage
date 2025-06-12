@@ -28,7 +28,7 @@ const menuGroups = (role: boolean) => [
             {key: "orders", icon: <HomeOutlined style={{color: "#1890ff"}}/>, label: "Trang chủ (Bán hàng)"},
             role && {key: "menu", icon: <CoffeeOutlined style={{color: "#fa8c16"}}/>, label: "Menu"},
             role && {key: "inventory", icon: <DatabaseOutlined style={{color: "#52c41a"}}/>, label: "Nguyên liệu"},
-            role && {key: "cost", icon: <DollarOutlined style={{color: "#cf1322"}}/>, label: "Chi phí"},
+            {key: "cost", icon: <DollarOutlined style={{color: "#cf1322"}}/>, label: "Chi phí"},
             role && {key: "promotion", icon: <GiftOutlined style={{color: "#722ed1"}}/>, label: "Khuyến mãi"},
             {key: "receipt", icon: <BookOutlined style={{color: "#722ed1"}}/>, label: "Công thức"},
         ].filter(Boolean),
