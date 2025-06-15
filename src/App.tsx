@@ -32,7 +32,7 @@ const App: React.FC = () => {
                         <Route path="inventory" element={<IngredientList/>}/>
                         <Route path="users" element={<UserList/>}/>
                         <Route path="promotion" element={<PromotionList/>}/>
-
+                        <Route path="cost" element={<CostList/>}/>
                         <Route path="qrcode" element={<QRCodeList/>}/>
                         <Route path="orders" element={<OrderPOS/>}/>
                         <Route path="invoices" element={<InvoiceList/>}/>

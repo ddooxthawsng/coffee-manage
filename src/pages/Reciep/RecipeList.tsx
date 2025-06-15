@@ -4,6 +4,7 @@ import RecipeForm from "./RecipeForm";
 import {createRecipe, deleteRecipe, getRecipes, updateRecipe,} from "../../services/receiptService";
 import {DeleteOutlined, EditOutlined, EyeOutlined,CopyOutlined} from "@ant-design/icons";
 import {getIngredientsByType} from "../../services/ingredientService.ts";
+import html2pdf from "html2pdf.js";
 
 const RecipeDetail = ({recipe,onClone}) => {
     if (!recipe) return null;
@@ -405,6 +406,171 @@ const RecipeList = () => {
         }, 100);
     };
 
+    const exportRecipesToPDF = () => {
+        // Chuẩn bị dữ liệu như trong exportRecipesToHTML
+        const typeNames = {
+            cafe: "Cà phê",
+            tra: "Trà",
+            kem: "Kem",
+            matcha: "Matcha",
+            banhmy: "Bánh Mỳ",
+            khac: "Khác"
+        };
+        const groupNames = {
+            "cong-thuc-pha-che": "Công thức pha chế",
+            "chuan-bi-nguyen-lieu": "Chuẩn bị nguyên liệu",
+            khac: "Khác"
+        };
+
+        // Mỗi công thức là 1 trang
+        let html = `
+    <style>
+       .pdf-page {
+        page-break-after: always;
+        padding: 32px 24px 24px 24px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #fff;
+        min-height: 1000px;
+        box-sizing: border-box;
+    }
+
+    .pdf-recipe-block {
+        margin-bottom: 40px;
+        border-bottom: 1px dashed #ddd;
+        padding-bottom: 24px;
+    }
+
+    .pdf-recipe-title {
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+        .pdf-recipe-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .pdf-tags {
+            margin-bottom: 14px;
+        }
+        .pdf-tag {
+            display: inline-block;
+            border-radius: 4px;
+            padding: 2px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #fafafa;
+            color: #888;
+            border: 1px solid #eee;
+            margin-right: 8px;
+        }
+        .pdf-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 14px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px #f0f5ff;
+        }
+        .pdf-table th, .pdf-table td {
+            padding: 8px 12px;
+            font-size: 15px;
+            text-align: center;
+            border: 1px solid #e6f7ff;
+        }
+        .pdf-section-title {
+            font-weight: bold;
+            color: #222;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+        ul {
+            margin: 0 0 0 20px;
+            padding: 0;
+        }
+        .pdf-info {
+            margin-top: 8px;
+            margin-bottom: 2px;
+            color: #444;
+            font-size: 15px;
+        }
+        .pdf-label {
+            font-weight: bold;
+            color: #1765ad;
+            margin-right: 4px;
+        }
+    </style>
+    `;
+
+        for (let i = 0; i < filteredRecipes.length; i += 2) {
+            html += `<div class="pdf-page">`;
+
+            for (let j = i; j < i + 2 && j < filteredRecipes.length; j++) {
+                const recipe = filteredRecipes[j];
+                const sizes = recipe.sizes || [];
+                const allIngredients = Array.from(
+                    new Set(sizes.flatMap(sz => sz.ingredients.map(ing => ing.name)))
+                );
+
+                html += `
+                <div class="pdf-recipe-block">
+                    <div class="pdf-recipe-title">${recipe.name || "Không tên"}</div>
+                    <table class="pdf-table">
+                        <thead>
+                            <tr>
+                                <th>Thành phần</th>
+                                ${sizes.map(sz => `<th>${sz.size}</th>`).join("")}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${allIngredients.map(name => `
+                                <tr>
+                                    <td>${name}</td>
+                                    ${sizes.map(sz => {
+                    const found = sz.ingredients.find(ing => ing.name === name);
+                    return `<td>${found ? `${found.amount} ${found.unit || ""}` : "-"}</td>`;
+                }).join("")}
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                    <div class="pdf-section-title">Các bước thực hiện:</div>
+                    <ul>
+                        ${(recipe.steps || []).map(s => `<li>${s}</li>`).join("")}
+                    </ul>
+                    ${recipe.note ? `<div class="pdf-info"><span class="pdf-label">Ghi chú:</span>${recipe.note}</div>` : ""}
+                    ${recipe.preservation ? `<div class="pdf-info"><span class="pdf-label">Cách bảo quản:</span>${recipe.preservation}</div>` : ""}
+                    ${recipe.requirement ? `<div class="pdf-info"><span class="pdf-label">Yêu cầu:</span>${recipe.requirement}</div>` : ""}
+                </div>
+                `;
+            }
+
+            html += `</div>`;
+        }
+
+        // Tạo element ẩn để render
+        const container = document.createElement("div");
+        container.innerHTML = html;
+        document.body.appendChild(container);
+
+        // Export PDF
+        html2pdf()
+            .set({
+                margin:       0,
+                filename:     'danh-sach-cong-thuc.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            })
+            .from(container)
+            .save()
+            .then(() => {
+                document.body.removeChild(container);
+            });
+    };
+
     const handleCloneRecipe = (recipe) => {
         // Tạo bản sao, đổi tên, xóa id nếu có
         const newRecipe = {
@@ -441,6 +607,13 @@ const RecipeList = () => {
                         style={{marginLeft: 8}}
                     >
                         Export HTML
+                    </Button>
+                    <Button
+                        type="default"
+                        onClick={exportRecipesToPDF}
+                        style={{marginLeft: 8}}
+                    >
+                        Export PDF
                     </Button>
                 </div>
             </div>

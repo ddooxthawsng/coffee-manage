@@ -118,12 +118,16 @@ const OrderPOS = () => {
         }
     };
 
+    const [defaultPromo,setDefaultPromo] = useState<any>(undefined)
     useEffect(() => {
         loadMenuData();
         getQRCodes().then(setQrList);
         getPromotions().then(setPromotions);
         getDefaultPromotion().then((promo) => {
-            if (promo) setSelectedPromotion(promo);
+            if (promo) {setSelectedPromotion(promo);
+                setDefaultPromo(promo)
+            }
+
         });
     }, []);
 
@@ -365,7 +369,8 @@ const OrderPOS = () => {
                     });
 
                     setCart([]);
-                    setSelectedPromotion(null);
+
+                        setSelectedPromotion(selectedPromotion ? (defaultPromo ?? null):null);
                 } catch (error) {
                     notification.error({
                         message: 'Lỗi',
@@ -384,7 +389,6 @@ const OrderPOS = () => {
         if (cart?.length === 0) return;
 
         const orderTypeText = orderData.orderType === "dine-in" ? "ngồi quán" : "mang về";
-        const { promotion, discount, finalTotal } = payload;
 
         // Lưu thông tin checkout để sử dụng trong QR Modal
         setCheckoutPayload({
@@ -446,7 +450,7 @@ const OrderPOS = () => {
             });
 
             setCart([]);
-            setSelectedPromotion(null);
+            setSelectedPromotion(selectedPromotion ? (defaultPromo ?? null):null);
             setCheckoutPayload(null);
             setShowQR(false);
         } catch (error) {
